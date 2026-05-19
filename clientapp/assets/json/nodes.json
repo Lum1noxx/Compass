@@ -1,0 +1,50 @@
+[
+    {
+        "name": "com3 bus stop",
+        "lat": 0,
+        "lng": 0,
+        "floor": -2
+    },
+    {
+        "name": "d1 at com3",
+        "lat": 0,
+        "lng": 0,
+        "floor": 1
+    },
+    {
+        "name": "terrace",
+        "lat": 1,
+        "lng": 1,
+        "floor": 1
+    },
+    {
+        "name": "sr14",
+        "lat": 1,
+        "lng": 0,
+        "floor": 1
+    },
+    {
+        "name": "utown bus stop",
+        "lat": 10,
+        "lng": 9,
+        "floor": 1
+    },
+    {
+        "name": "d1 at utown",
+        "lat": 10,
+        "lng": 9,
+        "floor": 1
+    },
+    {
+        "name": "flavours",
+        "lat": 10,
+        "lng": 10,
+        "floor": 1
+    },
+    {
+        "name": "utr",
+        "lat": 11,
+        "lng": 9,
+        "floor": 1
+    }
+]
