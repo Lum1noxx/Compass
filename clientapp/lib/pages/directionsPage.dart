@@ -200,14 +200,25 @@ class MapMarker extends StatelessWidget {
 
 
 class SearchBar extends StatelessWidget {
-  const SearchBar(this.onChangeCallback);
+  SearchBar(this.onChangeCallback){
+    focusNode.addListener((){
+      if (focusNode.hasFocus) {
+        controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+      }
+    });
+  }
+  final TextEditingController controller = TextEditingController();
+  final FocusNode focusNode = FocusNode();
   final void Function(String) onChangeCallback;
   @override
   Widget build(BuildContext context) {
     return TextField(
+      focusNode: focusNode,
+      controller: controller,
       onChanged: onChangeCallback,
       selectAllOnFocus: true,
       enableInteractiveSelection: true,
+      onEditingComplete: () => focusNode.unfocus(),
       );
   }
 }
