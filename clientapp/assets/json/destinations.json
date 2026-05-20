@@ -1,51 +1,51 @@
 [
     {
         "name": "com3 bus stop",
-        "lat": 0.1,
-        "lng": 0.1,
+        "lat": 1.294911,
+        "lng": 103.775010,
         "floor": -2
     },
     {
         "name": "terrace",
-        "lat": 1.1,
-        "lng": 1.1,
+        "lat": 1.294496,
+        "lng": 103.774487,
         "floor": 1
     },
     {
         "name": "sr14",
-        "lat": 1.1,
-        "lng": 0.1,
+        "lat": 1.294992,
+        "lng": 103.774141,
         "floor": 1
     },
     {
         "name": "com3",
-        "lat": 0.5,
-        "lng": 0.5,
+        "lat": 1.2947,
+        "lng": 103.7744,
         "floor": 1        
     },
 
     {
         "name": "utown bus stop",
-        "lat": 10.1,
-        "lng": 9.1,
+        "lat": 1.303543,
+        "lng": 103.774401,
         "floor": 1
     },
     {
         "name": "flavours",
-        "lat": 10.1,
-        "lng": 10.1,
+        "lat": 1.304235,
+        "lng": 103.772964,
         "floor": 1
     },
     {
         "name": "utr",
-        "lat": 11.1,
-        "lng": 9.1,
+        "lat": 1.305144,
+        "lng": 103.773924,
         "floor": 1
     },
     {
         "name": "utown",
-        "lat": 10.5,
-        "lng": 9.5,
+        "lat": 1.304,
+        "lng": 103.7735,
         "floor": 1        
     }
 ]

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
 import 'package:woozy_search/woozy_search.dart';
 
@@ -9,6 +10,10 @@ class Coordinate {
   final double lat;
   final double lng;
   final int floor;
+
+  LatLng getLatLng() {
+    return LatLng(lat, lng);
+  }
 
   @override
   String toString() {
@@ -26,6 +31,9 @@ class Node {
     // TODO: implement toString
     return 'node: $name at $coordinate';
   }
+  LatLng getLatLng() {
+    return coordinate.getLatLng();
+  }
 }
 
 class Destination {
@@ -39,6 +47,9 @@ class Destination {
   String toString() {
     // TODO: implement toString
     return 'destination: $name at $coordinate';
+  }
+  LatLng getLatLng() {
+    return coordinate.getLatLng();
   }
 }
 
@@ -155,7 +166,7 @@ class Destinations {
   late Woozy autocompleteEngine;
 
   Destination get(String name) {
-    return Destination(name, Coordinate(0, 1, 2));
+    return map[name]!;
   }
   List<String> autocomplete(String query) {
     return [
