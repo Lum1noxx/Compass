@@ -50,9 +50,10 @@ class _CampusMapState extends State<CampusMap> {
       listenable: widget.vm,
       builder: (ctx, child)=>FlutterMap(
         options: MapOptions(
-          initialCenter: LatLng(1.2966, 103.7764),
+          initialCenter: widget.vm.currentSelection == null ? LatLng(1.2966, 103.7764) : widget.vm.currentSelection.getLatLng(),
           initialZoom: 14,
         ),
+        mapController: widget.vm.mapController,
         children: [
           TileLayer(
             // urlTemplate: 'assets/map/{z}/{x}/{y}.png', // backup in case OSM screws us over: download and bundle map tiles
@@ -66,31 +67,7 @@ class _CampusMapState extends State<CampusMap> {
             )
           
           ),
-          MarkerLayer(markers: [
-            for (Edge edge in widget.vm.mapPath) // all start nodes
-              Marker(point: edge.start.getLatLng(),
-                child: PathNodeMarker()),
-            if (widget.vm.mapPath.isNotEmpty) // final end node
-              Marker(point: widget.vm.mapPath.last.end.getLatLng(), 
-                child: PathNodeMarker()),
-            if (widget.vm.mapStartDest != null) // start destination
-              Marker(point: widget.vm.mapStartDest!.getLatLng(),
-                child: PathStartMarker()),
-            if (widget.vm.mapEndDest != null) // end destination
-              Marker(point: widget.vm.mapEndDest!.getLatLng(),
-                child: PathEndMarker()),
-            if (widget.vm.newStartDest != null)
-              if (widget.vm.settingEnd)
-                Marker(point: widget.vm.newStartDest!.getLatLng(), child: NewChosenMarker())
-              else
-                Marker(point: widget.vm.newStartDest!.getLatLng(), child: SelectingMarker()),
-            if (widget.vm.newEndDest != null)
-              if (!widget.vm.settingEnd)
-                Marker(point: widget.vm.newEndDest!.getLatLng(), child: NewChosenMarker())
-              else
-                Marker(point: widget.vm.newEndDest!.getLatLng(), child: SelectingMarker())
-          ]),
-          PolylineLayer(polylines: [
+           PolylineLayer(polylines: [
             for (Edge edge in widget.vm.mapPath) // edges between nodes 
               Polyline(
                 points: [
@@ -122,6 +99,35 @@ class _CampusMapState extends State<CampusMap> {
               ]
 
           ]),
+          MarkerLayer(markers: [
+            for (Edge edge in widget.vm.mapPath) // all start nodes
+              Marker(point: edge.start.getLatLng(),
+                child: PathNodeMarker(onTap: () => widget.vm.selectNode(edge.start),)),
+            if (widget.vm.mapPath.isNotEmpty) // final end node
+              Marker(point: widget.vm.mapPath.last.end.getLatLng(), 
+                child: PathNodeMarker(onTap: () => widget.vm.selectNode(widget.vm.mapPath.last.end))),
+            if (widget.vm.mapStartDest != null) // start destination
+              Marker(point: widget.vm.mapStartDest!.getLatLng(),
+                child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.mapStartDest!),)),
+            if (widget.vm.mapEndDest != null) // end destination
+              Marker(point: widget.vm.mapEndDest!.getLatLng(),
+                child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.mapEndDest!))),
+            if (widget.vm.newStartDest != null)
+              if (widget.vm.settingEnd)
+                Marker(point: widget.vm.newStartDest!.getLatLng(),
+                child: NewChosenMarker(onTap: () => widget.vm.setDest(widget.vm.newStartDest!)))
+              else
+                Marker(point: widget.vm.newStartDest!.getLatLng(),
+                child: SelectingMarker(onTap: () => widget.vm.setDest(widget.vm.newStartDest!))),
+            if (widget.vm.newEndDest != null)
+              if (!widget.vm.settingEnd)
+                Marker(point: widget.vm.newEndDest!.getLatLng(),
+                child: NewChosenMarker(onTap: () => widget.vm.setDest(widget.vm.newEndDest!)))
+              else
+                Marker(point: widget.vm.newEndDest!.getLatLng(),
+                child: SelectingMarker(onTap: () => widget.vm.setDest(widget.vm.newEndDest!)))
+          ]),
+         
           RichAttributionWidget(
             attributions: [
               TextSourceAttribution(
@@ -132,30 +138,28 @@ class _CampusMapState extends State<CampusMap> {
           )
         
       ]));
-    
-    
 
   }
 }
 
 class PathNodeMarker extends MapMarker {
-  const PathNodeMarker() : super(hollow:  false, color:  Colors.orange, highlighted:  false);
+  const PathNodeMarker({super.onTap}) : super(hollow:  false, color:  Colors.orange, highlighted:  false);
 }
 
 class PathStartMarker extends MapMarker {
-  const PathStartMarker() : super(hollow:  false, color:  Colors.red, highlighted:  false);
+  const PathStartMarker({super.onTap}) : super(hollow:  false, color:  Colors.red, highlighted:  false);
 }
 
 class PathEndMarker extends MapMarker {
-  const PathEndMarker() : super(hollow:  false, color:  Colors.green, highlighted:  false);
+  const PathEndMarker({super.onTap}) : super(hollow:  false, color:  Colors.green, highlighted:  false);
 }
 
 class NewChosenMarker extends MapMarker {
-  const NewChosenMarker() : super(hollow:  true, color:  Colors.pink, highlighted:  false);
+  const NewChosenMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  false);
 }
 
 class SelectingMarker extends MapMarker {
-  const SelectingMarker() : super(hollow:  true, color:  Colors.pink, highlighted:  true);
+  const SelectingMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  true);
 }
 
 
@@ -179,12 +183,12 @@ class MapMarker extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: SizedBox(
-        width: 20,
-        height: 20,
+        width: 40,
+        height: 40,
         child: Center(
           child: Container(
-            width: highlighted ? 15 : 10,
-            height: highlighted ? 15 : 10,
+            width: highlighted ? 20 : 15,
+            height: highlighted ? 20 : 15,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: hollow ? Colors.transparent : color,
@@ -233,7 +237,7 @@ class DestinationList extends StatefulWidget {
 class _DestinationListState extends State<DestinationList> {
   @override
   Widget build(BuildContext context) {
-    void Function(String) onPressCallback = (dest) => widget.vm.setDest(dest);
+    void Function(String) onPressCallback = (dest) => widget.vm.setDestByName(dest);
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>  ListView(children: [

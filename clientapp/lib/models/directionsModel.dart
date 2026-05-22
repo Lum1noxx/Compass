@@ -69,4 +69,13 @@ class DirectionsModel {
 
   }
 
+  Node getNodeInPath(List<Edge> path, String nodeName) {
+    Map<String, Node> nodes = {
+      for (Edge edge in path)
+        edge.start.name : edge.start,
+      path.last.end.name : path.last.end
+    };
+    return nodes[nodeName]!;
+  }
+
 }
