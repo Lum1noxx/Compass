@@ -23,23 +23,26 @@ class DirectionsVM extends ChangeNotifier {
 
   late bool settingEnd; // else, setting start
   final MapController mapController = MapController();
+  final TextEditingController searchBarController = TextEditingController();
+  final FocusNode searchBarFocusNode = FocusNode();
 
   dynamic currentSelection = null;
 
-  @override
-  void notifyListeners() {
-    // TODO: implement notifyListeners
-    super.notifyListeners();
-    if (currentSelection != null) {
-      mapController.move(currentSelection.getLatLng(), 18);
-    }
+  @override void dispose() {
+    super.dispose();
+    mapController.dispose();
+    searchBarController.dispose();
+    searchBarFocusNode.dispose();
   }
+
   void selectNodeByName(String nodeName) {
     currentSelection = model.getNodeInPath(mapPath, nodeName);
+    mapController.move(currentSelection.getLatLng(), 18);
     notifyListeners();
   }
   void selectNode(Node node) {
     currentSelection = node;
+    mapController.move(currentSelection.getLatLng(), 18);
     notifyListeners();
   }
 
@@ -51,6 +54,7 @@ class DirectionsVM extends ChangeNotifier {
       newStartDest = dest;
     }
     currentSelection = dest;
+    mapController.move(currentSelection.getLatLng(), 18);
     notifyListeners();
   }
 
@@ -61,6 +65,7 @@ class DirectionsVM extends ChangeNotifier {
       newStartDest = destination;
     }
     currentSelection = destination;
+    mapController.move(currentSelection.getLatLng(), 18);
     notifyListeners();
   }
 
@@ -79,6 +84,8 @@ class DirectionsVM extends ChangeNotifier {
 
   void toggleSettingEnd() {
     settingEnd = !settingEnd;
+    searchBarFocusNode.requestFocus();
+    searchBarController.selection = TextSelection(baseOffset: 0, extentOffset: searchBarController.text.length);
     notifyListeners();
   }
 }

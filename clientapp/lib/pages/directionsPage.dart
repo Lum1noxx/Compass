@@ -21,7 +21,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(flex: 10, child: CampusMap(vm)),
-      Expanded(flex: 2, child: SearchBar((txt)=>vm.queryAutocomplete(txt))),
+      Expanded(flex: 2, child: SearchBar(vm, (txt)=>vm.queryAutocomplete(txt))),
       Expanded(flex: 5, child: DestinationList(vm)),
       Expanded(flex: 2, child: ButtonRow(vm))
     ]);
@@ -204,25 +204,24 @@ class MapMarker extends StatelessWidget {
 
 
 class SearchBar extends StatelessWidget {
-  SearchBar(this.onChangeCallback){
-    focusNode.addListener((){
-      if (focusNode.hasFocus) {
-        controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+  SearchBar(this.vm, this.onChangeCallback){
+    vm.searchBarFocusNode.addListener((){
+      if (vm.searchBarFocusNode.hasFocus) {
+        vm.searchBarController.selection = TextSelection(baseOffset: 0, extentOffset: vm.searchBarController.text.length);
       }
     });
   }
-  final TextEditingController controller = TextEditingController();
-  final FocusNode focusNode = FocusNode();
   final void Function(String) onChangeCallback;
+  final DirectionsVM vm;
   @override
   Widget build(BuildContext context) {
     return TextField(
-      focusNode: focusNode,
-      controller: controller,
+      focusNode: vm.searchBarFocusNode,
+      controller: vm.searchBarController,
       onChanged: onChangeCallback,
       selectAllOnFocus: true,
       enableInteractiveSelection: true,
-      onEditingComplete: () => focusNode.unfocus(),
+      onEditingComplete: () => vm.searchBarFocusNode.unfocus(),
       );
   }
 }
