@@ -1,0 +1,6 @@
+IMPORT ERROR:
+FOREIGN KEY constraint failed
+Dataset headers:
+['name', 'lat', 'lng', 'floor', 'nodes']
+Rows:
+('com3 bus stop', 1.294911, 103.77501, -2, 'terrace')

@@ -1,0 +1,16 @@
+#Instructions for us (mainly just me cause i forgor)
+
+activate venv using: venv\Scripts\activate
+deactivate: deactivate
+
+to modify our object classes use models.py
+    afterwards need to use py manage.py makemigrations
+    then migrate to see on server
+
+to get server up run py manage.py runserver
+leave server run terminal in the background running, duh
+
+resources.py is for importing only 
+
+views.py and urls.py is for api calls
+
