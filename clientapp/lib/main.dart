@@ -12,20 +12,22 @@ void main() {
 class Globals {
   static Future<void> init() async{
     // TODO: collect actual data
-    await rootBundle.loadString("assets/json/nodes.json").then((str){
-      List<dynamic> json = jsonDecode(str);
-      return {
-        for (Map<String, dynamic> nodeInfo in json)
-        nodeInfo['name'] as String: Node(nodeInfo['name'], Coordinate(nodeInfo['lat'].toDouble(), nodeInfo['lng'].toDouble(), nodeInfo['floor'].toInt()) )
-      };
-    }).then((map)=>nodes = Nodes(map));
+    // await rootBundle.loadString("assets/json/nodes.json").then((str){
+    //   List<dynamic> json = jsonDecode(str);
+    //   return {
+    //     for (Map<String, dynamic> nodeInfo in json)
+    //     nodeInfo['name'] as String: Node(nodeInfo['name'], Coordinate(nodeInfo['lat'].toDouble(), nodeInfo['lng'].toDouble(), nodeInfo['floor'].toInt()) )
+    //   };
+    // }).then((map)=>nodes = Nodes(map));
+    nodes = Nodes();
     await rootBundle.loadString("assets/json/destinations.json").then((str){
-      List<dynamic> json = jsonDecode(str);
-      return {
-        for (Map<String, dynamic> destInfo in json)
-        destInfo['name'] as String: Destination(destInfo['name'], Coordinate(destInfo['lat'].toDouble(), destInfo['lng'].toDouble(), destInfo['floor'].toInt()) )
-      };
-    }).then((map)=>destinations = Destinations(map, 4));
+      List rawJson = jsonDecode(str);
+      List<String> json = [
+        for (dynamic name in rawJson)
+          name as String
+      ];
+      destinations = Destinations(json, 4);
+    });
   }
   static late Nodes nodes;
   static late Destinations destinations;

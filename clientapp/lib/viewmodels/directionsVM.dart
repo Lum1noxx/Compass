@@ -36,26 +36,18 @@ class DirectionsVM extends ChangeNotifier {
   }
 
   void selectNodeByName(String nodeName) {
-    currentSelection = model.getNodeInPath(mapPath, nodeName);
-    mapController.move(currentSelection.getLatLng(), 18);
-    notifyListeners();
+    selectNode(model.getNodeInPath(mapPath, nodeName));
   }
+  
   void selectNode(Node node) {
     currentSelection = node;
     mapController.move(currentSelection.getLatLng(), 18);
     notifyListeners();
   }
 
-  void setDestByName(String destName) {
-    Destination dest = model.getDest(destName);
-    if (settingEnd) {
-      newEndDest = dest;
-    } else {
-      newStartDest = dest;
-    }
-    currentSelection = dest;
-    mapController.move(currentSelection.getLatLng(), 18);
-    notifyListeners();
+  void setDestByName(String destName) async{
+    Destination dest = await model.getDest(destName);
+    setDest(dest);
   }
 
   void setDest(Destination destination) {
@@ -74,7 +66,7 @@ class DirectionsVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  void findPath() {
+  void findPath() async{
     if (newStartDest!=null && newEndDest!=null){
       mapStartDest = newStartDest;
       mapEndDest = newEndDest;

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clientapp/apiCalls.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
@@ -146,26 +147,52 @@ class Edge {
 
 class Nodes {
   // name -> Node
-  Nodes(this.map);
 
-  final Map<String, Node> map;
-  Node get(String name) {
+  final Map<String, Node> map = {};
+  Future<void> fetch (List<String> names) async {
+    List<Map> json = await ApiCalls.node_coordinates(names);
+    for (Map nodeObj in json) {
+      map[nodeObj['name']] = Node(
+        nodeObj['name'],
+        Coordinate(nodeObj['lat'], nodeObj['lng'], nodeObj['floor'])
+      );
+    }
+  } 
+  Future<Node> get (String name) async{
+    if (!map.containsKey(name)) {
+      await fetch([name]);
+    }
     return map[name]!;
   }
+
 }
 
 class Destinations {
   // name -> Destination
   // Trie<name>
-  Destinations(this.map, this.autocompleteSize) {
+  Destinations(this.names, this.autocompleteSize) {
     autocompleteEngine = Woozy(limit: autocompleteSize);
-    autocompleteEngine.addEntries(map.keys.toList());
+    autocompleteEngine.addEntries(names);
   }
   final int autocompleteSize;
-  final Map<String, Destination> map;
+  final List<String> names;
+  final Map<String, Destination> map = {};
   late Woozy autocompleteEngine;
+  
+  Future<void> fetch (List<String> names) async {
+    List<Map> json = await ApiCalls.dest_coordinates(names);
+    for (Map destObj in json) {
+      map[destObj['name']] = Destination(
+        destObj['name'],
+        Coordinate(destObj['lat'], destObj['lng'], destObj['floor'])
+      );
+    }
+  } 
 
-  Destination get(String name) {
+  Future<Destination> get (String name) async{
+    if (!map.containsKey(name)) {
+      await fetch([name]);
+    }
     return map[name]!;
   }
   List<String> autocomplete(String query) {

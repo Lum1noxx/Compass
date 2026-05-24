@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/main.dart';
 import 'package:flutter/material.dart';
 
 class DirectionsModel {
 
-  Destination getDest(String destName) {
+  Future<Destination> getDest(String destName) async{
     return Globals.destinations.get(destName);
   }
 
@@ -15,52 +16,13 @@ class DirectionsModel {
   }
 
   Future<List<Edge>> findPath(Destination startDest, Destination endDest) async{
-    String request = JsonEncoder().convert({
-      "start": startDest.name,
-      "end": endDest.name
-    });
-    // TODO: SEND REQUEST TO BACKEND AND AWAIT RESPONSE
-    dynamic response = [ // STUB
-      {
-        "type": "walk",
-        "start": "terrace",
-        "end": "com3 bus stop",
-        "sheltered": true,
-        "stairs": true,
-        "duration": 60
-      },
-      {
-        "type": "waitForBus",
-        "start": "com3 bus stop",
-        "end": "d1 at com3",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 300
-      },
-      {
-        "type": "bus",
-        "start": "d1 at com3",
-        "end": "utown bus stop",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 180
-      },
-      {
-        "type": "walk",
-        "start": "utown bus stop",
-        "end": "flavours",
-        "sheltered": false,
-        "stairs": false,
-        "duration": 90
-      }
-
-    ];
+    
     return [
-      for (Map<String, dynamic> edgeInfo in (response as List))
+      for (Map edgeInfo in (await ApiCalls.shortest_path(startDest.name, endDest.name) as List))
         Edge(
           EdgeType.get(edgeInfo["type"]),
-          Globals.nodes.get(edgeInfo["start"]),
-          Globals.nodes.get(edgeInfo["end"]),
+          await Globals.nodes.get(edgeInfo["start"]),
+          await Globals.nodes.get(edgeInfo["end"]),
           edgeInfo["sheltered"],
           edgeInfo["stairs"],
           edgeInfo["duration"]
