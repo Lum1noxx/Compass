@@ -16,9 +16,15 @@ class DirectionsModel {
   }
 
   Future<List<Edge>> findPath(Destination startDest, Destination endDest) async{
-    
+    List<Map> edgesJson = await ApiCalls.shortest_path(startDest.name, endDest.name);
+    await Globals.nodes.fetch([
+      for (Map edgeInfo in edgesJson)
+        edgeInfo["start"],
+      if (edgesJson.isNotEmpty)
+        edgesJson.last['end']
+    ]);
     return [
-      for (Map edgeInfo in (await ApiCalls.shortest_path(startDest.name, endDest.name) as List))
+      for (Map edgeInfo in edgesJson)
         Edge(
           EdgeType.get(edgeInfo["type"]),
           await Globals.nodes.get(edgeInfo["start"]),
