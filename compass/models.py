@@ -25,8 +25,26 @@ class Edge(models.Model):
     end = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='edges_end')
     sheltered = models.BooleanField(default=False)
     stairs = models.BooleanField(default=False)
-    duration = models.PositiveIntegerField(default=0)
+    weight = models.FloatField(default=1.0)
+    unit = models.CharField(max_length=20, default='metres', choices=[('metres', 'metres'), ('steps', 'steps'), ('seconds', 'seconds')])
+    duration = models.FloatField()
 
     def __str__ (self):
         return f"From {self.start} to {self.end} by {self.type}"
+    
+    def calculate_duration(self):
+        if self.unit == 'metres':
+            distance = self.weight
+            return distance * 0.75
+        elif self.unit == 'steps':
+            steps = self.weight
+            return steps * 0.75
+        elif self.unit == 'seconds':
+            return self.weight
+        else:
+            return 0.0
+    
+    def save(self, *args, **kwargs):
+        self.duration = self.calculate_duration()
+        super().save(*args, **kwargs)
 

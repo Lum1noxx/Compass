@@ -1,29 +1,48 @@
-from django.http import JsonResponse
 from .serializers import *
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from .models import *
 
-# test function, returns list of all nodes in json format
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def get_nodes(request):
-    if request.method == 'GET':
-        nodes = Node.objects.all()
-        nodeSerializer = NodeSerializer(nodes, many=True)
-        return Response(nodeSerializer.data)
-    
-    elif request.method == 'POST':
-        data = NodeSerializer(data=request.data, many=True)
-        if data.is_valid():
-            # parse into a new function to calculate shortest path and return the path in json format
-            pass
+    nodes = Node.objects.all()
+    nodeSerializer = NodeSerializer(nodes, many=True)
+    return Response(nodeSerializer.data)
+
+@api_view(['GET'])
+def get_edges(request):
+    edges = Edge.objects.all()
+    edgeSerializer = EdgeSerializer(edges, many=True)
+    return Response(edgeSerializer.data)
+
+@api_view(['GET'])
+def get_dest_coordinates(request):
+    names = request.GET.getlist('names')
+    dests = []
+    for name in names:
+        name = name.replace('_', ' ')
+        dest = Destination.objects.get(name=names[0])
+        dests.append(dest)
+    destSerializer = DestSerializer(dests, many=True)
+    return Response({'destinations': destSerializer.data})
+
+@api_view(['GET'])
+def get_node_coordinates(request):
+    names = request.GET.getlist('names')
+    nodes = []
+    for name in names:
+        name = name.replace('_', ' ')
+        node = Node.objects.get(name=name)
+        nodes.append(node)
+    nodeSerializer = NodeSerializer(nodes, many=True)
+    return Response({'nodes': nodeSerializer.data})
 
 @api_view(['GET'])
 def calculate_shortest_path(request):
     start = request.GET.get('start') 
     end = request.GET.get('end')
-    # start and end of the form: "com3_bus_stop"
+
     start = start.replace('_', ' ')
     end = end.replace('_', ' ')
 
