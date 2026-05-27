@@ -8,8 +8,8 @@ class ApiCalls {
   static Future<List<Map>> shortest_path (String start, String end) async{
     print("api call::shortest_path::${start}::${end}");
     Uri request = Uri.https(baseUrl, "/shortest_path", {
-      "start": start,
-      "end" : end
+      "start": start.replaceAll(' ', "_"),
+      "end" : end.replaceAll(' ', "_")
     });
     // final response = await get(request);
     // List<Map> json = jsonDecode(response.body);
@@ -54,7 +54,10 @@ class ApiCalls {
   static Future<List<Map>> node_coordinates (List<String> names) async{
     print("api call::node_coordinates::${names}");
     Uri request = Uri.https(baseUrl, "/node_coordinates", {
-      "names": names
+      "names": [
+        for (String name in names)
+          name.replaceAll(' ', "_")
+      ]
     });
     // final response = await get(request);
     // List<Map> json = jsonDecode(response.body);
@@ -75,7 +78,10 @@ class ApiCalls {
   static Future<List<Map>> dest_coordinates (List<String> names) async{
     print("api call::dest_coordinates::${names}");
     Uri request = Uri.https(baseUrl, "/dest_coordinates", {
-      "names": names
+      "names": [
+        for (String name in names)
+          name.replaceAll(' ', "_")
+      ]
     });
     // final response = await get(request);
     // List<Map> json = jsonDecode(response.body);
