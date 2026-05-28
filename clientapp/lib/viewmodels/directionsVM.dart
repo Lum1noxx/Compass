@@ -36,7 +36,7 @@ class DirectionsVM extends ChangeNotifier {
   }
 
   void selectNodeByName(String nodeName) {
-    selectNode(model.getNodeInPath(mapPath, nodeName));
+    selectNode(model.getNodeOnPath(nodeName));
   }
   
   void selectNode(Node node) {
@@ -45,7 +45,7 @@ class DirectionsVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDestByName(String destName) async{
+  Future<void> setDestByName(String destName) async{
     Destination dest = await model.getDest(destName);
     setDest(dest);
   }

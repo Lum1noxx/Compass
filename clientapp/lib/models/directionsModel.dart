@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 
 class DirectionsModel {
 
+  late Map<String, Node> nodesOnPath;
+
   Future<Destination> getDest(String destName) async{
     return Globals.destinations.get(destName);
   }
@@ -23,7 +25,7 @@ class DirectionsModel {
       if (edgesJson.isNotEmpty)
         edgesJson.last['end']
     ]);
-    return [
+    List<Edge> path = [
       for (Map edgeInfo in edgesJson)
         Edge(
           EdgeType.get(edgeInfo["type"]),
@@ -34,16 +36,18 @@ class DirectionsModel {
           edgeInfo["duration"]
         )
     ];
-
-  }
-
-  Node getNodeInPath(List<Edge> path, String nodeName) {
-    Map<String, Node> nodes = {
+    nodesOnPath = {
       for (Edge edge in path)
         edge.start.name : edge.start,
       path.last.end.name : path.last.end
     };
-    return nodes[nodeName]!;
+    return path;
+
+  }
+
+  Node getNodeOnPath(String nodeName) {
+
+    return nodesOnPath[nodeName]!;
   }
 
 }
