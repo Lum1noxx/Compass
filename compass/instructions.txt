@@ -1,5 +1,11 @@
 #Instructions for us (mainly just me cause i forgor)
 
+packages needed:
+django (obv)
+django import_export
+django REST 
+No longer require data wizard (useless and hard to use lol)
+
 activate venv using: venv\Scripts\activate
 deactivate: deactivate
 
@@ -14,3 +20,4 @@ resources.py is for importing only
 
 views.py and urls.py is for api calls
 
+Explanations for other files in the files themselves

@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'compass',
+    'compass.apps.CompassConfig',
     'rest_framework',
     'import_export',
     'data_wizard',

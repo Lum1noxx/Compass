@@ -3,7 +3,7 @@ from .models import *
 from .resources import *
 from import_export.admin import ImportExportModelAdmin
 
-# Show models in admin page
+# Show models in admin page, and implement resource classes for import/export
 @admin.register(Node)
 class NodeAdmin(ImportExportModelAdmin):
     resource_class = NodeResource
@@ -16,4 +16,6 @@ class EdgeAdmin(ImportExportModelAdmin):
 class DestinationAdmin(ImportExportModelAdmin):
     resource_class = DestinationResource
 
-
+@admin.register(AdjacencyList)
+class AdjacencyListAdmin(ImportExportModelAdmin):
+    resource_class = AdjacencyListResource

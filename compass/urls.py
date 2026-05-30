@@ -22,7 +22,6 @@ from compass import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('datawizard/', include('data_wizard.urls')),
     path('nodes/', views.get_nodes),
     path('dest_coordinates/', views.get_dest_coordinates),
     path('node_coordinates/', views.get_node_coordinates),

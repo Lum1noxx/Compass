@@ -27,7 +27,7 @@ class Edge(models.Model):
     stairs = models.BooleanField(default=False)
     weight = models.FloatField(default=1.0)
     unit = models.CharField(max_length=20, default='metres', choices=[('metres', 'metres'), ('steps', 'steps'), ('seconds', 'seconds')])
-    duration = models.FloatField()
+    duration = models.FloatField(default=0.0)
 
     def __str__ (self):
         return f"From {self.start} to {self.end} by {self.type}"
@@ -48,3 +48,10 @@ class Edge(models.Model):
         self.duration = self.calculate_duration()
         super().save(*args, **kwargs)
 
+class AdjacencyList(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='adjacency_node')
+    adjacent_node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='adjacent_node')
+    edge = models.ForeignKey(Edge, on_delete=models.CASCADE)
+
+    def __str__ (self):
+        return f"{self.node} is adjacent to {self.adjacent_node} by {self.edge}"
