@@ -89,11 +89,20 @@ WSGI_APPLICATION = 'compass.wsgi.application'
 #     }
 # }
 
+
 if 'POSTGRES_URL' in os.environ:
+    raw_db_url = os.environ.get("POSTGRES_URL", "")
+    # If the URL contains Vercel's custom arguments, strip them out
+    if "?" in raw_db_url:
+        # Keeps everything before the '?' and just appends standard sslmode
+        base_url = raw_db_url.split("?")[0]
+        cleaned_db_url = f"{base_url}?sslmode=require"
+    else:
+        cleaned_db_url = raw_db_url
     # This block runs on Vercel (Production/Preview)
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.environ.get('POSTGRES_URL'),
+            default=cleaned_db_url,
             conn_max_age=600,
             conn_health_checks=True,
             ssl_require=True  # Most providers like Neon/Supabase require SSL
