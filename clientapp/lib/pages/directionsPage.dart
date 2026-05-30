@@ -216,6 +216,9 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      decoration: InputDecoration(
+        hintText: "Enter location:"
+      ),
       focusNode: vm.searchBarFocusNode,
       controller: vm.searchBarController,
       onChanged: onChangeCallback,
