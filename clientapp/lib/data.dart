@@ -137,7 +137,7 @@ class Edge {
   final Node end;
   final bool sheltered;
   final bool stairs;
-  final int duration;
+  final double duration;
 
   @override
   String toString() {
@@ -154,7 +154,7 @@ class Nodes {
     for (Map nodeObj in json) {
       map[nodeObj['name']] = Node(
         nodeObj['name'],
-        Coordinate(nodeObj['lat'], nodeObj['lng'], nodeObj['floor'])
+        Coordinate(double.parse(nodeObj['lat']), double.parse(nodeObj['lng']), nodeObj['floor'])
       );
     }
   } 
@@ -184,7 +184,7 @@ class Destinations {
     for (Map destObj in json) {
       map[destObj['name']] = Destination(
         destObj['name'],
-        Coordinate(destObj['lat'], destObj['lng'], destObj['floor'])
+        Coordinate(double.parse(destObj['lat']), double.parse(destObj['lng']), destObj['floor'])
       );
     }
   } 

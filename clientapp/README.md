@@ -92,9 +92,11 @@ Currently, there are 2 ways to install *Compass* on your device:
     * **red dot**: start location
     * **green dot**: end location
     * **orange dots**: checkpoints along the way
-    * **dotted lines**: route segments
-    * together, the **orange dots** and **dotted lines** trace out the entire route in detail
-11. When you are done, repeat from **step 2** to find a new route. The previous route will be erased when you click "**find directions**" again.
+    * **red dotted line**: first route segment
+    * **green dotted line**: last route segment
+    * **yellow lines**: remaining route segments
+    * together, the **orange dots** and **lines** trace out the entire route in detail
+11. When you are done, you may repeat from **step 2** to find a new route. The previous route will be erased when you click "**find directions**" again.
 
 ## How it works
 
@@ -107,7 +109,6 @@ An overview of what goes on under the hood of *Compass*
 ### Locating places
 
 ### Navigation
-
 
 ## Our story
 
