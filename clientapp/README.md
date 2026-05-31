@@ -1,4 +1,4 @@
-# Compass (version 0.1.0+1)
+# Compass (version 0.1.0)
 
 ## Introduction
 
