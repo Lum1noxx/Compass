@@ -12,17 +12,68 @@
 
 ##### 1. Android
 
+* Android 8.1 or later
+
 ##### 2. Windows
+
+* Windows 10 or later (64-bit)
 
 #### Installation
 
-As *Compass* is still in early beta, it is **not available on app stores**. 
+As *Compass* is still in early beta, it is **not available on app stores**.
 
 Currently, there are 2 ways to install *Compass* on your device:
 
-##### 1. Download from Github
+##### Download from Github
 
-##### 2. Build from source
+1. Go to the download page:
+   * [Windows](https://github.com/Lum1noxx/Compass/blob/main/download/windows/compass.zip)
+   * [Android](https://github.com/Lum1noxx/Compass/blob/main/download/android/compass.apk)
+2. Click on "**Download raw file**" to download the app.
+3. Launch the app
+   * Windows:
+     1. Extract the .zip file
+     2. Double-click the "**clientapp.exe**" file
+   * Android:
+     1. Copy the "**compass.apk**" file onto an Android device. Then, locate and select the file in the **Files** app.
+
+##### Build from source
+
+1. Set-up: Do the following on your Windows device:
+
+   1. [Install Flutter ](https://docs.flutter.dev/install)(make sure to add Flutter to PATH)
+   2. Get dependencies and source code
+
+   ```bash
+   git init
+   git clone https://github.com/Lum1noxx/Compass
+   cd clientapp
+   flutter pub get
+   ```
+2. Build the app for your intended platform:
+
+   * Windows:
+
+     ```bash
+     flutter build windows
+     mv build\windows\x64\runner\Release .\download\windows
+     ```
+
+     - the app is located at **download\windows**
+     - to launch the app on a Windows device, run:
+
+     ```bash
+     <path to app>\clientapp.exe
+     ```
+   * Android:
+
+     ```bash
+     flutter build apk
+     mv build\app\outputs\flutter-apk\app-release.apk .\download\android\compass.apk
+     ```
+
+     - the app is located at **download\android\compass.apk**
+     - to launch the app, copy the "**compass.apk**" file onto an Android device. Then, locate and select the file in the **Files** app.
 
 #### Features & how-to
 
