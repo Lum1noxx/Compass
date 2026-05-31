@@ -82,40 +82,40 @@ WSGI_APPLICATION = 'compass.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# if 'POSTGRES_URL' in os.environ:
+#     raw_db_url = os.environ.get("POSTGRES_URL", "")
+#     # If the URL contains Vercel's custom arguments, strip them out
+#     if "?" in raw_db_url:
+#         # Keeps everything before the '?' and just appends standard sslmode
+#         base_url = raw_db_url.split("?")[0]
+#         cleaned_db_url = f"{base_url}?sslmode=require"
+#     else:
+#         cleaned_db_url = raw_db_url
+#     # This block runs on Vercel (Production/Preview)
+#     DATABASES = {
+#         'default': dj_database_url.config(
+#             default=cleaned_db_url,
+#             conn_max_age=600,
+#             conn_health_checks=True,
+#             ssl_require=True  # Most providers like Neon/Supabase require SSL
+#         )
 #     }
-# }
-
-
-if 'POSTGRES_URL' in os.environ:
-    raw_db_url = os.environ.get("POSTGRES_URL", "")
-    # If the URL contains Vercel's custom arguments, strip them out
-    if "?" in raw_db_url:
-        # Keeps everything before the '?' and just appends standard sslmode
-        base_url = raw_db_url.split("?")[0]
-        cleaned_db_url = f"{base_url}?sslmode=require"
-    else:
-        cleaned_db_url = raw_db_url
-    # This block runs on Vercel (Production/Preview)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=cleaned_db_url,
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True  # Most providers like Neon/Supabase require SSL
-        )
-    }
-else:
-    # This block runs on your local machine
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+# else:
+#     # This block runs on your local machine
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
 
 # raw_db_url = "postgres://postgres.yqpiufjhxwfekaqgeqan:g0qeeCqcJcreUFdV@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x"
 #     # If the URL contains Vercel's custom arguments, strip them out

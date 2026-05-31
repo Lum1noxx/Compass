@@ -62,7 +62,10 @@ def calculate_shortest_path(request):
     end_nodes = end_dest.nodes.all()
 
     path = a_star_search(list(start_nodes), list(end_nodes))
-
+    if path and len(path) == 0:
+        return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
+    elif not path:
+        return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
     # serialize all edges in path and return
     edgeSerializer = EdgeSerializer(path, many=True)
     return Response({'edges': edgeSerializer.data})
@@ -121,6 +124,12 @@ def a_star_search(start_nodes, end_nodes):
             for edge in super_edges:
                 edge.delete()
             return path
+        #if no viable path, delete super start and edges and return None
+        if current == super_start and len(open_set) == 0:
+            super_start.delete()
+            for edge in super_edges:
+                edge.delete()
+            return None
         
         # get neighbors of current node
         neighbors = AdjacencyList.objects.filter(node=current)
