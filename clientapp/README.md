@@ -6,25 +6,25 @@
 
 ## User guide
 
-#### System requirements
+### System requirements
 
 *Compass* is supported on the following platforms:
 
-##### 1. Android
+#### 1. Android
 
 * Android 8.1 or later
 
-##### 2. Windows
+#### 2. Windows
 
 * Windows 10 or later (64-bit)
 
-#### Installation
+### Installation
 
 As *Compass* is still in early beta, it is **not available on app stores**.
 
 Currently, there are 2 ways to install *Compass* on your device:
 
-##### Download from Github
+#### Download from Github
 
 1. Go to the download page:
    * [Windows](https://github.com/Lum1noxx/Compass/blob/main/download/windows/compass.zip)
@@ -37,7 +37,7 @@ Currently, there are 2 ways to install *Compass* on your device:
    * Android:
      1. Copy the "**compass.apk**" file onto an Android device. Then, locate and select the file in the **Files** app.
 
-##### Build from source
+#### Build from source
 
 1. Set-up: Do the following on your Windows device:
 
@@ -75,9 +75,9 @@ Currently, there are 2 ways to install *Compass* on your device:
      - the app is located at **download\android\compass.apk**
      - to launch the app, copy the "**compass.apk**" file onto an Android device. Then, locate and select the file in the **Files** app.
 
-#### Features & how-to
+### Features & how-to
 
-##### 1. Navigation
+#### 1. Navigation
 
 1. Select "**directions**" in the bottom navigation bar. This brings you to the navigation page.
 2. Select "**start**" above the botton navigation bar to begin choosing a starting location.
@@ -95,6 +95,19 @@ Currently, there are 2 ways to install *Compass* on your device:
     * **dotted lines**: route segments
     * together, the **orange dots** and **dotted lines** trace out the entire route in detail
 11. When you are done, repeat from **step 2** to find a new route. The previous route will be erased when you click "**find directions**" again.
+
+## How it works
+
+An overview of what goes on under the hood of *Compass*
+
+### Data organisation
+
+### Search-bar suggestions
+
+### Locating places
+
+### Navigation
+
 
 ## Our story
 
