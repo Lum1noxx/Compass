@@ -172,8 +172,11 @@ class Destinations {
   // name -> Destination
   // Trie<name>
   Destinations(this.names, this.autocompleteSize) {
-    autocompleteEngine = Woozy(limit: autocompleteSize);
-    autocompleteEngine.addEntries(names);
+    autocompleteEngine = Woozy(limit: autocompleteSize, caseSensitive: false);
+    autocompleteEngine.addEntries([
+      for (String name in names)
+        name.replaceAll(" ", "_")
+    ]);
   }
   final int autocompleteSize;
   final List<String> names;
@@ -197,9 +200,10 @@ class Destinations {
     return map[name]!;
   }
   List<String> autocomplete(String query) {
+    query = query.replaceAll(" ", "_");
     return [
       for (MatchResult res in autocompleteEngine.search(query))
-        res.text
+        res.text.replaceAll("_", " ")
     ];
   }
 
@@ -228,6 +232,24 @@ class Destinations {
       for (Destination destination in res) 
         map[destination.name]!
     ];
+  }
+}
+
+class Floors {
+  static String getName(int floor) {
+    if (floor < 0) {
+      return 'B${-floor}';
+    } else {
+      return 'L${floor}';
+    }
+  }
+  static int getFloor(String name) {
+    int abs = int.parse(name.substring(1, name.length));  
+    if (name[0] == 'B') {
+      return -abs;
+    } else {
+      return abs;
+    }
   }
 }
 

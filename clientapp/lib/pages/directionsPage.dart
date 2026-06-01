@@ -1,4 +1,5 @@
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:clientapp/viewmodels/directionsVM.dart';
@@ -15,13 +16,28 @@ class DirectionsPage extends StatefulWidget {
 }
 
 class _DirectionsPageState extends State<DirectionsPage> {
-  _DirectionsPageState(this.vm);
+  _DirectionsPageState(this.vm) {
+    gpsOnClick = () {
+      vm.pinDropLatLng(vm.gps?.getLatLng() ?? Defaults.mapPosition);
+    };
+
+  }
+  late void Function() gpsOnClick;
   DirectionsVM vm;
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(flex: 10, child: CampusMap(vm)),
-      Expanded(flex: 2, child: SearchBar(vm, (txt)=>vm.queryAutocomplete(txt))),
+      Expanded(flex: 2, child: Row(
+        children: [
+          Expanded(flex: 7, child: SearchBar(vm, (txt)=>vm.queryAutocomplete(txt))),
+          Expanded(flex: 2, child: FloorPicker(vm)),
+          Expanded(flex: 2, child: IconButton(
+            onPressed: gpsOnClick,
+            icon: Text("GPS")
+          ))
+        ])
+      ),
       Expanded(flex: 5, child: DestinationList(vm)),
       Expanded(flex: 2, child: ButtonRow(vm))
     ]);
@@ -55,7 +71,7 @@ class _CampusMapState extends State<CampusMap> {
       listenable: widget.vm,
       builder: (ctx, child)=>FlutterMap(
         options: MapOptions(
-          initialCenter: widget.vm.currentSelection == null ? LatLng(1.2966, 103.7764) : widget.vm.currentSelection.getLatLng(),
+          initialCenter: widget.vm.currentSelection == null ? Defaults.mapPosition : widget.vm.currentSelection.getLatLng(),
           initialZoom: 14,
           onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
         ),
@@ -106,6 +122,12 @@ class _CampusMapState extends State<CampusMap> {
 
           ]),
           MarkerLayer(markers: [
+            if (widget.vm.gps != null)
+              Marker(point: widget.vm.gps!.getLatLng(),
+                child: GPSMarker(onTap: (){},)),
+            if (widget.vm.currentSelection is TempDestination)
+              Marker(point: widget.vm.currentSelection.getLatLng(),
+                child: DroppedPin(onTap: (){},)),
             for (Destination destination in widget.vm.nearbyDestinations)
               Marker(point: destination.getLatLng(),
                 child: NearbyMarker(onTap: () => widget.vm.setDest(destination),)),
@@ -151,12 +173,17 @@ class _CampusMapState extends State<CampusMap> {
   }
 }
 
+class GPSMarker extends MapMarker {
+  const GPSMarker({super.onTap}) : super(hollow:  false, color: Colors.brown, highlighted:  false);
+
+}
+
 class NearbyMarker extends MapMarker {
   const NearbyMarker({super.onTap}) : super(hollow:  true, color:  Colors.orange, highlighted:  false);
 }
 
 class DroppedPin extends MapMarker { /// maybe we dont really want this
-  const DroppedPin({super.onTap}) : super(hollow:  false, color:  Colors.red, highlighted:  false);
+  const DroppedPin({super.onTap}) : super(hollow:  false, color:  Colors.purple, highlighted:  false);
 }
 
 class PathNodeMarker extends MapMarker {
@@ -243,6 +270,37 @@ class SearchBar extends StatelessWidget {
       enableInteractiveSelection: true,
       onEditingComplete: () => vm.searchBarFocusNode.unfocus(),
       );
+  }
+}
+
+class FloorPicker extends StatefulWidget {
+  FloorPicker(this.vm, {super.key});
+  DirectionsVM vm;
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _FloorPickerState();
+  }
+}
+
+class _FloorPickerState extends State<FloorPicker> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ListenableBuilder(
+      listenable: widget.vm,
+      builder: (ctx, child) {
+        return DropdownButton<String>(
+            value: widget.vm.useSelectedFloor ? Floors.getName(widget.vm.selectedFloor) : "all",
+            items: [
+              DropdownMenuItem(value: "all", child: Text("all")),
+              for (int floor in Constants.floors)
+                DropdownMenuItem(value: Floors.getName(floor), child: Text(Floors.getName(floor)))
+            ],
+            onChanged: (floor) => widget.vm.selectFloor(floor!)
+          );
+      }
+    );
   }
 }
 

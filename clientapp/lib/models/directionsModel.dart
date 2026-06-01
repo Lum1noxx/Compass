@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:clientapp/apiCalls.dart';
@@ -5,10 +6,26 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 
 class DirectionsModel {
 
   late Map<String, Node> nodesOnPath;
+
+  StreamSubscription streamGPS(void Function(LatLng) callback) {
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: Defaults.gpsUpdateThreshold,
+    );
+    StreamSubscription<Position> stream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+      (Position? position) {
+        if (position != null) {
+          callback.call(LatLng(position.latitude, position.longitude));
+        }
+      });
+    return stream;
+  }
 
   Future<Destination> getDest(String destName) async{
     return Globals.destinations.get(destName);

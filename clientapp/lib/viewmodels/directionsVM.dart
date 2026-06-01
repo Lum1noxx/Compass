@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -10,6 +13,10 @@ class DirectionsVM extends ChangeNotifier {
     autocompleteResults = [];
     nearbyDestinations = [];
     settingEnd = false;
+    gpsStream = model.streamGPS((position) {
+      gps = TempDestination.plane(position);
+      notifyListeners();
+    });
   }
 
   Destination? mapStartDest;
@@ -26,18 +33,21 @@ class DirectionsVM extends ChangeNotifier {
 
   late bool settingEnd; // else, setting start
   late int selectedFloor = 0;
+  bool useSelectedFloor = false;
+  TempDestination? gps = null;
   
   final DirectionsModel model;
   final MapController mapController = MapController();
   final TextEditingController searchBarController = TextEditingController();
   final FocusNode searchBarFocusNode = FocusNode();
-
+  late StreamSubscription gpsStream;
 
   @override void dispose() {
     super.dispose();
     mapController.dispose();
     searchBarController.dispose();
     searchBarFocusNode.dispose();
+    gpsStream.cancel();
   }
 
   void pinDropLatLng(LatLng position) async {
@@ -91,5 +101,16 @@ class DirectionsVM extends ChangeNotifier {
     searchBarFocusNode.requestFocus();
     searchBarController.selection = TextSelection(baseOffset: 0, extentOffset: searchBarController.text.length);
     notifyListeners();
+  }
+
+  void selectFloor(String floor) {
+    if (floor == "all") {
+      useSelectedFloor = false;
+    } else {
+      useSelectedFloor = true;
+      selectedFloor = Floors.getFloor(floor);
+      notifyListeners();
+    }
+
   }
 }
