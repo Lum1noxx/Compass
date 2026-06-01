@@ -29,8 +29,13 @@ class _DirectionsPageState extends State<DirectionsPage> {
 }
 
 class CampusMap extends StatefulWidget {
-  CampusMap(this.vm);
+  CampusMap(this.vm) {
+    pinDropCallback = (LatLng position) {
+      vm.pinDropLatLng(position);
+    };
+  }
   DirectionsVM vm;
+  late void Function(LatLng) pinDropCallback;
   @override
   State<CampusMap> createState() => _CampusMapState();
 }
@@ -52,6 +57,7 @@ class _CampusMapState extends State<CampusMap> {
         options: MapOptions(
           initialCenter: widget.vm.currentSelection == null ? LatLng(1.2966, 103.7764) : widget.vm.currentSelection.getLatLng(),
           initialZoom: 14,
+          onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
         ),
         mapController: widget.vm.mapController,
         children: [
@@ -100,6 +106,9 @@ class _CampusMapState extends State<CampusMap> {
 
           ]),
           MarkerLayer(markers: [
+            for (Destination destination in widget.vm.nearbyDestinations)
+              Marker(point: destination.getLatLng(),
+                child: NearbyMarker(onTap: () => widget.vm.setDest(destination),)),
             for (Edge edge in widget.vm.mapPath) // all start nodes
               Marker(point: edge.start.getLatLng(),
                 child: PathNodeMarker(onTap: () => widget.vm.selectNode(edge.start),)),
@@ -140,6 +149,14 @@ class _CampusMapState extends State<CampusMap> {
       ]));
 
   }
+}
+
+class NearbyMarker extends MapMarker {
+  const NearbyMarker({super.onTap}) : super(hollow:  true, color:  Colors.orange, highlighted:  false);
+}
+
+class DroppedPin extends MapMarker { /// maybe we dont really want this
+  const DroppedPin({super.onTap}) : super(hollow:  false, color:  Colors.red, highlighted:  false);
 }
 
 class PathNodeMarker extends MapMarker {

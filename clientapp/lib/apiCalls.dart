@@ -105,4 +105,53 @@ class ApiCalls {
         obj as Map
     ];
   }
+
+  static Future<List<Map<dynamic, dynamic>>> near_destinations(double lat, double lng, int floor, int count) async {
+    print("api call::near_destinations::$lat, $lng, $floor, $count");
+    Uri request = Uri.https(baseUrl, "/near_destinations", {
+      'lat' : lat.toString(),
+      'lng' : lng.toString(),
+      'floor' : floor.toString(),
+      'count' : count.toString()
+    });
+    // final response = await get(request);
+    // List<dynamic> json = jsonDecode(response.body)['destinations'];
+
+    List<dynamic> json = [ // STUB
+      {
+        'name': 'COM1',
+        'lat' : (lat + (Random().nextDouble()-0.5)/500).toString(),
+        'lng' : (lng + (Random().nextDouble()-0.5)/500).toString(),
+        'floor' : 1
+      },
+      {
+        'name': 'COM2',
+        'lat' : (lat + (Random().nextDouble()-0.5)/500).toString(),
+        'lng' : (lng + (Random().nextDouble()-0.5)/500).toString(),
+        'floor' : 1
+      },
+      {
+        'name': 'COM3',
+        'lat' : (lat + (Random().nextDouble()-0.5)/500).toString(),
+        'lng' : (lng + (Random().nextDouble()-0.5)/500).toString(),
+        'floor' : 1
+      },
+      {
+        'name': 'COM4',
+        'lat' : (lat + (Random().nextDouble()-0.5)/500).toString(),
+        'lng' : (lng + (Random().nextDouble()-0.5)/500).toString(),
+        'floor' : 1
+      },
+      {
+        'name': 'COM5',
+        'lat' : (lat + (Random().nextDouble()-0.5)/500).toString(),
+        'lng' : (lng + (Random().nextDouble()-0.5)/500).toString(),
+        'floor' : 1
+      },      
+    ];    
+    return [
+      for (dynamic obj in json)
+        obj as Map
+    ];
+  }
 }

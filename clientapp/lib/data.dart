@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:clientapp/apiCalls.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
@@ -201,4 +202,37 @@ class Destinations {
         res.text
     ];
   }
+
+  Future<List<Destination>> getNearby(Coordinate coordinate, int count) async {
+    List<Map> json = await ApiCalls.near_destinations(
+      coordinate.lat,
+      coordinate.lng,
+      coordinate.floor,
+      count
+    );
+    List<Destination> res = [
+      for (Map obj in json)
+        Destination(
+          obj['name'],
+          Coordinate(
+            double.parse(obj['lat']),
+            double.parse(obj['lng']),
+            obj['floor']
+          )
+        )
+    ];
+    for (Destination destination in res) {
+      map.putIfAbsent(destination.name, ()=>destination);
+    }
+    return [
+      for (Destination destination in res) 
+        map[destination.name]!
+    ];
+  }
+}
+
+class TempDestination extends Destination {
+  /// this is soley for highlighting on map
+  TempDestination(Coordinate coordinate) : super("", coordinate);
+  TempDestination.plane(LatLng position) : super("", Coordinate(position.latitude, position.longitude, 0));
 }

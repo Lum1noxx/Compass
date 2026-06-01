@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,12 @@ class DirectionsModel {
   Node getNodeOnPath(String nodeName) {
 
     return nodesOnPath[nodeName]!;
+  }
+
+  Future<List<Destination>> getNearbyDestinations(currentSelection) async{
+    currentSelection = currentSelection as TempDestination;
+    return Globals.destinations.getNearby(currentSelection.coordinate, Defaults.nearbyDestinationsCount);
+    
   }
 
 }

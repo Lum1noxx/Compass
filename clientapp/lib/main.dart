@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,7 @@ class Globals {
         for (dynamic name in rawJson)
           name as String
       ];
-      destinations = Destinations(json, 4);
+      destinations = Destinations(json, Defaults.autocompleteSize);
     });
   }
   static late Nodes nodes;
