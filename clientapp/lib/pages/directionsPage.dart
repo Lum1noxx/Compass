@@ -1,3 +1,4 @@
+import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
@@ -9,54 +10,83 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DirectionsPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _DirectionsPageState(DirectionsVM(DirectionsModel()));
-  }
-}
 
-class _DirectionsPageState extends State<DirectionsPage> {
-  _DirectionsPageState(this.vm) {
+  late final DirectionsVM vm;
+  late final void Function() gpsOnClick;
+  late final void Function(String) searchbarOnEdit;
+  late final void Function(LatLng) pinDropCallback;
+  late final void Function() searchbarOnEditComplete;
+  late final void Function(String) onFloorNameSelect;
+  late final void Function(String) onDestNameSelect;
+  late final void Function(bool) onSettingEndChanged;
+
+  DirectionsPage({super.key}) {
+    vm = DirectionsVM(DirectionsModel());
     gpsOnClick = () {
       vm.pinDropLatLng(vm.gps?.getLatLng() ?? Defaults.mapPosition);
     };
-
+    searchbarOnEdit = (txt) {
+      vm.queryAutocomplete(txt);
+    };
+    pinDropCallback = (LatLng position) {
+      vm.pinDropLatLng(position);
+    };
+    searchbarOnEditComplete = () {
+      vm.searchBarFocusNode.unfocus();
+    };
+    onFloorNameSelect = (floor) => vm.selectFloor(floor);
+    onDestNameSelect = (dest) => vm.setDestByName(dest);
+    onSettingEndChanged = (settingEnd) {
+      if (settingEnd != vm.settingEnd) {
+        vm.toggleSettingEnd();
+      }
+    };
   }
-  late void Function() gpsOnClick;
-  DirectionsVM vm;
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DirectionsPageState();
+  }
+
+}
+
+class _DirectionsPageState extends State<DirectionsPage> {
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(flex: 10, child: CampusMap(vm)),
+      Expanded(flex: 10, child: CampusMap(widget.vm, widget.pinDropCallback)),
       Expanded(flex: 2, child: Row(
         children: [
-          Expanded(flex: 7, child: SearchBar(vm, (txt)=>vm.queryAutocomplete(txt))),
-          Expanded(flex: 2, child: FloorPicker(vm)),
+          Expanded(flex: 7, child: SearchBar(widget.vm, widget.searchbarOnEdit, widget.searchbarOnEditComplete)),
+          Expanded(flex: 2, child: FloorPicker(widget.vm, widget.onFloorNameSelect)),
           Expanded(flex: 2, child: IconButton(
-            onPressed: gpsOnClick,
+            onPressed: widget.gpsOnClick,
             icon: Text("GPS")
           ))
         ])
       ),
-      Expanded(flex: 5, child: DestinationList(vm)),
-      Expanded(flex: 2, child: ButtonRow(vm))
+      Expanded(flex: 5, child: DestinationList(widget.vm, widget.onDestNameSelect)),
+      Expanded(flex: 2, child: ButtonRow(widget.vm, widget.onSettingEndChanged))
     ]);
   }
+
 }
 
 class CampusMap extends StatefulWidget {
-  CampusMap(this.vm) {
-    pinDropCallback = (LatLng position) {
-      vm.pinDropLatLng(position);
-    };
-  }
-  DirectionsVM vm;
-  late void Function(LatLng) pinDropCallback;
+
+  final DirectionsVM vm;
+  final void Function(LatLng) pinDropCallback;
+
+  const CampusMap(this.vm, this.pinDropCallback, {super.key});
+
   @override
   State<CampusMap> createState() => _CampusMapState();
+
 }
 
 class _CampusMapState extends State<CampusMap> {
+  
   @override
   Widget build(BuildContext context) {
     // return ListenableBuilder(
@@ -72,7 +102,7 @@ class _CampusMapState extends State<CampusMap> {
       builder: (ctx, child)=>FlutterMap(
         options: MapOptions(
           initialCenter: widget.vm.currentSelection == null ? Defaults.mapPosition : widget.vm.currentSelection.getLatLng(),
-          initialZoom: 14,
+          initialZoom: Defaults.mapInitialZoom,
           onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
         ),
         mapController: widget.vm.mapController,
@@ -119,7 +149,6 @@ class _CampusMapState extends State<CampusMap> {
                   pattern: StrokePattern.dotted()
                 )
               ]
-
           ]),
           MarkerLayer(markers: [
             if (widget.vm.gps != null)
@@ -175,7 +204,6 @@ class _CampusMapState extends State<CampusMap> {
 
 class GPSMarker extends MapMarker {
   const GPSMarker({super.onTap}) : super(hollow:  false, color: Colors.brown, highlighted:  false);
-
 }
 
 class NearbyMarker extends MapMarker {
@@ -208,17 +236,19 @@ class SelectingMarker extends MapMarker {
 
 
 class MapMarker extends StatelessWidget {
-  const MapMarker({
-    required this.hollow,
-    required this.color,
-    required this.highlighted,
-    this.onTap,
-  });
 
   final bool highlighted;
   final bool hollow;
   final Color color;
   final VoidCallback? onTap;
+
+  const MapMarker({
+    required this.hollow,
+    required this.color,
+    required this.highlighted,
+    this.onTap,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -248,15 +278,19 @@ class MapMarker extends StatelessWidget {
 
 
 class SearchBar extends StatelessWidget {
-  SearchBar(this.vm, this.onChangeCallback){
+
+  final DirectionsVM vm;
+  final void Function(String) onChangeCallback;
+  final void Function() onEditingComplete;
+
+  SearchBar(this.vm, this.onChangeCallback, this.onEditingComplete, {super.key}){
     vm.searchBarFocusNode.addListener((){
       if (vm.searchBarFocusNode.hasFocus) {
         vm.searchBarController.selection = TextSelection(baseOffset: 0, extentOffset: vm.searchBarController.text.length);
       }
     });
   }
-  final void Function(String) onChangeCallback;
-  final DirectionsVM vm;
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -268,25 +302,30 @@ class SearchBar extends StatelessWidget {
       onChanged: onChangeCallback,
       selectAllOnFocus: true,
       enableInteractiveSelection: true,
-      onEditingComplete: () => vm.searchBarFocusNode.unfocus(),
+      onEditingComplete: onEditingComplete,
       );
   }
+
 }
 
 class FloorPicker extends StatefulWidget {
-  FloorPicker(this.vm, {super.key});
-  DirectionsVM vm;
+
+  final DirectionsVM vm;
+  final void Function(String) onFloorNameSelect;
+
+  const FloorPicker(this.vm, this.onFloorNameSelect, {super.key});
+
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _FloorPickerState();
   }
+
 }
 
 class _FloorPickerState extends State<FloorPicker> {
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child) {
@@ -297,82 +336,92 @@ class _FloorPickerState extends State<FloorPicker> {
               for (int floor in Constants.floors)
                 DropdownMenuItem(value: Floors.getName(floor), child: Text(Floors.getName(floor)))
             ],
-            onChanged: (floor) => widget.vm.selectFloor(floor!)
+            onChanged: (floor) => widget.onFloorNameSelect(floor!)
           );
       }
     );
   }
+
 }
 
 class DestinationList extends StatefulWidget {
-  DestinationList(this.vm);
-  DirectionsVM vm;
+
+  final DirectionsVM vm;
+  final void Function(String) onDestNameSelect;
+
+  const DestinationList(this.vm, this.onDestNameSelect, {super.key});
+
   @override
   State<DestinationList> createState() => _DestinationListState();
+
 }
 
 class _DestinationListState extends State<DestinationList> {
+
   @override
   Widget build(BuildContext context) {
-    void Function(String) onPressCallback = (dest) => widget.vm.setDestByName(dest);
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>  ListView(children: [
         for (String dest in widget.vm.autocompleteResults)
           if (widget.vm.newStartDest != null && dest == widget.vm.newStartDest!.name)
-            DestinationRow(dest, onPressCallback, Colors.yellow)
+            DestinationRow(dest, widget.onDestNameSelect, Colors.yellow)
           else if (widget.vm.newEndDest != null && dest == widget.vm.newEndDest!.name)
-            DestinationRow(dest, onPressCallback, Colors.yellow)
+            DestinationRow(dest, widget.onDestNameSelect, Colors.yellow)
           else
-            DestinationRow(dest, onPressCallback)
-
+            DestinationRow(dest, widget.onDestNameSelect)
       ],),
     );
   }
+
 }
 
 class DestinationRow extends StatelessWidget {
-  const DestinationRow(this.name, this.onPressCallback, [this.highlight = Colors.transparent]);
+
   final void Function(String) onPressCallback;
   final String name;
   final Color highlight;
+
+  const DestinationRow(this.name, this.onPressCallback, [this.highlight = Colors.transparent]);
+
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(color: highlight),
       child: TextButton(onPressed: ()=>onPressCallback(name), child: Text(name)));
   }
+
 }
 
 class ButtonRow extends StatefulWidget {
-  ButtonRow(this.vm);
-  DirectionsVM vm;
+
+  final DirectionsVM vm;
+  final void Function(bool) onSettingEndChanged; 
+
+  const ButtonRow(this.vm, this.onSettingEndChanged, {super.key});
 
   @override
   State<ButtonRow> createState() => _ButtonRowState();
 }
 
 class _ButtonRowState extends State<ButtonRow> {
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>Row(children: [
-        Expanded(child: TextButton(onPressed: (){
-          if (widget.vm.settingEnd) {
-            widget.vm.toggleSettingEnd();
-          }
-        }, child: DecoratedBox(
+        Expanded(child: TextButton(
+          onPressed: () => widget.onSettingEndChanged(false),
+          child: DecoratedBox(
               decoration: BoxDecoration(color: widget.vm.settingEnd ? Colors.blueGrey : Colors.yellow),
               child: Text(widget.vm.newStartDest == null ? "start" : widget.vm.newStartDest!.name)
             )
           )
         ),
-        Expanded(child: TextButton(onPressed: (){
-          if (!widget.vm.settingEnd) {
-            widget.vm.toggleSettingEnd();
-          }
-        }, child: DecoratedBox(
+        Expanded(child: TextButton(
+          onPressed: () => widget.onSettingEndChanged(true),
+          child: DecoratedBox(
               decoration: BoxDecoration(color: widget.vm.settingEnd ? Colors.yellow : Colors.blueGrey),
               child: Text(widget.vm.newEndDest == null ? "end" : widget.vm.newEndDest!.name)
             )
@@ -382,4 +431,5 @@ class _ButtonRowState extends State<ButtonRow> {
       ],),
     );
   }
+
 }

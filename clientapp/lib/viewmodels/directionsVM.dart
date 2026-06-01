@@ -50,9 +50,13 @@ class DirectionsVM extends ChangeNotifier {
     gpsStream.cancel();
   }
 
+  void notifyMapView() {
+    mapController.move(currentSelection.getLatLng(), Defaults.mapFocusZoom);
+  }
+
   void pinDropLatLng(LatLng position) async {
     currentSelection = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
-    mapController.move(currentSelection.getLatLng(), 18);
+    notifyMapView();
     nearbyDestinations = await model.getNearbyDestinations(currentSelection);
     notifyListeners();
   }
@@ -63,7 +67,7 @@ class DirectionsVM extends ChangeNotifier {
   
   void selectNode(Node node) {
     currentSelection = node;
-    mapController.move(currentSelection.getLatLng(), 18);
+    notifyMapView();
     notifyListeners();
   }
 
@@ -79,7 +83,7 @@ class DirectionsVM extends ChangeNotifier {
       newStartDest = destination;
     }
     currentSelection = destination;
-    mapController.move(currentSelection.getLatLng(), 18);
+    notifyMapView();
     notifyListeners();
   }
 
