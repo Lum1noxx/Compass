@@ -19,6 +19,9 @@ class DirectionsPage extends StatefulWidget {
   late final void Function(String) onFloorNameSelect;
   late final void Function(String) onDestNameSelect;
   late final void Function(bool) onSettingEndChanged;
+  late final void Function() onRoutePanelToggle;
+  late final void Function(Node) onRoutePanelNodeSelect;
+  late final void Function(Edge) onRoutePanelEdgeSelect;
 
   DirectionsPage({super.key}) {
     vm = DirectionsVM(DirectionsModel());
@@ -41,6 +44,11 @@ class DirectionsPage extends StatefulWidget {
         vm.toggleSettingEnd();
       }
     };
+    onRoutePanelToggle = () {
+      vm.toggleRoutePanel();
+    };
+    onRoutePanelNodeSelect = (node){};
+    onRoutePanelEdgeSelect = (edge){};
   }
 
   @override
@@ -55,7 +63,23 @@ class _DirectionsPageState extends State<DirectionsPage> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(flex: 10, child: CampusMap(widget.vm, widget.pinDropCallback)),
+      Expanded(flex:1, child: RoutePanelToggle(widget.onRoutePanelToggle)),
+      Expanded(
+        flex: 10, 
+        child: ListenableBuilder(
+          listenable: widget.vm,
+          builder: (context, child) {
+            return Row(
+              children: [
+                Expanded(flex: 2, child: CampusMap(widget.vm, widget.pinDropCallback)),
+                if (widget.vm.showRoutePanel)
+                  Expanded(flex: 1, child: RoutePanel(widget.vm, widget.onRoutePanelNodeSelect, widget.onRoutePanelEdgeSelect))
+              ],
+            );
+          }
+        )
+      ),
+      
       Expanded(flex: 2, child: Row(
         children: [
           Expanded(flex: 7, child: SearchBar(widget.vm, widget.searchbarOnEdit, widget.searchbarOnEditComplete)),
@@ -72,6 +96,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
   }
 
 }
+
 
 class CampusMap extends StatefulWidget {
 
@@ -433,3 +458,185 @@ class _ButtonRowState extends State<ButtonRow> {
   }
 
 }
+
+class RoutePanel extends StatefulWidget {
+  
+  final DirectionsVM vm;
+  final void Function(Node) onNodeSelect;
+  final void Function(Edge) onEdgeSelect;
+  
+  const RoutePanel(this.vm, this.onNodeSelect, this.onEdgeSelect, {super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _RoutePanelState();
+  }
+
+}
+
+class _RoutePanelState extends State<RoutePanel> {
+  
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ListenableBuilder(
+      listenable: widget.vm,
+      builder: (ctx, child) => Row(children: [
+        if (widget.vm.mapPath.isNotEmpty)
+          Expanded(flex: 1, child: RoutePanelList(widget.vm.mapPath, widget.vm.mapStartDest!, widget.vm.mapEndDest!, widget.onNodeSelect, widget.onEdgeSelect))
+      ])
+    );
+  }
+
+}
+
+class RoutePanelToggle extends StatelessWidget {
+  
+  final void Function() onToggle;
+  
+  const RoutePanelToggle(this.onToggle, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onToggle,
+      icon: Text("more")
+      );
+  }
+}
+
+class EdgePanel extends StatelessWidget {
+
+  final Edge edge;
+
+  const EdgePanel(this.edge, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(edge.duration.toString());    
+  }
+
+}
+
+class NodePanel extends StatelessWidget {
+
+  final Node node;
+
+  const NodePanel(this.node, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(node.name);    
+  }
+  
+}
+
+
+class RoutePanelList extends StatelessWidget {
+
+  final List<Edge> route;
+  final Destination start;
+  final Destination end;
+  final void Function(Node) onNodeSelect;
+  final void Function(Edge) onEdgeSelect;
+
+  const RoutePanelList(this.route, this.start, this.end, this.onNodeSelect, this.onEdgeSelect, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        RoutePanelStart(),
+        for (Edge edge in route)
+          Column(
+            children: [
+              NodePanelItem(edge.start, onNodeSelect),
+              EdgePanelItem(edge, onEdgeSelect)
+            ],
+          ) ,
+        NodePanelItem(route.last.end, onNodeSelect),
+        RoutePanelEnd()
+      ],
+    );
+  }
+
+}
+
+class RoutePanelStart extends StatelessWidget {
+
+  const RoutePanelStart({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.red
+      ),
+      child: Text("start")
+    );
+  }
+
+}
+
+class RoutePanelEnd extends StatelessWidget {
+
+  const RoutePanelEnd({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.green,
+      ),
+      child: Text("end")
+    );
+  }
+
+}
+
+class NodePanelItem extends StatelessWidget {
+
+  final Node node;
+  final void Function(Node) onSelect;
+
+  const NodePanelItem(this.node, this.onSelect, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => onSelect(node),
+      icon: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.orange
+        ),
+        child: Text(node.name),
+      )
+    );
+  }
+
+}
+
+class EdgePanelItem extends StatelessWidget {
+
+  final Edge edge;
+  final void Function(Edge) onSelect;
+
+  const EdgePanelItem(this.edge, this.onSelect, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => onSelect(edge),
+      icon: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.yellow
+        ),
+        child: Text(edge.duration.round().toString()),
+      )
+    );
+  }
+
+}
+
+

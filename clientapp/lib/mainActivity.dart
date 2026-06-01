@@ -21,7 +21,7 @@ class _MainActivityState extends State<MainActivity> {
     return ListenableBuilder(listenable: vm, builder: (ctx, child){
       return Column(children: [
         Expanded(flex: 1, child: TopBar(vm.currentPage)),
-        Expanded(flex: 8, child: vm.currentPage),
+        Expanded(flex: 12, child: vm.currentPage),
         Expanded(flex: 1, child: NavigationBar())
       ],);
     });

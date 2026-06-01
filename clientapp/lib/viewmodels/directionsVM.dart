@@ -35,6 +35,8 @@ class DirectionsVM extends ChangeNotifier {
   late int selectedFloor = 0;
   bool useSelectedFloor = false;
   TempDestination? gps = null;
+
+  bool showRoutePanel = false;
   
   final DirectionsModel model;
   final MapController mapController = MapController();
@@ -115,6 +117,10 @@ class DirectionsVM extends ChangeNotifier {
       selectedFloor = Floors.getFloor(floor);
       notifyListeners();
     }
+  }
 
+  void toggleRoutePanel() {
+    showRoutePanel = !showRoutePanel;
+    notifyListeners();
   }
 }
