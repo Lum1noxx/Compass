@@ -6,11 +6,11 @@ import 'package:clientapp/floorplans.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 class DirectionsVM extends ChangeNotifier {
   DirectionsVM(this.model) {
-    mapPath = [];
+    lastRoute = Path([]);
     autocompleteResults = [];
     nearbyDestinations = [];
     settingEnd = false;
@@ -20,14 +20,14 @@ class DirectionsVM extends ChangeNotifier {
     });
   }
 
-  late List<Edge> mapPath;
+  late Path lastRoute;
   late List<String> autocompleteResults;
   late List<Destination> nearbyDestinations;
 
   Destination? newStartDest;
   Destination? newEndDest;
 
-  dynamic itemInFocus = null; // Node or Edge
+  dynamic itemInFocus = null; // Node or Segment
 
   late bool settingEnd; // else, setting start
   late int selectedFloor = 0;
@@ -52,7 +52,14 @@ class DirectionsVM extends ChangeNotifier {
   }
 
   void notifyMapView() {
-    mapController.move(itemInFocus.getLatLng(), Defaults.mapFocusZoom);
+    if (itemInFocus is Node) {
+      mapController.move(itemInFocus.getLatLng(), Defaults.mapFocusZoom);
+    } else if (itemInFocus is Segment) {
+      mapController.fitCamera(CameraFit.bounds(
+        bounds: itemInFocus.getBounds(),
+        padding: EdgeInsets.all(Defaults.segmentViewPadding)
+      ));
+    }
   }
 
   void pinDropLatLng(LatLng position) async {
@@ -62,8 +69,13 @@ class DirectionsVM extends ChangeNotifier {
     notifyListeners();
   }
   
-  void selectNode(Node node) {
-    itemInFocus = node;
+  void focusItem(dynamic item) {
+    assert(item is Node || item is Edge || item is Segment);
+    if (item is Edge) {
+      itemInFocus = lastRoute.locate(item);
+    } else {
+      itemInFocus = item;    
+    }
     notifyMapView();
     notifyListeners();
   }
@@ -91,7 +103,7 @@ class DirectionsVM extends ChangeNotifier {
 
   void findPath() async{
     if (newStartDest!=null && newEndDest!=null){
-      model.findPath(newStartDest!, newEndDest!).then((path){mapPath=path; notifyListeners();});
+      model.findPath(newStartDest!, newEndDest!).then((path){lastRoute=path; notifyListeners();});
       showRoutePanel = true;
     }
   }

@@ -1,8 +1,7 @@
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/defaults.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
@@ -179,6 +178,140 @@ class Destinations {
   }
 }
 
+class Segment {
+  
+  late final List<Edge> edges;
+  late double duration;
+
+  Segment(this.edges) {
+    duration = 0;
+    for (Edge edge in edges) {
+      duration += edge.duration;
+    }
+  }
+  Segment.single(Edge edge) {
+    edges = [edge];
+    duration = edge.duration;
+  }
+
+  LatLngBounds getBounds() {
+    double n = -1;
+    double s = 1_000_000;
+    double e = -1;
+    double w = 1_000_000;
+    for (Node node in [
+      for (Edge edge in edges)
+        edge.start,
+      edges.last.end
+    ]) {
+      n = max(n, node.coordinate.lat);
+      s = min(s, node.coordinate.lat);
+      e = max(e, node.coordinate.lng);
+      w = min(w, node.coordinate.lng);
+    }
+    return LatLngBounds(LatLng(n, w), LatLng(s, e));
+  }
+
+  Node start() {
+    return edges.first.start;
+  }
+
+  Node end() {
+    return edges.last.end;
+  }
+
+  EdgeType edgeType() {
+    return edges.first.edgeType;
+  }
+
+}
+
+class Path {
+
+  static List<Segment> group(List<Edge> edges) {
+    if (edges.isEmpty) {
+      return [];
+    }
+    List<Segment> segments =[];
+    List<Edge> nextSegment = [];
+    for (Edge edge in edges) {
+      if (nextSegment.isEmpty || edge.edgeType == nextSegment.last.edgeType) {
+        nextSegment.add(edge);
+      } else {
+        segments.add(Segment(nextSegment));
+        nextSegment = [edge];
+      }
+    }
+    segments.add(Segment(nextSegment));
+    return segments;
+  }
+  
+  List<Edge> edges;
+  late final List<Segment> segments;
+  final Map<Edge, Segment> _map = {};
+
+  Path(this.edges) {
+    if (edges.isEmpty) {
+      segments = [];
+      return;
+    }
+    assert(edges.first.start is Destination && edges.last.end is Destination);
+    segments = group(edges);
+    for (Segment segment in segments) {
+      for (Edge edge in segment.edges) {
+        _map[edge] = segment;
+      }
+    }
+  }
+  Path.autoJoin(this.edges, Destination start, Destination end) {
+    if (edges.isEmpty) {
+      edges = [
+        Edge(
+          EdgeType.walk, start, end, true, false,
+          DistanceHaversine().distance(start.getLatLng(), end.getLatLng()) / Defaults.walkingSpeedMetresPerSec
+        )
+      ];
+    } else {
+      edges = [
+        Edge(
+          EdgeType.walk, start, edges.first.start, edges.first.sheltered, edges.first.stairs,
+          DistanceHaversine().distance(start.getLatLng(), edges.first.start.getLatLng()) / Defaults.walkingSpeedMetresPerSec
+        ),
+        for (Edge edge in edges)
+          edge,
+        Edge(
+          EdgeType.walk, edges.last.end, end, edges.last.sheltered, edges.last.stairs,
+          DistanceHaversine().distance(edges.last.end.getLatLng(), end.getLatLng()) / Defaults.walkingSpeedMetresPerSec
+        )
+      ];
+    }
+    segments = group(edges);
+    for (Segment segment in segments) {
+      for (Edge edge in segment.edges) {
+        _map[edge] = segment;
+      }
+    }
+  }
+
+  int length() {
+    return edges.length;
+  }
+
+  Destination start() {
+    return edges.first.start as Destination;
+  }
+  
+  Destination end() {
+    return edges.first.end as Destination;
+  }
+
+  Segment locate (Edge edge) {
+    return _map[edge]!;
+  }
+
+}
+
+
 class Floors {
   static String getName(int floor) {
     if (floor < 0) {
@@ -201,16 +334,4 @@ class TempDestination extends Destination {
   /// this is soley for highlighting on map
   TempDestination(Coordinate coordinate) : super("", coordinate);
   TempDestination.plane(LatLng position) : super("", Coordinate(position.latitude, position.longitude, 0));
-}
-
-class Edges {
-
-  final double walkingSpeedMetresPerSec;
-
-  const Edges(this.walkingSpeedMetresPerSec);
-  
-  Edge auto(Node start, Node end, Edge adjacent) {
-    double duration = DistanceHaversine().distance(start.getLatLng(), end.getLatLng()) / walkingSpeedMetresPerSec;
-    return Edge(EdgeType.walk, start, end, adjacent.sheltered, adjacent.stairs, duration);
-  }
 }

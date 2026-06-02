@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
-import 'package:clientapp/mainActivity.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:clientapp/viewmodels/directionsVM.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +20,8 @@ class DirectionsPage extends StatefulWidget {
   late final void Function(bool) onSettingEndChanged;
   late final void Function() onRoutePanelToggle;
   late final void Function(Node) onRoutePanelNodeSelect;
-  late final void Function(Edge) onRoutePanelEdgeSelect;
+  late final void Function(Segment) onRoutePanelSegmentSelect;
+  late final void Function(Edge) onEdgeMarkerTap;
 
   DirectionsPage({super.key}) {
     vm = DirectionsVM(DirectionsModel());
@@ -49,8 +47,19 @@ class DirectionsPage extends StatefulWidget {
     onRoutePanelToggle = () {
       vm.toggleRoutePanel();
     };
-    onRoutePanelNodeSelect = (node){};
-    onRoutePanelEdgeSelect = (edge){};
+    onRoutePanelNodeSelect = (node){
+      if (node is Destination) {
+        vm.setDest(node);
+      } else {
+        vm.focusItem(node);
+      }
+    };
+    onRoutePanelSegmentSelect = (segment){
+      vm.focusItem(segment);
+    };
+    onEdgeMarkerTap = (edge) {
+      vm.focusItem(edge);
+    };
   }
 
   @override
@@ -73,9 +82,9 @@ class _DirectionsPageState extends State<DirectionsPage> {
           builder: (context, child) {
             return Row(
               children: [
-                Expanded(flex: 2, child: CampusMap(widget.vm, widget.pinDropCallback)),
+                Expanded(flex: 2, child: CampusMap(widget.vm, widget.pinDropCallback, widget.onEdgeMarkerTap)),
                 if (widget.vm.showRoutePanel)
-                  Expanded(flex: 1, child: RoutePanel(widget.vm, widget.onRoutePanelNodeSelect, widget.onRoutePanelEdgeSelect))
+                  Expanded(flex: 1, child: RoutePanel(widget.vm, widget.onRoutePanelNodeSelect, widget.onRoutePanelSegmentSelect))
               ],
             );
           }
@@ -104,8 +113,9 @@ class CampusMap extends StatefulWidget {
 
   final DirectionsVM vm;
   final void Function(LatLng) pinDropCallback;
+  final void Function(Edge) onEdgeMarkerTap;
 
-  const CampusMap(this.vm, this.pinDropCallback, {super.key});
+  const CampusMap(this.vm, this.pinDropCallback, this.onEdgeMarkerTap, {super.key});
 
   @override
   State<CampusMap> createState() => _CampusMapState();
@@ -124,11 +134,12 @@ class _CampusMapState extends State<CampusMap> {
     //   for (int i = 0; i < widget.vm.mapPath.length; i++)
     //     Row(children: [Text("step $i: "), Text(widget.vm.mapPath[i].toString())],)
     // ],));
+    LayerHitNotifier<Edge> polylineTapValue = ValueNotifier(null);
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>FlutterMap(
         options: MapOptions(
-          initialCenter: widget.vm.itemInFocus == null ? Defaults.mapPosition : widget.vm.itemInFocus.getLatLng(),
+          initialCenter:Defaults.mapPosition,
           initialZoom: Defaults.mapInitialZoom,
           onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
         ),
@@ -146,38 +157,52 @@ class _CampusMapState extends State<CampusMap> {
             )
           ),
           OverlayImageLayer(overlayImages: widget.vm.visibleFloorplans),
-          PolylineLayer(polylines: [
-            if (widget.vm.mapPath.length > 2)
-              for (Edge edge in widget.vm.mapPath.sublist(1, widget.vm.mapPath.length-1)) // edges between intermediate nodes 
-                Polyline(
-                  points: [
-                    edge.start.getLatLng(),
-                    edge.end.getLatLng()
+          GestureDetector(
+            behavior: HitTestBehavior.deferToChild,
+            onTap: () {
+              if (polylineTapValue.value == null) {
+                return;
+              }
+              widget.onEdgeMarkerTap(polylineTapValue.value!.hitValues.first);
+            },
+            child: PolylineLayer(
+              hitNotifier: polylineTapValue,
+              polylines: [
+              if (widget.vm.lastRoute.length() > 2)
+                for (Edge edge in widget.vm.lastRoute.edges.sublist(1, widget.vm.lastRoute.length()-1)) // edges between intermediate nodes 
+                  Polyline(
+                    points: [
+                      edge.start.getLatLng(),
+                      edge.end.getLatLng()
+                    ],
+                    strokeWidth:Defaults.edgeWidth,
+                    color: Colors.yellow,
+                    hitValue: edge
+                    
+                  ),
+              if (widget.vm.lastRoute.length() > 0) 
+                ...[
+                  Polyline(points: [
+                    widget.vm.lastRoute.edges.first.start.getLatLng(),
+                    widget.vm.lastRoute.edges.first.end.getLatLng()
                   ],
-                  strokeWidth: 3,
-                  color: Colors.yellow,
-                  
-                ),
-            if (widget.vm.mapPath.isNotEmpty) 
-              ...[
-                Polyline(points: [
-                  widget.vm.mapPath.first.start.getLatLng(),
-                  widget.vm.mapPath.first.end.getLatLng()
-                ],
-                  strokeWidth: 3,
-                  color: Colors.red,
-                  pattern: StrokePattern.dotted()
-                ),
-                Polyline(points: [
-                  widget.vm.mapPath.last.start.getLatLng(),
-                  widget.vm.mapPath.last.end.getLatLng(),
-                ],
-                  strokeWidth: 3,
-                  color: Colors.green,
-                  pattern: StrokePattern.dotted()
-                )
-              ]
-          ]),
+                    strokeWidth:Defaults.edgeWidth,
+                    color: Colors.red,
+                    pattern: StrokePattern.dotted(),
+                    hitValue: widget.vm.lastRoute.edges.first
+                  ),
+                  Polyline(points: [
+                    widget.vm.lastRoute.edges.last.start.getLatLng(),
+                    widget.vm.lastRoute.edges.last.end.getLatLng(),
+                  ],
+                    strokeWidth:Defaults.edgeWidth,
+                    color: Colors.green,
+                    pattern: StrokePattern.dotted(),
+                    hitValue: widget.vm.lastRoute.edges.last
+                  )
+                ]
+            ]),
+          ),
           MarkerLayer(markers: [
             if (widget.vm.gps != null)
               Marker(point: widget.vm.gps!.getLatLng(),
@@ -188,16 +213,16 @@ class _CampusMapState extends State<CampusMap> {
             for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
               Marker(point: destination.getLatLng(),
                 child: NearbyMarker(onTap: () => widget.vm.setDest(destination),)),
-            if (widget.vm.mapPath.length > 1)
-              for (Edge edge in widget.vm.mapPath.sublist(1, widget.vm.mapPath.length)) // all intermediate nodes
+            if (widget.vm.lastRoute.length() > 1)
+              for (Edge edge in widget.vm.lastRoute.edges.sublist(1, widget.vm.lastRoute.length())) // all intermediate nodes
                 Marker(point: edge.start.getLatLng(),
-                  child: PathNodeMarker(onTap: () => widget.vm.selectNode(edge.start),)),
-            if (widget.vm.mapPath.isNotEmpty) // start destination
-              Marker(point: widget.vm.mapPath.first.start.getLatLng(),
-                child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.mapPath.first.start as Destination),)),
-            if (widget.vm.mapPath.isNotEmpty) // end destination
-              Marker(point: widget.vm.mapPath.last.end.getLatLng(),
-                child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.mapPath.last.end as Destination))),
+                  child: PathNodeMarker(onTap: () => widget.vm.focusItem(edge.start),)),
+            if (widget.vm.lastRoute.length()>0) // start destination
+              Marker(point: widget.vm.lastRoute.edges.first.start.getLatLng(),
+                child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.lastRoute.start()),)),
+            if (widget.vm.lastRoute.length()>0) // end destination
+              Marker(point: widget.vm.lastRoute.edges.last.end.getLatLng(),
+                child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.lastRoute.end()))),
             if (widget.vm.newStartDest != null)
               if (widget.vm.settingEnd)
                 Marker(point: widget.vm.newStartDest!.getLatLng(),
@@ -464,9 +489,9 @@ class RoutePanel extends StatefulWidget {
   
   final DirectionsVM vm;
   final void Function(Node) onNodeSelect;
-  final void Function(Edge) onEdgeSelect;
+  final void Function(Segment) onSegmentSelect;
   
-  const RoutePanel(this.vm, this.onNodeSelect, this.onEdgeSelect, {super.key});
+  const RoutePanel(this.vm, this.onNodeSelect, this.onSegmentSelect, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -479,12 +504,15 @@ class _RoutePanelState extends State<RoutePanel> {
   
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child) => Row(children: [
-        if (widget.vm.mapPath.isNotEmpty)
-          Expanded(flex: 1, child: RoutePanelList(widget.vm.mapPath, widget.onNodeSelect, widget.onEdgeSelect))
+        if (widget.vm.lastRoute.length()>0)
+          Expanded(flex: 1, child: RoutePanelList(widget.vm.lastRoute.segments, widget.onNodeSelect, widget.onSegmentSelect)),
+        if (widget.vm.itemInFocus is Node)
+          Expanded(flex: 1, child: NodeInfo(widget.vm.itemInFocus))
+        else if (widget.vm.itemInFocus is Segment)
+          Expanded(flex: 1, child: SegmentInfo(widget.vm.itemInFocus))
       ])
     );
   }
@@ -506,24 +534,24 @@ class RoutePanelToggle extends StatelessWidget {
   }
 }
 
-class EdgePanel extends StatelessWidget {
+class SegmentInfo extends StatelessWidget {
 
-  final Edge edge;
+  final Segment segment;
 
-  const EdgePanel(this.edge, {super.key});
+  const SegmentInfo(this.segment, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Text(edge.duration.toString());    
+    return Text(segment.duration.toString());    
   }
 
 }
 
-class NodePanel extends StatelessWidget {
+class NodeInfo extends StatelessWidget {
 
   final Node node;
 
-  const NodePanel(this.node, {super.key});
+  const NodeInfo(this.node, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -535,25 +563,25 @@ class NodePanel extends StatelessWidget {
 
 class RoutePanelList extends StatelessWidget {
 
-  final List<Edge> route;
+  final List<Segment> route;
   final void Function(Node) onNodeSelect;
-  final void Function(Edge) onEdgeSelect;
+  final void Function(Segment) onSegmentSelect;
 
-  const RoutePanelList(this.route, this.onNodeSelect, this.onEdgeSelect, {super.key});
+  const RoutePanelList(this.route, this.onNodeSelect, this.onSegmentSelect, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
         RoutePanelStart(),
-        for (Edge edge in route)
+        for (Segment segment in route)
           Column(
             children: [
-              NodePanelItem(edge.start, onNodeSelect),
-              EdgePanelItem(edge, onEdgeSelect)
+              NodePanelItem(segment.start(), onNodeSelect),
+              SegmentPanelItem(segment, onSegmentSelect)
             ],
           ) ,
-        NodePanelItem(route.last.end, onNodeSelect),
+        NodePanelItem(route.last.end(), onNodeSelect),
         RoutePanelEnd()
       ],
     );
@@ -616,22 +644,22 @@ class NodePanelItem extends StatelessWidget {
 
 }
 
-class EdgePanelItem extends StatelessWidget {
+class SegmentPanelItem extends StatelessWidget {
 
-  final Edge edge;
-  final void Function(Edge) onSelect;
+  final Segment segment;
+  final void Function(Segment) onSelect;
 
-  const EdgePanelItem(this.edge, this.onSelect, {super.key});
+  const SegmentPanelItem(this.segment, this.onSelect, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => onSelect(edge),
+      onPressed: () => onSelect(segment),
       icon: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.yellow
         ),
-        child: Text(edge.duration.round().toString()),
+        child: Text(segment.edgeType().name),
       )
     );
   }

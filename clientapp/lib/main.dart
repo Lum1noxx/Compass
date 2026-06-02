@@ -29,11 +29,9 @@ class Globals {
       ];
       destinations = Destinations(json, Defaults.autocompleteSize);
     });
-    edges = Edges(Defaults.walkingSpeedMetresPerSec);
   }
   static late Nodes nodes;
   static late Destinations destinations;
-  static late Edges edges;
 }
 
 class MainApp extends StatelessWidget {

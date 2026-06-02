@@ -7,6 +7,8 @@ class Defaults {
   static int gpsUpdateThreshold = 1; // in metres, 0 == update for all movements
   static double mapInitialZoom = 14.5; 
   static double mapFocusZoom = 18.5; 
+  static double segmentViewPadding = 80;
+  static double edgeWidth = 5;
   static double walkingSpeedMetresPerSec = 4/3;
 }
 

@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 class DirectionsModel {
 
@@ -34,7 +31,7 @@ class DirectionsModel {
     return Globals.destinations.autocomplete(query);
   }
 
-  Future<List<Edge>> findPath(Destination startDest, Destination endDest) async{
+  Future<Path> findPath(Destination startDest, Destination endDest) async{
     List<Map> edgesJson = await ApiCalls.shortest_path(startDest.name, endDest.name);
     await Globals.nodes.fetch([
       for (Map edgeInfo in edgesJson)
@@ -42,7 +39,7 @@ class DirectionsModel {
       if (edgesJson.isNotEmpty)
         edgesJson.last['end']
     ]);
-    List<Edge> path = [
+    List<Edge> edges = [
       for (Map edgeInfo in edgesJson)
         Edge(
           EdgeType.get(edgeInfo["type"]),
@@ -53,12 +50,7 @@ class DirectionsModel {
           edgeInfo["duration"]
         )
     ];
-    return [
-      Globals.edges.auto(startDest, path.first.start, path.first),
-      for (Edge edge in path)
-        edge,
-      Globals.edges.auto(path.last.end, endDest, path.last),
-    ];
+    return Path.autoJoin(edges, startDest, endDest);
 
   }
 
