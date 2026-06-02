@@ -1,6 +1,5 @@
-
-import 'package:clientapp/pages/aboutPage.dart';
-import 'package:clientapp/pages/directionsPage.dart';
+import 'package:clientapp/pages/about.dart';
+import 'package:clientapp/pages/directions/directions.dart';
 import 'package:clientapp/viewmodels/pageChangeVM.dart';
 import 'package:flutter/material.dart';
 
