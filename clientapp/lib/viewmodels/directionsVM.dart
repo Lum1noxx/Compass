@@ -19,9 +19,6 @@ class DirectionsVM extends ChangeNotifier {
     });
   }
 
-  Destination? mapStartDest;
-  Destination? mapEndDest;
-
   late List<Edge> mapPath;
   late List<String> autocompleteResults;
   late List<Destination> nearbyDestinations;
@@ -29,7 +26,7 @@ class DirectionsVM extends ChangeNotifier {
   Destination? newStartDest;
   Destination? newEndDest;
 
-  dynamic currentSelection = null; // Node or Dest
+  dynamic itemInFocus = null; // Node or Edge
 
   late bool settingEnd; // else, setting start
   late int selectedFloor = 0;
@@ -53,22 +50,18 @@ class DirectionsVM extends ChangeNotifier {
   }
 
   void notifyMapView() {
-    mapController.move(currentSelection.getLatLng(), Defaults.mapFocusZoom);
+    mapController.move(itemInFocus.getLatLng(), Defaults.mapFocusZoom);
   }
 
   void pinDropLatLng(LatLng position) async {
-    currentSelection = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
+    itemInFocus = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
     notifyMapView();
-    nearbyDestinations = await model.getNearbyDestinations(currentSelection);
+    nearbyDestinations = await model.getNearbyDestinations(itemInFocus);
     notifyListeners();
-  }
-
-  void selectNodeByName(String nodeName) {
-    selectNode(model.getNodeOnPath(nodeName));
   }
   
   void selectNode(Node node) {
-    currentSelection = node;
+    itemInFocus = node;
     notifyMapView();
     notifyListeners();
   }
@@ -84,7 +77,7 @@ class DirectionsVM extends ChangeNotifier {
     } else {
       newStartDest = destination;
     }
-    currentSelection = destination;
+    itemInFocus = destination;
     notifyMapView();
     notifyListeners();
   }
@@ -96,9 +89,8 @@ class DirectionsVM extends ChangeNotifier {
 
   void findPath() async{
     if (newStartDest!=null && newEndDest!=null){
-      mapStartDest = newStartDest;
-      mapEndDest = newEndDest;
       model.findPath(newStartDest!, newEndDest!).then((path){mapPath=path; notifyListeners();});
+      showRoutePanel = true;
     }
   }
 

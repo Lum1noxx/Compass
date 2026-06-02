@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
 import 'package:woozy_search/woozy_search.dart';
@@ -30,7 +31,6 @@ class Node {
   final Coordinate coordinate;
   @override
   String toString() {
-    // TODO: implement toString
     return 'node: $name at $coordinate';
   }
   LatLng getLatLng() {
@@ -38,83 +38,16 @@ class Node {
   }
 }
 
-class Destination {
-  const Destination(this.name, this.coordinate);
-  final Coordinate coordinate;
-  final String name;
-  // List<Node> getNodes();
-  // Coordinate locate();
-  // int numNodes();
+class Destination extends Node {
+
+  const Destination(super.name, super.coordinate);
+
   @override
   String toString() {
-    // TODO: implement toString
     return 'destination: $name at $coordinate';
   }
-  LatLng getLatLng() {
-    return coordinate.getLatLng();
-  }
+
 }
-
-// class SingleDestination extends Destination {
-//   const SingleDestination(super.name, this.node);
-//   final Node node;
-//   @override
-//   List<Node> getNodes() {
-//     // TODO: implement getNodes
-//     return [node];
-//   }
-//   @override
-//   Coordinate locate() {
-//     // TODO: implement locate
-//     return node.coordinate;
-//   }
-//   @override
-//   int numNodes() {
-//     // TODO: implement numNodes
-//     return 1;
-//   }
-// }
-
-// class GroupDestination extends Destination {
-//   const GroupDestination(super.name, this.children);
-//   final List<Destination> children;
-
-//   @override
-//   List<Node> getNodes() {
-//     // TODO: implement getNodes
-//     List<Node> nodes = [];
-//     for (Destination dest in children) {
-//       nodes.addAll(dest.getNodes());
-//     }
-//     return nodes;
-//   }
-//   @override
-//   Coordinate locate() {
-//     // TODO: implement locate
-//     double lat = 0;
-//     double lng = 0;
-//     double floor = 0;
-//     for (Destination dest in children) {
-//       Coordinate loc = dest.locate();
-//       int num = dest.numNodes();
-//       lat += loc.lat*num;
-//       lng += loc.lng*num;
-//       floor += loc.floor*num;
-//     }
-//     int totalNum = numNodes();
-//     return Coordinate(lat/totalNum, lng/totalNum,  (floor/totalNum).round());
-//   }
-
-//   @override
-//   int numNodes() {
-//     // TODO: implement numNodes
-//     int num = 0;
-//     for (Destination dest in children) {
-//       num += dest.numNodes();
-//     }
-//     return num;
-//   }
-// }
 
 enum EdgeType {
   walk,
@@ -132,13 +65,14 @@ enum EdgeType {
 }
 
 class Edge {
-  const Edge(this.edgeType, this.start, this.end, this.sheltered, this.stairs, this.duration);
   final EdgeType edgeType;
   final Node start;
   final Node end;
   final bool sheltered;
   final bool stairs;
   final double duration;
+
+  const Edge(this.edgeType, this.start, this.end, this.sheltered, this.stairs, this.duration);
 
   @override
   String toString() {
@@ -151,6 +85,11 @@ class Nodes {
 
   final Map<String, Node> map = {};
   Future<void> fetch (List<String> names) async {
+    names = [
+      for (String name in names)
+        if (!map.containsKey(name))
+          name
+    ];
     List<Map> json = await ApiCalls.node_coordinates(names);
     for (Map nodeObj in json) {
       map[nodeObj['name']] = Node(
@@ -184,6 +123,11 @@ class Destinations {
   late Woozy autocompleteEngine;
   
   Future<void> fetch (List<String> names) async {
+    names = [
+      for (String name in names)
+        if (!map.containsKey(name))
+          name
+    ];
     List<Map> json = await ApiCalls.dest_coordinates(names);
     for (Map destObj in json) {
       map[destObj['name']] = Destination(
@@ -257,4 +201,16 @@ class TempDestination extends Destination {
   /// this is soley for highlighting on map
   TempDestination(Coordinate coordinate) : super("", coordinate);
   TempDestination.plane(LatLng position) : super("", Coordinate(position.latitude, position.longitude, 0));
+}
+
+class Edges {
+
+  final double walkingSpeedMetresPerSec;
+
+  const Edges(this.walkingSpeedMetresPerSec);
+  
+  Edge auto(Node start, Node end, Edge adjacent) {
+    double duration = DistanceHaversine().distance(start.getLatLng(), end.getLatLng()) / walkingSpeedMetresPerSec;
+    return Edge(EdgeType.walk, start, end, adjacent.sheltered, adjacent.stairs, duration);
+  }
 }

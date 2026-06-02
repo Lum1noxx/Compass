@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
@@ -126,7 +128,7 @@ class _CampusMapState extends State<CampusMap> {
       listenable: widget.vm,
       builder: (ctx, child)=>FlutterMap(
         options: MapOptions(
-          initialCenter: widget.vm.currentSelection == null ? Defaults.mapPosition : widget.vm.currentSelection.getLatLng(),
+          initialCenter: widget.vm.itemInFocus == null ? Defaults.mapPosition : widget.vm.itemInFocus.getLatLng(),
           initialZoom: Defaults.mapInitialZoom,
           onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
         ),
@@ -145,29 +147,30 @@ class _CampusMapState extends State<CampusMap> {
           
           ),
            PolylineLayer(polylines: [
-            for (Edge edge in widget.vm.mapPath) // edges between nodes 
-              Polyline(
-                points: [
-                  edge.start.getLatLng(),
-                  edge.end.getLatLng()
-                ],
-                strokeWidth: 3,
-                color: Colors.yellow,
-                
-              ),
+            if (widget.vm.mapPath.length > 2)
+              for (Edge edge in widget.vm.mapPath.sublist(1, widget.vm.mapPath.length-1)) // edges between intermediate nodes 
+                Polyline(
+                  points: [
+                    edge.start.getLatLng(),
+                    edge.end.getLatLng()
+                  ],
+                  strokeWidth: 3,
+                  color: Colors.yellow,
+                  
+                ),
             if (widget.vm.mapPath.isNotEmpty) 
               ...[
                 Polyline(points: [
-                  widget.vm.mapStartDest!.getLatLng(),
-                  widget.vm.mapPath.first.start.getLatLng()
+                  widget.vm.mapPath.first.start.getLatLng(),
+                  widget.vm.mapPath.first.end.getLatLng()
                 ],
                   strokeWidth: 3,
                   color: Colors.red,
                   pattern: StrokePattern.dotted()
                 ),
                 Polyline(points: [
+                  widget.vm.mapPath.last.start.getLatLng(),
                   widget.vm.mapPath.last.end.getLatLng(),
-                  widget.vm.mapEndDest!.getLatLng()
                 ],
                   strokeWidth: 3,
                   color: Colors.green,
@@ -179,24 +182,22 @@ class _CampusMapState extends State<CampusMap> {
             if (widget.vm.gps != null)
               Marker(point: widget.vm.gps!.getLatLng(),
                 child: GPSMarker(onTap: (){},)),
-            if (widget.vm.currentSelection is TempDestination)
-              Marker(point: widget.vm.currentSelection.getLatLng(),
+            if (widget.vm.itemInFocus is TempDestination)
+              Marker(point: widget.vm.itemInFocus.getLatLng(),
                 child: DroppedPin(onTap: (){},)),
-            for (Destination destination in widget.vm.nearbyDestinations)
+            for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
               Marker(point: destination.getLatLng(),
                 child: NearbyMarker(onTap: () => widget.vm.setDest(destination),)),
-            for (Edge edge in widget.vm.mapPath) // all start nodes
-              Marker(point: edge.start.getLatLng(),
-                child: PathNodeMarker(onTap: () => widget.vm.selectNode(edge.start),)),
-            if (widget.vm.mapPath.isNotEmpty) // final end node
-              Marker(point: widget.vm.mapPath.last.end.getLatLng(), 
-                child: PathNodeMarker(onTap: () => widget.vm.selectNode(widget.vm.mapPath.last.end))),
-            if (widget.vm.mapStartDest != null) // start destination
-              Marker(point: widget.vm.mapStartDest!.getLatLng(),
-                child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.mapStartDest!),)),
-            if (widget.vm.mapEndDest != null) // end destination
-              Marker(point: widget.vm.mapEndDest!.getLatLng(),
-                child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.mapEndDest!))),
+            if (widget.vm.mapPath.length > 1)
+              for (Edge edge in widget.vm.mapPath.sublist(1, widget.vm.mapPath.length)) // all intermediate nodes
+                Marker(point: edge.start.getLatLng(),
+                  child: PathNodeMarker(onTap: () => widget.vm.selectNode(edge.start),)),
+            if (widget.vm.mapPath.isNotEmpty) // start destination
+              Marker(point: widget.vm.mapPath.first.start.getLatLng(),
+                child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.mapPath.first.start as Destination),)),
+            if (widget.vm.mapPath.isNotEmpty) // end destination
+              Marker(point: widget.vm.mapPath.last.end.getLatLng(),
+                child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.mapPath.last.end as Destination))),
             if (widget.vm.newStartDest != null)
               if (widget.vm.settingEnd)
                 Marker(point: widget.vm.newStartDest!.getLatLng(),
@@ -483,7 +484,7 @@ class _RoutePanelState extends State<RoutePanel> {
       listenable: widget.vm,
       builder: (ctx, child) => Row(children: [
         if (widget.vm.mapPath.isNotEmpty)
-          Expanded(flex: 1, child: RoutePanelList(widget.vm.mapPath, widget.vm.mapStartDest!, widget.vm.mapEndDest!, widget.onNodeSelect, widget.onEdgeSelect))
+          Expanded(flex: 1, child: RoutePanelList(widget.vm.mapPath, widget.onNodeSelect, widget.onEdgeSelect))
       ])
     );
   }
@@ -535,12 +536,10 @@ class NodePanel extends StatelessWidget {
 class RoutePanelList extends StatelessWidget {
 
   final List<Edge> route;
-  final Destination start;
-  final Destination end;
   final void Function(Node) onNodeSelect;
   final void Function(Edge) onEdgeSelect;
 
-  const RoutePanelList(this.route, this.start, this.end, this.onNodeSelect, this.onEdgeSelect, {super.key});
+  const RoutePanelList(this.route, this.onNodeSelect, this.onEdgeSelect, {super.key});
 
   @override
   Widget build(BuildContext context) {

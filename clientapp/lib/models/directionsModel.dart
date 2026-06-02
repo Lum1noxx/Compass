@@ -11,7 +11,6 @@ import 'package:latlong2/latlong.dart';
 
 class DirectionsModel {
 
-  late Map<String, Node> nodesOnPath;
 
   StreamSubscription streamGPS(void Function(LatLng) callback) {
     final LocationSettings locationSettings = LocationSettings(
@@ -54,18 +53,13 @@ class DirectionsModel {
           edgeInfo["duration"]
         )
     ];
-    nodesOnPath = {
+    return [
+      Globals.edges.auto(startDest, path.first.start, path.first),
       for (Edge edge in path)
-        edge.start.name : edge.start,
-      path.last.end.name : path.last.end
-    };
-    return path;
+        edge,
+      Globals.edges.auto(path.last.end, endDest, path.last),
+    ];
 
-  }
-
-  Node getNodeOnPath(String nodeName) {
-
-    return nodesOnPath[nodeName]!;
   }
 
   Future<List<Destination>> getNearbyDestinations(currentSelection) async{
