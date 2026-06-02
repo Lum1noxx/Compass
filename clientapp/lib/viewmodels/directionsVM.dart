@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/floorplans.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -31,6 +32,7 @@ class DirectionsVM extends ChangeNotifier {
   late bool settingEnd; // else, setting start
   late int selectedFloor = 0;
   bool useSelectedFloor = false;
+  List<OverlayImage> visibleFloorplans = [];
   TempDestination? gps = null;
 
   bool showRoutePanel = false;
@@ -107,6 +109,7 @@ class DirectionsVM extends ChangeNotifier {
     } else {
       useSelectedFloor = true;
       selectedFloor = Floors.getFloor(floor);
+      visibleFloorplans = floorplans.get(selectedFloor);
       notifyListeners();
     }
   }

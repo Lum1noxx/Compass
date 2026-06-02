@@ -144,9 +144,9 @@ class _CampusMapState extends State<CampusMap> {
                   maxCacheSize: 1_000_000_000, // 1 GB is the default
               )
             )
-          
           ),
-           PolylineLayer(polylines: [
+          OverlayImageLayer(overlayImages: widget.vm.visibleFloorplans),
+          PolylineLayer(polylines: [
             if (widget.vm.mapPath.length > 2)
               for (Edge edge in widget.vm.mapPath.sublist(1, widget.vm.mapPath.length-1)) // edges between intermediate nodes 
                 Polyline(
