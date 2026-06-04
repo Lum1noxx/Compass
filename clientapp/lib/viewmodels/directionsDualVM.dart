@@ -13,6 +13,10 @@ class DirectionsDualVM extends DirectionsBaseVM {
 
   DirectionsDualVM(super.navigator, super.model);
 
+  // @override void onResume() {
+  //   notifyListeners();
+  // }
+
   @override
   void callTo(PageVM child) {
   }
@@ -21,8 +25,13 @@ class DirectionsDualVM extends DirectionsBaseVM {
   void returnFrom(PageVM child) {
     if (child is DestinationSearchVM) {
       if (child.selection != null) {
-        setDest(child.selection!);
+            if (settingEnd) {
+      newEndDest = child.selection!;
+      } else {
+        newStartDest = child.selection!;
       }
+      itemInFocus = child.selection!; 
+        }
     }
   }
 
