@@ -1,19 +1,19 @@
-import 'package:clientapp/viewmodels/directionsVM.dart';
+import 'package:clientapp/viewmodels/destinationSearchVM.dart';
 import 'package:flutter/material.dart';
 
-class Suggestions extends StatefulWidget {
+class SuggestionsList extends StatefulWidget {
 
-  final DirectionsVM vm;
+  final DestinationSearchVM vm;
   final void Function(String) onDestNameSelect;
 
-  const Suggestions(this.vm, this.onDestNameSelect, {super.key});
+  const SuggestionsList(this.vm, this.onDestNameSelect, {super.key});
 
   @override
-  State<Suggestions> createState() => _SuggestionsState();
+  State<SuggestionsList> createState() => _SuggestionsListState();
 
 }
 
-class _SuggestionsState extends State<Suggestions> {
+class _SuggestionsListState extends State<SuggestionsList> {
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +21,6 @@ class _SuggestionsState extends State<Suggestions> {
       listenable: widget.vm,
       builder: (ctx, child)=>  ListView(children: [
         for (String dest in widget.vm.autocompleteResults)
-          if (widget.vm.newStartDest != null && dest == widget.vm.newStartDest!.name)
-            DestinationRow(dest, widget.onDestNameSelect, Colors.yellow)
-          else if (widget.vm.newEndDest != null && dest == widget.vm.newEndDest!.name)
-            DestinationRow(dest, widget.onDestNameSelect, Colors.yellow)
-          else
             DestinationRow(dest, widget.onDestNameSelect)
       ],),
     );

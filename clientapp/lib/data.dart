@@ -302,7 +302,7 @@ class Path {
   }
   
   Destination end() {
-    return edges.first.end as Destination;
+    return edges.last.end as Destination;
   }
 
   Segment locate (Edge edge) {

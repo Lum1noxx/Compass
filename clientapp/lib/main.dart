@@ -42,7 +42,7 @@ class MainApp extends StatelessWidget {
     Globals.init();
     return const MaterialApp(
       home: Scaffold(
-        body: Center(
+        body: SafeArea(
           child: MainActivity(),
         ),
       ),

@@ -10,5 +10,6 @@ class Defaults {
   static double segmentViewPadding = 80;
   static double edgeWidth = 5;
   static double walkingSpeedMetresPerSec = 4/3;
+  static double iconSize = 40;
 }
 

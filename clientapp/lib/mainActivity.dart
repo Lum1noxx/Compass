@@ -1,9 +1,9 @@
-import 'package:clientapp/pages/about.dart';
-import 'package:clientapp/pages/directions/directions.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewmodels/pageChangeVM.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-PageChangeVM vm = PageChangeVM(DirectionsPage());
+PageChangeVM vm = PageChangeVM('directionsSingle');
 
 class MainActivity extends StatefulWidget {
   const MainActivity({super.key});
@@ -18,44 +18,21 @@ class _MainActivityState extends State<MainActivity> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(listenable: vm, builder: (ctx, child){
-      return Column(children: [
-        Expanded(flex: 1, child: TopBar(vm.currentPage)),
-        Expanded(flex: 12, child: vm.currentPage),
-        Expanded(flex: 1, child: NavigationBar())
-      ],);
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          vm.navBack();
+        },
+        child: Stack(children: [
+              vm.currentPage,
+              IconButton(
+                iconSize: Defaults.iconSize,
+                alignment: Alignment.center,
+                onPressed: ()=>vm.navStack.last.navBack(),
+                icon: Icon(Icons.arrow_back_ios_outlined)),
+            ],),
+      );
     });
     
-  }
-}
-
-class TopBar extends StatelessWidget {
-  TopBar(Widget page, {super.key}) {
-    if (page is DirectionsPage) {
-      pageName = "Directions";
-    } else if (page is AboutPage) {
-      pageName = "About";
-    } else {
-      pageName = "invalid";
-    }
-  }
-  late String pageName;
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [Text(pageName)]);
-  }
-}
-
-class NavigationBar extends StatelessWidget {
-  const NavigationBar({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Expanded(flex: 1, child: DecoratedBox(
-        decoration: BoxDecoration(color: (vm.currentPage is DirectionsPage) ? Colors.yellow : Colors.blueGrey),
-        child: TextButton(onPressed: ()=>vm.navigateTo(DirectionsPage()), child: Text("directions")))) ,
-      Expanded(flex: 1, child: DecoratedBox(
-        decoration: BoxDecoration(color: (vm.currentPage is AboutPage) ? Colors.yellow : Colors.blueGrey),
-        child: TextButton(onPressed: ()=>vm.navigateTo(AboutPage()), child: Text("about")))) ,
-    ],);
   }
 }

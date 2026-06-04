@@ -9,11 +9,15 @@ import 'package:latlong2/latlong.dart' hide Path;
 class DirectionsModel {
 
 
-  StreamSubscription streamGPS(void Function(LatLng) callback) {
+  Future<StreamSubscription> streamGPS(void Function(LatLng) callback) async{
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.best,
       distanceFilter: Defaults.gpsUpdateThreshold,
     );
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
     StreamSubscription<Position> stream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
       (Position? position) {
         if (position != null) {
