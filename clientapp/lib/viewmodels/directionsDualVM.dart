@@ -9,6 +9,8 @@ class DirectionsDualVM extends DirectionsBaseVM {
   Destination? newStartDest;
   Destination? newEndDest;
   bool settingEnd = false; // else, setting start
+  bool filterStairs = true;
+  bool filterUnsheltered = true;
 
 
   DirectionsDualVM(super.navigator, super.model);
@@ -35,6 +37,16 @@ class DirectionsDualVM extends DirectionsBaseVM {
     }
   }
 
+  void setFilterStairs(bool filter) {
+    filterStairs = filter;
+    notifyListeners();
+  }
+
+  void setFilterUnsheltered(bool filter) {
+    filterUnsheltered = filter;
+    notifyListeners();
+  }
+
   void focusItem(dynamic item) {
     assert(item is Node || item is Edge || item is Segment);
     if (item is Edge) {
@@ -59,7 +71,7 @@ class DirectionsDualVM extends DirectionsBaseVM {
 
   void findPath() async{
     if (newStartDest!=null && newEndDest!=null){
-      model.findPath(newStartDest!, newEndDest!).then((path){lastRoute=path; notifyListeners();});
+      model.findPath(newStartDest!, newEndDest!, filterStairs, filterUnsheltered).then((path){lastRoute=path; notifyListeners();});
     }
   }
 

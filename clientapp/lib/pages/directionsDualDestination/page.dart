@@ -2,11 +2,10 @@ import 'package:clientapp/pages/directionsDualDestination/callbacks.dart';
 import 'package:clientapp/viewComponents/destSwapButton.dart';
 import 'package:clientapp/viewComponents/dualSearchBarButtons.dart';
 import 'package:clientapp/viewComponents/findButton.dart';
-import 'package:clientapp/viewComponents/parts/floorPicker.dart';
-import 'package:clientapp/viewComponents/parts/gpsButton.dart';
 import 'package:clientapp/viewComponents/panelHeader.dart';
 import 'package:clientapp/viewComponents/panelInfo.dart';
 import 'package:clientapp/viewComponents/panelRouteList.dart';
+import 'package:clientapp/viewComponents/routeFilters.dart';
 import 'package:clientapp/viewComponents/routeMap.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
 import 'package:expandable/expandable.dart';
@@ -107,10 +106,10 @@ class _DirectionsDualDestinationsWidgetState
                               expanded:
                                   // {{RouteFilters}}
                                   Container(
-                                width: 100,
                                 height: 100,
                                 decoration: BoxDecoration(
                                 ),
+                                child: RouteFilters(widget.vm, callbacks.onFilterStairsChange, callbacks.onFilterUnshelteredChange),
                               ),
                               theme: ExpandableThemeData(
                                 tapHeaderToExpand: true,

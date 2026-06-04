@@ -35,8 +35,8 @@ class DirectionsModel {
     return Globals.destinations.autocomplete(query);
   }
 
-  Future<Path> findPath(Destination startDest, Destination endDest) async{
-    List<Map> edgesJson = await ApiCalls.shortest_path(startDest.name, endDest.name);
+  Future<Path> findPath(Destination startDest, Destination endDest, bool filterStairs, bool filterUnsheltered) async{
+    List<Map> edgesJson = await ApiCalls.shortest_path(startDest.name, endDest.name, !filterStairs, !filterUnsheltered);
     await Globals.nodes.fetch([
       for (Map edgeInfo in edgesJson)
         edgeInfo["start"],

@@ -5,11 +5,13 @@ import 'package:http/http.dart';
 
 class ApiCalls {
   static String baseUrl = "shrubs-quickly-anaerobic.ngrok-free.dev"; // STUB
-  static Future<List<Map>> shortest_path (String start, String end) async{
+  static Future<List<Map>> shortest_path (String start, String end, bool allowStairs, bool allowUnsheltered) async{
     print("api call::shortest_path::${start}::${end}");
     Uri request = Uri.https(baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
-      "end" : end.replaceAll(' ', "_")
+      "end" : end.replaceAll(' ', "_"),
+      // "sheltered" : (!allowUnsheltered).toString(), /// REMOVE BEFORE FLIGHT
+      // "stairs" : allowStairs.toString()
     });
     final response = await get(request);
     List<dynamic> json = jsonDecode(response.body)['edges'];
