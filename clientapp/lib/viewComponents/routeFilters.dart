@@ -1,5 +1,6 @@
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RouteFilters extends StatefulWidget {
@@ -35,7 +36,7 @@ class _RouteFiltersState extends State<RouteFilters> {
 class ShelterFilter extends SingleFilter {
 
   ShelterFilter(bool checked, void Function(bool) onCheckChange, {super.key}) : super(
-    Icon(Icons.apartment, size: Defaults.iconSize,),
+    Icon(CupertinoIcons.umbrella_fill, size: Defaults.iconSize,),
     checked, 
     onCheckChange
   );
@@ -45,7 +46,7 @@ class ShelterFilter extends SingleFilter {
 class StairsFilter extends SingleFilter {
 
   StairsFilter(bool checked, void Function(bool) onCheckChange, {super.key}) : super(
-    Icon(Icons.stairs, size: Defaults.iconSize,),
+    Icon(Icons.accessible_forward, size: Defaults.iconSize,),
     checked, 
     onCheckChange
   );

@@ -16,6 +16,7 @@ dependencies:
   url_launcher: ^6.3.2
   expandable: 5.0.1
   woozy_search: ^2.0.3
+  cupertino_icons: ^1.0.9
 
 dev_dependencies:
   flutter_test:

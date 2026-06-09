@@ -1,5 +1,6 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/viewComponents/parts/edgeLines.dart';
 import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
@@ -49,10 +50,10 @@ class _MapLegendState extends State<MapLegend> {
             color: Color.fromRGBO(220, 220, 220, 0.80),
             borderRadius: BorderRadius.circular(10)
           ),
-          child: Column(children: [
+          child: ListView(children: [
             Text("Legend"),
             Expanded(
-              flex: 3,
+              flex: 2,
               child: Wrap( // markers
               spacing: 10,
               runSpacing: 10,
@@ -66,13 +67,28 @@ class _MapLegendState extends State<MapLegend> {
                 ],
               ),
             ),
-            Expanded(
-              flex:1,
-              child: GridView.count( // polylines
-                crossAxisCount: 2,
-                children: [],
-              ),
-            )
+            if (widget.vm is DirectionsDualVM)
+              if ((widget.vm as DirectionsDualVM).lastRoute.length()>0)
+                Expanded(
+                  flex:1,
+                  child: Wrap( // polylines
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: 
+                    [
+                      for (LegendItem item in [
+                        LegendItem(EdgeLine.walk.getIcon(), "walk"),
+                        LegendItem(EdgeLine.bus.getIcon(), "bus"),
+                        LegendItem(EdgeLine.lift.getIcon(), "lift"),
+                     ])
+                        SizedBox(
+                          width: Defaults.legendWidth/2 - 10,
+                          height: Defaults.iconSize,
+                          child: item,
+                        )
+                    ],
+                  ),
+                )
           ],),
         );
       });

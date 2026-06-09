@@ -1,5 +1,6 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/viewComponents/parts/edgeLines.dart';
 import 'package:clientapp/viewComponents/parts/floorPicker.dart';
 import 'package:clientapp/viewComponents/parts/gpsButton.dart';
 import 'package:clientapp/viewComponents/parts/legend.dart';
@@ -78,40 +79,9 @@ class _RouteMapState extends State<RouteMap> {
                 child: PolylineLayer(
                   hitNotifier: polylineTapValue,
                   polylines: [
-                  if (widget.vm.lastRoute.length() > 2)
-                    for (Edge edge in widget.vm.lastRoute.edges.sublist(1, widget.vm.lastRoute.length()-1)) // edges between intermediate nodes 
-                      Polyline(
-                        points: [
-                          edge.start.getLatLng(),
-                          edge.end.getLatLng()
-                        ],
-                        strokeWidth:Defaults.edgeWidth,
-                        color: Colors.yellow,
-                        hitValue: edge
-                        
-                      ),
-                  if (widget.vm.lastRoute.length() > 0) 
-                    ...[
-                      Polyline(points: [
-                        widget.vm.lastRoute.edges.first.start.getLatLng(),
-                        widget.vm.lastRoute.edges.first.end.getLatLng()
-                      ],
-                        strokeWidth:Defaults.edgeWidth,
-                        color: Colors.red,
-                        pattern: StrokePattern.dotted(),
-                        hitValue: widget.vm.lastRoute.edges.first
-                      ),
-                      Polyline(points: [
-                        widget.vm.lastRoute.edges.last.start.getLatLng(),
-                        widget.vm.lastRoute.edges.last.end.getLatLng(),
-                      ],
-                        strokeWidth:Defaults.edgeWidth,
-                        color: Colors.green,
-                        pattern: StrokePattern.dotted(),
-                        hitValue: widget.vm.lastRoute.edges.last
-                      )
-                    ]
-                ]),
+                    for (Edge edge in widget.vm.lastRoute.edges)
+                      EdgeLine.of(edge).getPolyline(edge)
+                  ]),
               ),
               MarkerLayer(markers: [
                 if (widget.vm.gps != null)
