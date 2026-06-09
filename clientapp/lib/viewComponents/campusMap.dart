@@ -2,6 +2,9 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewComponents/parts/floorPicker.dart';
 import 'package:clientapp/viewComponents/parts/gpsButton.dart';
+import 'package:clientapp/viewComponents/parts/legend.dart';
+import 'package:clientapp/viewComponents/parts/legendButton.dart';
+import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
 import 'package:clientapp/viewmodels/directionsSingleVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -16,9 +19,10 @@ class CampusMap extends StatefulWidget {
   final void Function(Destination) onDestSelect;
   final void Function(String) onFloorNameSelect;
   final void Function() onGpsSelect;
+  final void Function() onLegendToggle;
 
 
-  const CampusMap(this.vm, this.pinDropCallback, this.onDestSelect, this.onFloorNameSelect, this.onGpsSelect, {super.key});
+  const CampusMap(this.vm, this.pinDropCallback, this.onDestSelect, this.onFloorNameSelect, this.onGpsSelect, this.onLegendToggle, {super.key});
 
   @override
   State<CampusMap> createState() => _CampusMapState();
@@ -40,6 +44,7 @@ class _CampusMapState extends State<CampusMap> {
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>Stack(
+        fit: StackFit.expand,
         children: [
           Align(
             alignment: Alignment.center,
@@ -67,16 +72,16 @@ class _CampusMapState extends State<CampusMap> {
                 MarkerLayer(markers: [
                   if (widget.vm.gps != null)
                     Marker(point: widget.vm.gps!.getLatLng(),
-                      child: GPSMarker(onTap: (){},)),
+                      child: GPSMarker((){},)),
                   if (widget.vm.itemInFocus is Destination && widget.vm.itemInFocus is! TempDestination)
                     Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: SelectingMarker(onTap: (){},)),
+                      child: SelectingMarker((){},)),
                   if (widget.vm.itemInFocus is TempDestination)
                     Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: DroppedMarker(onTap: (){},)),
+                      child: DroppedMarker((){},)),
                   for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
                     Marker(point: destination.getLatLng(),
-                      child: NearbyMarker(onTap: () => widget.onDestSelect(destination),)),
+                      child: NearbyMarker(() => widget.onDestSelect(destination),)),
                 ]),
                
                 RichAttributionWidget(
@@ -101,83 +106,23 @@ class _CampusMapState extends State<CampusMap> {
                 ],
               ),
             ),
-          )
-
+          ),
+          Container(
+            padding: EdgeInsets.all(10.0),
+            height: Defaults.legendHeight,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: widget.vm.showLegend ? Row(children: [
+                Container(
+                  width: Defaults.legendWidth,
+                  child: MapLegend(widget.vm),
+                ),
+                LegendButton(widget.onLegendToggle, true)
+              ],) : LegendButton(widget.onLegendToggle, false)
+            ),
+          ),
         ],
       ));
 
-  }
-}
-class GPSMarker extends MapMarker {
-  const GPSMarker({super.onTap}) : super(hollow:  false, color: Colors.brown, highlighted:  false);
-}
-
-class NearbyMarker extends MapMarker {
-  const NearbyMarker({super.onTap}) : super(hollow:  true, color:  Colors.orange, highlighted:  false);
-}
-
-class DroppedMarker extends MapMarker { /// maybe we dont really want this
-  const DroppedMarker({super.onTap}) : super(hollow:  false, color:  Colors.purple, highlighted:  false);
-}
-
-class PathNodeMarker extends MapMarker {
-  const PathNodeMarker({super.onTap}) : super(hollow:  false, color:  Colors.orange, highlighted:  false);
-}
-
-class PathStartMarker extends MapMarker {
-  const PathStartMarker({super.onTap}) : super(hollow:  false, color:  Colors.red, highlighted:  false);
-}
-
-class PathEndMarker extends MapMarker {
-  const PathEndMarker({super.onTap}) : super(hollow:  false, color:  Colors.green, highlighted:  false);
-}
-
-class NewChosenMarker extends MapMarker {
-  const NewChosenMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  false);
-}
-
-class SelectingMarker extends MapMarker {
-  const SelectingMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  true);
-}
-
-
-class MapMarker extends StatelessWidget {
-
-  final bool highlighted;
-  final bool hollow;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const MapMarker({
-    required this.hollow,
-    required this.color,
-    required this.highlighted,
-    this.onTap,
-    super.key
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: SizedBox(
-        width: 40,
-        height: 40,
-        child: Center(
-          child: Container(
-            width: highlighted ? 20 : 15,
-            height: highlighted ? 20 : 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: hollow ? Colors.transparent : color,
-              border: Border.all(color: color, width: highlighted ? 4 : 2),
-
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

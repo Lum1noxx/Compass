@@ -15,8 +15,9 @@ class DirectionsDualDestinationsCallbacks {
   late final void Function() onFindSelect;
   late final void Function(Node) onRoutePanelNodeSelect;
   late final void Function(Segment) onRoutePanelSegmentSelect;
-  late final void Function (bool) onFilterStairsChange;
-  late final void Function (bool) onFilterUnshelteredChange;
+  late final void Function(bool) onFilterStairsChange;
+  late final void Function(bool) onFilterUnshelteredChange;
+  late final void Function() onLegendToggle;
 
 
   DirectionsDualDestinationsCallbacks(DirectionsDualVM vm) {
@@ -55,6 +56,9 @@ class DirectionsDualDestinationsCallbacks {
     };
     onFilterUnshelteredChange = (filter) {
       vm.setFilterUnsheltered(filter);
+    };
+    onLegendToggle = () {
+      vm.toggleLegend();
     };
   }
 

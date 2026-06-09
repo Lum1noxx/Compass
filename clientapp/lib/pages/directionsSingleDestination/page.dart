@@ -70,7 +70,7 @@ class _DirectionsSingleDestinationWidgetState
               ),
               Expanded(
                 flex: 10,
-                child: CampusMap(widget.vm, callbacks.onPinDrop, callbacks.onDestSelect, callbacks.onFloorNameSelect, callbacks.onGpsSelect),
+                child: CampusMap(widget.vm, callbacks.onPinDrop, callbacks.onDestSelect, callbacks.onFloorNameSelect, callbacks.onGpsSelect, callbacks.onLegendToggle),
               ),
 
               ExpandableNotifier(

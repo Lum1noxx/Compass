@@ -20,6 +20,7 @@ abstract class DirectionsBaseVM extends PageVM {
   MapController mapController = MapController();
   StreamSubscription? gpsStream;
   TempDestination? gps;
+  bool showLegend = true;
 
 
   DirectionsBaseVM(super.navigator, this.model) {
@@ -86,6 +87,11 @@ abstract class DirectionsBaseVM extends PageVM {
     itemInFocus = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
     notifyMapCamera();
     nearbyDestinations = await model.getNearbyDestinations(itemInFocus!);
+    notifyListeners();
+  }
+
+  void toggleLegend() {
+    showLegend = !showLegend;
     notifyListeners();
   }
 

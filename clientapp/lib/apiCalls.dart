@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:clientapp/constants.dart';
 import 'package:http/http.dart';
 
 class ApiCalls {
-  static String baseUrl = "shrubs-quickly-anaerobic.ngrok-free.dev"; // STUB
+  
   static Future<List<Map>> shortest_path (String start, String end, bool allowStairs, bool allowUnsheltered) async{
     print("api call::shortest_path::${start}::${end}");
-    Uri request = Uri.https(baseUrl, "/shortest_path", {
+    Uri request = Uri.https(Constants.baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
       "end" : end.replaceAll(' ', "_"),
       // "sheltered" : (!allowUnsheltered).toString(), /// REMOVE BEFORE FLIGHT
@@ -58,7 +59,7 @@ class ApiCalls {
 
   static Future<List<Map>> node_coordinates (List<String> names) async{
     print("api call::node_coordinates::${names}");
-    Uri request = Uri.https(baseUrl, "/node_coordinates", {
+    Uri request = Uri.https(Constants.baseUrl, "/node_coordinates", {
       "names": [
         for (String name in names)
           name.replaceAll(' ', "_")
@@ -84,7 +85,7 @@ class ApiCalls {
 
   static Future<List<Map>> dest_coordinates (List<String> names) async{
     print("api call::dest_coordinates::${names}");
-    Uri request = Uri.https(baseUrl, "/dest_coordinates", {
+    Uri request = Uri.https(Constants.baseUrl, "/dest_coordinates", {
       "names": [
         for (String name in names)
           name.replaceAll(' ', "_")
@@ -110,7 +111,7 @@ class ApiCalls {
 
   static Future<List<Map<dynamic, dynamic>>> near_destinations(double lat, double lng, int floor, int count) async {
     print("api call::near_destinations::$lat, $lng, $floor, $count");
-    Uri request = Uri.https(baseUrl, "/near_destinations", {
+    Uri request = Uri.https(Constants.baseUrl, "/near_destinations", {
       'lat' : lat.toString(),
       'lng' : lng.toString(),
       'floor' : floor.toString(),

@@ -12,6 +12,8 @@ class DirectionsSingleDestinationCallbacks {
   late final void Function() onGpsSelect;
   late final void Function() onDirectionSelect;
   late final void Function(Destination) onDestSelect;
+  late final void Function() onLegendToggle;
+
 
   DirectionsSingleDestinationCallbacks(DirectionsSingleVM vm) {
     onSearchBarButtonSelect = () {
@@ -29,6 +31,9 @@ class DirectionsSingleDestinationCallbacks {
     };    
     onDestSelect = (dest) {
       vm.focusItem(dest);
+    };
+    onLegendToggle = () {
+      vm.toggleLegend();
     };
   }
 

@@ -2,7 +2,11 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewComponents/parts/floorPicker.dart';
 import 'package:clientapp/viewComponents/parts/gpsButton.dart';
+import 'package:clientapp/viewComponents/parts/legend.dart';
+import 'package:clientapp/viewComponents/parts/legendButton.dart';
+import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,8 +20,9 @@ class RouteMap extends StatefulWidget {
   final void Function(Edge) onEdgeMarkerTap;
   final void Function(String) onFloorNameSelect;
   final void Function() onGpsSelect;
+  final void Function() onLegendToggle;
 
-  const RouteMap(this.vm, this.pinDropCallback, this.onEdgeMarkerTap, this.onFloorNameSelect, this.onGpsSelect, {super.key});
+  const RouteMap(this.vm, this.pinDropCallback, this.onEdgeMarkerTap, this.onFloorNameSelect, this.onGpsSelect, this.onLegendToggle, {super.key});
 
   @override
   State<RouteMap> createState() => _RouteMapState();
@@ -40,6 +45,7 @@ class _RouteMapState extends State<RouteMap> {
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (ctx, child)=>Stack(
+        fit: StackFit.expand,
         children: [
           FlutterMap(
             options: MapOptions(
@@ -110,37 +116,35 @@ class _RouteMapState extends State<RouteMap> {
               MarkerLayer(markers: [
                 if (widget.vm.gps != null)
                   Marker(point: widget.vm.gps!.getLatLng(),
-                    child: GPSMarker(onTap: (){},)),
+                    child: GPSMarker((){},)),
                 if (widget.vm.itemInFocus is TempDestination)
                   Marker(point: widget.vm.itemInFocus.getLatLng(),
-                    child: DroppedMarker(onTap: (){},)),
+                    child: DroppedMarker((){},)),
                 for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
                   Marker(point: destination.getLatLng(),
-                    child: NearbyMarker(onTap: () => widget.vm.setDest(destination),)),
-                if (widget.vm.lastRoute.length() > 1)
-                  for (Edge edge in widget.vm.lastRoute.edges.sublist(1, widget.vm.lastRoute.length())) // all intermediate nodes
-                    Marker(point: edge.start.getLatLng(),
-                      child: PathNodeMarker(onTap: () => widget.vm.focusItem(edge.start),)),
+                    child: NearbyMarker(() => widget.vm.setDest(destination),)),
+                if (widget.vm.lastRoute.segments.isNotEmpty) // intra-segment nodes
+                  for (Segment segment in widget.vm.lastRoute.segments) 
+                    if (segment.edges.length > 1)
+                      for (Edge edge in segment.edges.getRange(1, segment.edges.length))
+                        Marker(point: edge.start.getLatLng(),
+                          child: SegmentNodeMarker(() => widget.vm.focusItem(edge.start),)),
+                if (widget.vm.lastRoute.segments.length > 1) // inter-segment nodes
+                  for (Segment segment in widget.vm.lastRoute.segments.getRange(1, widget.vm.lastRoute.segments.length)) // all intermediate nodes
+                    Marker(point: segment.start().getLatLng(),
+                      child: WaypointMarker(() => widget.vm.focusItem(segment.start()),)),
                 if (widget.vm.lastRoute.length()>0) // start destination
                   Marker(point: widget.vm.lastRoute.edges.first.start.getLatLng(),
-                    child: PathStartMarker(onTap: () => widget.vm.setDest(widget.vm.lastRoute.start()),)),
+                    child: RouteStartMarker(() => widget.vm.setDest(widget.vm.lastRoute.start()),)),
                 if (widget.vm.lastRoute.length()>0) // end destination
                   Marker(point: widget.vm.lastRoute.edges.last.end.getLatLng(),
-                    child: PathEndMarker(onTap: () => widget.vm.setDest(widget.vm.lastRoute.end()))),
+                    child: RouteEndMarker(() => widget.vm.setDest(widget.vm.lastRoute.end()))),
                 if (widget.vm.newStartDest != null)
-                  if (widget.vm.settingEnd)
-                    Marker(point: widget.vm.newStartDest!.getLatLng(),
-                    child: NewChosenMarker(onTap: () => widget.vm.setDest(widget.vm.newStartDest!)))
-                  else
-                    Marker(point: widget.vm.newStartDest!.getLatLng(),
-                    child: SelectingMarker(onTap: () => widget.vm.setDest(widget.vm.newStartDest!))),
+                  Marker(point: widget.vm.newStartDest!.getLatLng(),
+                      child: SelectingMarker(() => widget.vm.focusItem(widget.vm.lastRoute.end()))),
                 if (widget.vm.newEndDest != null)
-                  if (!widget.vm.settingEnd)
-                    Marker(point: widget.vm.newEndDest!.getLatLng(),
-                    child: NewChosenMarker(onTap: () => widget.vm.setDest(widget.vm.newEndDest!)))
-                  else
-                    Marker(point: widget.vm.newEndDest!.getLatLng(),
-                    child: SelectingMarker(onTap: () => widget.vm.setDest(widget.vm.newEndDest!)))
+                  Marker(point: widget.vm.newEndDest!.getLatLng(),
+                      child: SelectingMarker(() => widget.vm.focusItem(widget.vm.lastRoute.end()))),
               ]),
              
               RichAttributionWidget(
@@ -164,82 +168,23 @@ class _RouteMapState extends State<RouteMap> {
                 ],
               ),
             ),
-          )
+          ),
+          Container(
+            padding: EdgeInsets.all(10.0),
+            height: Defaults.legendHeight,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: widget.vm.showLegend ? Row(children: [
+                Container(
+                  width: Defaults.legendWidth,
+                  child: MapLegend(widget.vm),
+                ),
+                LegendButton(widget.onLegendToggle, true)
+              ],) : LegendButton(widget.onLegendToggle, false)
+            ),
+          ),
         ],
       ));
 
-  }
-}
-class GPSMarker extends MapMarker {
-  const GPSMarker({super.onTap}) : super(hollow:  false, color: Colors.brown, highlighted:  false);
-}
-
-class NearbyMarker extends MapMarker {
-  const NearbyMarker({super.onTap}) : super(hollow:  true, color:  Colors.orange, highlighted:  false);
-}
-
-class DroppedMarker extends MapMarker { /// maybe we dont really want this
-  const DroppedMarker({super.onTap}) : super(hollow:  false, color:  Colors.purple, highlighted:  false);
-}
-
-class PathNodeMarker extends MapMarker {
-  const PathNodeMarker({super.onTap}) : super(hollow:  false, color:  Colors.orange, highlighted:  false);
-}
-
-class PathStartMarker extends MapMarker {
-  const PathStartMarker({super.onTap}) : super(hollow:  false, color:  Colors.red, highlighted:  false);
-}
-
-class PathEndMarker extends MapMarker {
-  const PathEndMarker({super.onTap}) : super(hollow:  false, color:  Colors.green, highlighted:  false);
-}
-
-class NewChosenMarker extends MapMarker {
-  const NewChosenMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  false);
-}
-
-class SelectingMarker extends MapMarker {
-  const SelectingMarker({super.onTap}) : super(hollow:  true, color:  Colors.pink, highlighted:  true);
-}
-
-
-class MapMarker extends StatelessWidget {
-
-  final bool highlighted;
-  final bool hollow;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const MapMarker({
-    required this.hollow,
-    required this.color,
-    required this.highlighted,
-    this.onTap,
-    super.key
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: SizedBox(
-        width: 40,
-        height: 40,
-        child: Center(
-          child: Container(
-            width: highlighted ? 20 : 15,
-            height: highlighted ? 20 : 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: hollow ? Colors.transparent : color,
-              border: Border.all(color: color, width: highlighted ? 4 : 2),
-
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

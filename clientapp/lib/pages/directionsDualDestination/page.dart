@@ -130,7 +130,7 @@ class _DirectionsDualDestinationsWidgetState
                 flex: 10,
                 child: 
                     // {{RouteMap}}}
-                    RouteMap(widget.vm, callbacks.onPinDrop, callbacks.onEdgeMarkerTap, callbacks.onFloorNameSelect, callbacks.onGpsSelect),
+                    RouteMap(widget.vm, callbacks.onPinDrop, callbacks.onEdgeMarkerTap, callbacks.onFloorNameSelect, callbacks.onGpsSelect, callbacks.onLegendToggle),
                 ),
 
           
