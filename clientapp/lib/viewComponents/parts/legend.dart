@@ -52,43 +52,37 @@ class _MapLegendState extends State<MapLegend> {
           ),
           child: ListView(children: [
             Text("Legend"),
-            Expanded(
-              flex: 2,
-              child: Wrap( // markers
-              spacing: 10,
-              runSpacing: 10,
-                children: [
-                  for (LegendItem node in nodes)
-                    SizedBox(
-                      width: Defaults.legendWidth/2 - 10,
-                      height: Defaults.iconSize,
-                      child: node,
-                    )
-                ],
-              ),
+            Wrap( // markers
+            spacing: 10,
+            runSpacing: 10,
+              children: [
+                for (LegendItem node in nodes)
+                  SizedBox(
+                    width: Defaults.legendWidth/2 - 10,
+                    height: Defaults.iconSize,
+                    child: node,
+                  )
+              ],
             ),
             if (widget.vm is DirectionsDualVM)
               if ((widget.vm as DirectionsDualVM).lastRoute.length()>0)
-                Expanded(
-                  flex:1,
-                  child: Wrap( // polylines
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: 
-                    [
-                      for (LegendItem item in [
-                        LegendItem(EdgeLine.walk.getIcon(), "walk"),
-                        LegendItem(EdgeLine.bus.getIcon(), "bus"),
-                        LegendItem(EdgeLine.lift.getIcon(), "lift"),
-                     ])
-                        SizedBox(
-                          width: Defaults.legendWidth/2 - 10,
-                          height: Defaults.iconSize,
-                          child: item,
-                        )
-                    ],
-                  ),
-                )
+                Wrap( // polylines
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: 
+                  [
+                    for (LegendItem item in [
+                      LegendItem(EdgeLine.walk.getIcon(), "walk"),
+                      LegendItem(EdgeLine.bus.getIcon(), "bus"),
+                      LegendItem(EdgeLine.lift.getIcon(), "lift"),
+                    ])
+                      SizedBox(
+                        width: Defaults.legendWidth/2 - 10,
+                        height: Defaults.iconSize,
+                        child: item,
+                      )
+                  ],
+                ),
           ],),
         );
       });

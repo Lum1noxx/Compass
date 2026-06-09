@@ -17,6 +17,7 @@ dependencies:
   expandable: 5.0.1
   woozy_search: ^2.0.3
   cupertino_icons: ^1.0.9
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +31,19 @@ flutter:
   assets:
     - assets/json/destinations.json
     - assets/floorplans/
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/compass_light.png"
+  web:
+    generate: true
+    image_path: "assets/icon/compass_light.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+  windows:
+    generate: true
+    image_path: "assets/icon/compass_light.png"
+    icon_size: 128 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/compass_light.png"
