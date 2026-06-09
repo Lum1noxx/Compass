@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -6,11 +6,25 @@ import 'package:latlong2/latlong.dart';
 
 Floorplans floorplans = Floorplans({
   'com1' : {
+    -1: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/com1_b1.png"),
+      bounds: LatLngBounds(
+        LatLng(1.295265106, 103.773374542,),
+        LatLng(1.294232643, 103.774370164,)
+      ),
+    ),
     1: OverlayImage(
       imageProvider: AssetImage("assets/floorplans/com1_1.png"),
       bounds: LatLngBounds(
         LatLng(1.2942485632382001, 103.7731428476486002,),
         LatLng(1.2955539981982001, 103.7743574520326035,)
+      ),
+    ),
+    2: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/com1_2.png"),
+      bounds: LatLngBounds(
+        LatLng(1.295586326, 103.773101261,),
+        LatLng(1.294042075, 103.774499408,)
       ),
     )
   },
@@ -39,11 +53,20 @@ Floorplans floorplans = Floorplans({
         LatLng( 1.295496134, 103.775043308,),
         LatLng( 1.294797331, 103.775860172,)
       ),
-    )
+    ),
+    3: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/com4_3.png"),
+      bounds: LatLngBounds(
+        LatLng( 1.295494831, 103.775042363,),
+        LatLng( 1.294802821, 103.775861552,)
+      ),
+    ),    
   },
 
 });
 
+
+/// CONFIG
 class Floorplans {
 
   final Map<int, List<OverlayImage>> plans = {};

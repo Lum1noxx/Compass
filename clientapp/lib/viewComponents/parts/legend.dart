@@ -1,4 +1,8 @@
+import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
+import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
+import 'package:clientapp/viewmodels/directionsDualVM.dart';
 import 'package:flutter/material.dart';
 
 class MapLegend extends StatefulWidget{
@@ -18,9 +22,82 @@ class _MapLegendState extends State<MapLegend> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("legend"),
-    );
+    return ListenableBuilder(
+      listenable: widget.vm,
+      builder: (child, ctx) {
+        List<LegendItem> nodes = [
+          if (widget.vm.gps != null)
+            LegendItem(GPSMarker.icon(), "gps position"),
+          if (widget.vm.itemInFocus is TempDestination)
+            LegendItem(DroppedMarker.icon(), "dropped pin"),
+          if (widget.vm.itemInFocus is Destination)
+            LegendItem(SelectingMarker.icon(), "selected place"),
+          if (widget.vm.nearbyDestinations.isNotEmpty)
+            LegendItem(NearbyMarker.icon(), "nearby places"),
+        ];
+        if (widget.vm is DirectionsDualVM) {
+          if ((widget.vm as DirectionsDualVM).lastRoute.length() > 0) {
+            nodes.addAll([
+              LegendItem(RouteStartMarker.icon(), "start"),
+              LegendItem(RouteEndMarker.icon(), "end"),
+              LegendItem(WaypointMarker.icon(), "waypoint")
+            ]);
+          }
+        }
+        return Container(
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(220, 220, 220, 0.80),
+            borderRadius: BorderRadius.circular(10)
+          ),
+          child: Column(children: [
+            Text("Legend"),
+            Expanded(
+              flex: 3,
+              child: Wrap( // markers
+              spacing: 10,
+              runSpacing: 10,
+                children: [
+                  for (LegendItem node in nodes)
+                    SizedBox(
+                      width: Defaults.legendWidth/2 - 10,
+                      height: Defaults.iconSize,
+                      child: node,
+                    )
+                ],
+              ),
+            ),
+            Expanded(
+              flex:1,
+              child: GridView.count( // polylines
+                crossAxisCount: 2,
+                children: [],
+              ),
+            )
+          ],),
+        );
+      });
+    
+  }
+
+}
+
+class LegendItem extends StatelessWidget {
+
+  final String label;
+  final Widget icon;
+
+  const LegendItem(this.icon, this.label, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+        SizedBox(
+          width: Defaults.iconSize,
+          height: Defaults.iconSize,
+          child: icon),
+        Text(label),
+      ],
+    ); 
   }
 
 }

@@ -85,6 +85,7 @@ abstract class DirectionsBaseVM extends PageVM {
 
   void pinDropLatLng(LatLng position) async {
     itemInFocus = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
+    
     notifyMapCamera();
     nearbyDestinations = await model.getNearbyDestinations(itemInFocus!);
     notifyListeners();

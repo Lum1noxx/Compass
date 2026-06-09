@@ -14,8 +14,12 @@ class LegendButton extends StatelessWidget {
       onPressed: onSelect,
       alignment: Alignment.center,
       icon: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Color.fromRGBO(150, 150, 150, 0.5)
+          ),
         height: Defaults.legendHeight,
-        width: Defaults.iconSize,
+        width: 20,
         child: expanded ? HideLegend() : ShowLegend(),
       ) 
     );

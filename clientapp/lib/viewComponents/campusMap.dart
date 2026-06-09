@@ -115,6 +115,7 @@ class _CampusMapState extends State<CampusMap> {
               child: widget.vm.showLegend ? Row(children: [
                 Container(
                   width: Defaults.legendWidth,
+                  height: Defaults.legendHeight,
                   child: MapLegend(widget.vm),
                 ),
                 LegendButton(widget.onLegendToggle, true)
