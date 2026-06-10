@@ -12,7 +12,8 @@ class Defaults {
   static const double mapFocusZoom = 18.5; 
   static const double segmentViewPadding = 80;
   static const double edgeWidth = 5;
-  static const double mapMarkerSize = 40;
+  static const double otherFloorOpacity = 0.33;
+  static const double mapMarkerSize = 20;
   static const double legendHeight = 200;
   static const double legendWidth = 300;
 }

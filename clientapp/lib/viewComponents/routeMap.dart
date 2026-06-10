@@ -80,41 +80,41 @@ class _RouteMapState extends State<RouteMap> {
                   hitNotifier: polylineTapValue,
                   polylines: [
                     for (Edge edge in widget.vm.lastRoute.edges)
-                      EdgeLine.of(edge).getPolyline(edge)
+                      EdgeLine.of(edge).getPolyline(edge, widget.vm.isOnCurrentFloor(edge))
                   ]),
               ),
               MarkerLayer(markers: [
                 if (widget.vm.gps != null)
                   Marker(point: widget.vm.gps!.getLatLng(),
-                    child: GPSMarker((){},)),
+                    child: GPSMarker(widget.vm.isOnCurrentFloor(widget.vm.gps!), (){},)),
                 if (widget.vm.itemInFocus is TempDestination)
                   Marker(point: widget.vm.itemInFocus.getLatLng(),
-                    child: DroppedMarker((){},)),
+                    child: DroppedMarker(widget.vm.isOnCurrentFloor(widget.vm.itemInFocus), (){},)),
                 for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
                   Marker(point: destination.getLatLng(),
-                    child: NearbyMarker(() => widget.vm.setDest(destination),)),
+                    child: NearbyMarker(widget.vm.isOnCurrentFloor(destination), () => widget.vm.setDest(destination),)),
                 if (widget.vm.lastRoute.segments.isNotEmpty) // intra-segment nodes
                   for (Segment segment in widget.vm.lastRoute.segments) 
                     if (segment.edges.length > 1)
                       for (Edge edge in segment.edges.getRange(1, segment.edges.length))
                         Marker(point: edge.start.getLatLng(),
-                          child: SegmentNodeMarker(() => widget.vm.focusItem(edge.start),)),
+                          child: SegmentNodeMarker(widget.vm.isOnCurrentFloor(edge.start), () => widget.vm.focusItem(edge.start),)),
                 if (widget.vm.lastRoute.segments.length > 1) // inter-segment nodes
                   for (Segment segment in widget.vm.lastRoute.segments.getRange(1, widget.vm.lastRoute.segments.length)) // all intermediate nodes
                     Marker(point: segment.start().getLatLng(),
-                      child: WaypointMarker(() => widget.vm.focusItem(segment.start()),)),
+                      child: WaypointMarker(widget.vm.isOnCurrentFloor(segment.start()), () => widget.vm.focusItem(segment.start()),)),
                 if (widget.vm.lastRoute.length()>0) // start destination
                   Marker(point: widget.vm.lastRoute.edges.first.start.getLatLng(),
-                    child: RouteStartMarker(() => widget.vm.setDest(widget.vm.lastRoute.start()),)),
+                    child: RouteStartMarker(widget.vm.isOnCurrentFloor(widget.vm.lastRoute.edges.first.start), () => widget.vm.setDest(widget.vm.lastRoute.start()),)),
                 if (widget.vm.lastRoute.length()>0) // end destination
                   Marker(point: widget.vm.lastRoute.edges.last.end.getLatLng(),
-                    child: RouteEndMarker(() => widget.vm.setDest(widget.vm.lastRoute.end()))),
+                    child: RouteEndMarker(widget.vm.isOnCurrentFloor(widget.vm.lastRoute.edges.last.end), () => widget.vm.setDest(widget.vm.lastRoute.end()))),
                 if (widget.vm.newStartDest != null)
                   Marker(point: widget.vm.newStartDest!.getLatLng(),
-                      child: SelectingMarker(() => widget.vm.focusItem(widget.vm.lastRoute.end()))),
+                      child: SelectingMarker(widget.vm.isOnCurrentFloor(widget.vm.newStartDest!), () => widget.vm.focusItem(widget.vm.lastRoute.end()))),
                 if (widget.vm.newEndDest != null)
                   Marker(point: widget.vm.newEndDest!.getLatLng(),
-                      child: SelectingMarker(() => widget.vm.focusItem(widget.vm.lastRoute.end()))),
+                      child: SelectingMarker(widget.vm.isOnCurrentFloor(widget.vm.newEndDest!), () => widget.vm.focusItem(widget.vm.lastRoute.end()))),
               ]),
              
               RichAttributionWidget(

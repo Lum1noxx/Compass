@@ -72,16 +72,16 @@ class _CampusMapState extends State<CampusMap> {
                 MarkerLayer(markers: [
                   if (widget.vm.gps != null)
                     Marker(point: widget.vm.gps!.getLatLng(),
-                      child: GPSMarker((){},)),
+                      child: GPSMarker(widget.vm.isOnCurrentFloor(widget.vm.gps!) , (){},)),
                   if (widget.vm.itemInFocus is Destination && widget.vm.itemInFocus is! TempDestination)
                     Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: SelectingMarker((){},)),
+                      child: SelectingMarker(widget.vm.isOnCurrentFloor(widget.vm.itemInFocus), (){},)),
                   if (widget.vm.itemInFocus is TempDestination)
                     Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: DroppedMarker((){},)),
+                      child: DroppedMarker(widget.vm.isOnCurrentFloor(widget.vm.itemInFocus), (){},)),
                   for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
                     Marker(point: destination.getLatLng(),
-                      child: NearbyMarker(() => widget.onDestSelect(destination),)),
+                      child: NearbyMarker(widget.vm.isOnCurrentFloor(destination), () => widget.onDestSelect(destination),)),
                 ]),
                
                 RichAttributionWidget(

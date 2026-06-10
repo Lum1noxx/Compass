@@ -96,5 +96,18 @@ abstract class DirectionsBaseVM extends PageVM {
     notifyListeners();
   }
 
+  bool isOnCurrentFloor(dynamic item) { // Node or edge
+    if (!useSelectedFloor) {
+      return true;
+    }
+    if (item is Node) {
+      return !useSelectedFloor || selectedFloor == item.coordinate.floor;
+    } else if (item is Edge) {
+      return isOnCurrentFloor(item.start) || isOnCurrentFloor(item.end);
+    } else {
+      throw UnsupportedError("bad item type");
+    }
+  }
+
 
 }

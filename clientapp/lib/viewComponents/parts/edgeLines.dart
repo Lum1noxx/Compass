@@ -40,7 +40,7 @@ enum EdgeLine {
 
   const EdgeLine(this.color, this.width, this.gap);
 
-  Polyline<Edge> getPolyline(Edge edge) {
+  Polyline<Edge> getPolyline(Edge edge, bool onCurrentFloor) {
     return Polyline(
       points: [
         edge.start.getLatLng(),
@@ -48,7 +48,7 @@ enum EdgeLine {
       ],
       hitValue: edge,
       strokeWidth: width,
-      color: color,
+      color: color.withAlpha(onCurrentFloor ? 255 : (Defaults.otherFloorOpacity * 255).round()),
       pattern: gap > 0 ? StrokePattern.dotted(spacingFactor: gap/width) : StrokePattern.solid()
     );
   }

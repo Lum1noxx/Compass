@@ -14,7 +14,7 @@ class GPSMarker extends NodeMarker {
     );
   }
 
-  const GPSMarker(super.onTap, {super.key});
+  const GPSMarker(super.onCurrentFloor, super.onTap, {super.key});
   
   @override
   Widget makeIcon() {
@@ -34,7 +34,7 @@ class NearbyMarker extends NodeMarker {
     );
   }
   
-  const NearbyMarker(super.onTap, {super.key});
+  const NearbyMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -54,7 +54,7 @@ class DroppedMarker extends NodeMarker {
     );
   }
 
-  const DroppedMarker(super.onTap, {super.key});
+  const DroppedMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -74,7 +74,7 @@ class SegmentNodeMarker extends NodeMarker {
     );
   }
   
-  const SegmentNodeMarker(super.onTap, {super.key});
+  const SegmentNodeMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -94,7 +94,7 @@ class WaypointMarker extends NodeMarker {
     );
   }
   
-  const WaypointMarker(super.onTap, {super.key});
+  const WaypointMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -114,7 +114,7 @@ class RouteStartMarker extends NodeMarker {
     );
   }
   
-  const RouteStartMarker(super.onTap, {super.key});
+  const RouteStartMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -134,7 +134,7 @@ class RouteEndMarker extends NodeMarker {
     );
   }
   
-  const RouteEndMarker(super.onTap, {super.key});
+  const RouteEndMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -154,7 +154,7 @@ class SelectingMarker extends NodeMarker {
     );
   }
   
-  const SelectingMarker(super.onTap, {super.key});
+  const SelectingMarker(super.onCurrentFloor, super.onTap, {super.key});
     
   @override
   Widget makeIcon() {
@@ -185,8 +185,9 @@ abstract class NodeMarker extends StatelessWidget {
   }
 
   final VoidCallback? onTap;
+  final bool onCurrentFloor;
 
-  const NodeMarker(this.onTap, {
+  const NodeMarker(this.onCurrentFloor, this.onTap, {
     super.key
   });
 
@@ -196,12 +197,15 @@ abstract class NodeMarker extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: onCurrentFloor ? onTap : (){},
       child: SizedBox(
         width: Defaults.mapMarkerSize,
         height: Defaults.mapMarkerSize,
         child: Center(
-          child: makeIcon()
+          child: Opacity(
+            opacity: onCurrentFloor ? 1 : Defaults.otherFloorOpacity,
+            child: makeIcon(),
+          )
         )
       )
     );

@@ -54,13 +54,27 @@ enum EdgeType {
   lift,
   waitForBus,
   waitForLift;
+
   static final Map<String, EdgeType> dict = {
     for (EdgeType edgeType in EdgeType.values)
       edgeType.name: edgeType
   };
+  static final Map<EdgeType, EdgeType> relatedTypes = {
+    walk : walk,
+    bus : bus,
+    lift : lift,
+    waitForBus : bus,
+    waitForLift : lift
+  };
+
   static EdgeType get(String name) {
     return dict[name]!;
   }
+
+  bool isRelatedTo(EdgeType other) {
+    return EdgeType.relatedTypes[this] == EdgeType.relatedTypes[other];
+  } 
+
 }
 
 class Edge {
@@ -76,6 +90,10 @@ class Edge {
   @override
   String toString() {
     return '${edgeType.name} from $start to $end (${duration}s)';
+  }
+
+  bool isSegmentRelatedTo(Edge other) {
+    return edgeType.isRelatedTo(other.edgeType);
   }
 }
 
@@ -235,7 +253,7 @@ class Path {
     List<Segment> segments =[];
     List<Edge> nextSegment = [];
     for (Edge edge in edges) {
-      if (nextSegment.isEmpty || edge.edgeType == nextSegment.last.edgeType) {
+      if (nextSegment.isEmpty || nextSegment.last.isSegmentRelatedTo(edge)) {
         nextSegment.add(edge);
       } else {
         segments.add(Segment(nextSegment));
