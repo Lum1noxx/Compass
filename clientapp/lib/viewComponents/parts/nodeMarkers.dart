@@ -1,21 +1,15 @@
 import 'package:clientapp/defaults.dart';
 import 'package:flutter/material.dart';
 
-
 class GPSMarker extends NodeMarker {
   // current gps location
 
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
 
   const GPSMarker(super.onCurrentFloor, super.onTap, {super.key});
-  
+
   @override
   Widget makeIcon() {
     return GPSMarker.icon();
@@ -24,18 +18,13 @@ class GPSMarker extends NodeMarker {
 
 class NearbyMarker extends NodeMarker {
   // destinations near dropped pin/ gps location
- 
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
-  
+
   const NearbyMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return NearbyMarker.icon();
@@ -44,18 +33,13 @@ class NearbyMarker extends NodeMarker {
 
 class DroppedMarker extends NodeMarker {
   // dropped pin
- 
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
 
   const DroppedMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return DroppedMarker.icon();
@@ -65,17 +49,12 @@ class DroppedMarker extends NodeMarker {
 class SegmentNodeMarker extends NodeMarker {
   // nodes within segments
 
-   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.grey,
-      0,
-      Colors.transparent,
-      0
-    );
+  static Widget icon() {
+    return NodeMarker.circleIcon(Colors.grey, 0, Colors.transparent, 0);
   }
-  
+
   const SegmentNodeMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return SegmentNodeMarker.icon();
@@ -84,18 +63,13 @@ class SegmentNodeMarker extends NodeMarker {
 
 class WaypointMarker extends NodeMarker {
   // nodes between segments
-   
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
-  
+
   const WaypointMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return WaypointMarker.icon();
@@ -104,18 +78,13 @@ class WaypointMarker extends NodeMarker {
 
 class RouteStartMarker extends NodeMarker {
   // start destination of route
-   
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
-  
+
   const RouteStartMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return RouteStartMarker.icon();
@@ -124,18 +93,13 @@ class RouteStartMarker extends NodeMarker {
 
 class RouteEndMarker extends NodeMarker {
   // end destination of route
-   
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
-  
+
   const RouteEndMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return RouteEndMarker.icon();
@@ -143,29 +107,21 @@ class RouteEndMarker extends NodeMarker {
 }
 
 class SelectingMarker extends NodeMarker {
-  // selected destination 
-   
+  // selected destination
+
   static Widget icon() {
-    return NodeMarker.circleIcon(
-      Colors.red,
-      0,
-      Colors.transparent,
-      0
-    );
+    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
   }
-  
+
   const SelectingMarker(super.onCurrentFloor, super.onTap, {super.key});
-    
+
   @override
   Widget makeIcon() {
     return SelectingMarker.icon();
   }
-  
 }
 
-
 abstract class NodeMarker extends StatelessWidget {
-
   static Widget circleIcon(
     Color color,
     double extraSize,
@@ -178,8 +134,10 @@ abstract class NodeMarker extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
-        border: Border.all(color: borderSize > 0 ? borderColor : Colors.transparent, width: borderSize),
-
+        border: Border.all(
+          color: borderSize > 0 ? borderColor : Colors.transparent,
+          width: borderSize,
+        ),
       ),
     );
   }
@@ -187,9 +145,7 @@ abstract class NodeMarker extends StatelessWidget {
   final VoidCallback? onTap;
   final bool onCurrentFloor;
 
-  const NodeMarker(this.onCurrentFloor, this.onTap, {
-    super.key
-  });
+  const NodeMarker(this.onCurrentFloor, this.onTap, {super.key});
 
   Widget makeIcon();
 
@@ -197,7 +153,7 @@ abstract class NodeMarker extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onCurrentFloor ? onTap : (){},
+      onTap: onCurrentFloor ? onTap : () {},
       child: SizedBox(
         width: Defaults.mapMarkerSize,
         height: Defaults.mapMarkerSize,
@@ -205,9 +161,9 @@ abstract class NodeMarker extends StatelessWidget {
           child: Opacity(
             opacity: onCurrentFloor ? 1 : Defaults.otherFloorOpacity,
             child: makeIcon(),
-          )
-        )
-      )
+          ),
+        ),
+      ),
     );
   }
 }

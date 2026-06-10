@@ -1,7 +1,8 @@
+import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 
 class SearchBarButton extends StatelessWidget {
-  
   final String destName;
   final void Function() onSelect;
 
@@ -10,8 +11,31 @@ class SearchBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: onSelect, 
-      icon: Text(destName)
+      onPressed: onSelect,
+      icon: Container(
+        height: Defaults.iconSize,
+        decoration: BoxDecoration(
+          color: AppTheme.colors.primary,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                destName,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.colors.neutral),
+              ),
+            ),
+            Icon(
+              Icons.search,
+              color: AppTheme.colors.neutral,
+              size: Defaults.iconSize,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,18 +1,19 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
- runApp(const MainApp());
+  runApp(const MainApp());
 }
 
 class Globals {
-  static Future<void> init() async{
-    // TODO: collect actual data
+  static Future<void> init() async {
     // await rootBundle.loadString("assets/json/nodes.json").then((str){
     //   List<dynamic> json = jsonDecode(str);
     //   return {
@@ -21,31 +22,43 @@ class Globals {
     //   };
     // }).then((map)=>nodes = Nodes(map));
     nodes = Nodes();
-    await rootBundle.loadString("assets/json/destinations.json").then((str){
+    await rootBundle.loadString("assets/json/destinations.json").then((str) {
       List rawJson = jsonDecode(str);
-      List<String> json = [
-        for (dynamic name in rawJson)
-          name as String
-      ];
+      List<String> json = [for (dynamic name in rawJson) name as String];
       destinations = Destinations(json, Defaults.autocompleteSize);
     });
   }
+
   static late Nodes nodes;
   static late Destinations destinations;
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  @override
+  void initState() {
+    super.initState();
     Globals.init();
-    return const MaterialApp(
-      home: Scaffold(
-        body: SafeArea(
-          child: MainActivity(),
-        ),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppTheme.init(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppTheme.init(context);
+    return MaterialApp(
+      themeMode: ThemeMode.system,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
       ),
+      home: Scaffold(body: MainActivity()),
     );
   }
 }

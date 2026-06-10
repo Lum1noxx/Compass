@@ -1,8 +1,8 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 
 class FindButton extends StatelessWidget {
-
   final void Function() onSelect;
 
   const FindButton(this.onSelect, {super.key});
@@ -13,7 +13,8 @@ class FindButton extends StatelessWidget {
       onPressed: onSelect,
       alignment: Alignment.center,
       iconSize: Defaults.iconSize,
-      icon: Icon(Icons.assistant_navigation)
-      );
+      icon: Icon(Icons.assistant_navigation),
+      color: AppTheme.colors.neutral,
+    );
   }
 }

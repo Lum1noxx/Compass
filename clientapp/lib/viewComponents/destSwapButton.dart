@@ -1,9 +1,9 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DestSwapButton extends StatelessWidget {
-
   final void Function() onSelect;
 
   const DestSwapButton(this.onSelect, {super.key});
@@ -13,8 +13,9 @@ class DestSwapButton extends StatelessWidget {
     return IconButton(
       onPressed: onSelect,
       iconSize: Defaults.iconSize,
+      color: AppTheme.colors.neutral,
       alignment: Alignment.center,
-      icon: Icon(Icons.swap_vert)
+      icon: Icon(Icons.swap_vert),
     );
   }
 }

@@ -7,9 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 class DirectionsModel {
-
-
-  Future<StreamSubscription> streamGPS(void Function(LatLng) callback) async{
+  Future<StreamSubscription> streamGPS(void Function(LatLng) callback) async {
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.best,
       distanceFilter: Defaults.gpsUpdateThreshold,
@@ -18,16 +16,18 @@ class DirectionsModel {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    StreamSubscription<Position> stream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-      (Position? position) {
-        if (position != null) {
-          callback.call(LatLng(position.latitude, position.longitude));
-        }
-      });
+    StreamSubscription<Position> stream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+          (Position? position) {
+            if (position != null) {
+              callback.call(LatLng(position.latitude, position.longitude));
+            }
+          },
+        );
     return stream;
   }
 
-  Future<Destination> getDest(String destName) async{
+  Future<Destination> getDest(String destName) async {
     return Globals.destinations.get(destName);
   }
 
@@ -35,13 +35,21 @@ class DirectionsModel {
     return Globals.destinations.autocomplete(query);
   }
 
-  Future<Path> findPath(Destination startDest, Destination endDest, bool filterStairs, bool filterUnsheltered) async{
-    List<Map> edgesJson = await ApiCalls.shortest_path(startDest.name, endDest.name, !filterStairs, !filterUnsheltered);
+  Future<Path> findPath(
+    Destination startDest,
+    Destination endDest,
+    bool filterStairs,
+    bool filterUnsheltered,
+  ) async {
+    List<Map> edgesJson = await ApiCalls.shortest_path(
+      startDest.name,
+      endDest.name,
+      !filterStairs,
+      !filterUnsheltered,
+    );
     await Globals.nodes.fetch([
-      for (Map edgeInfo in edgesJson)
-        edgeInfo["start"],
-      if (edgesJson.isNotEmpty)
-        edgesJson.last['end']
+      for (Map edgeInfo in edgesJson) edgeInfo["start"],
+      if (edgesJson.isNotEmpty) edgesJson.last['end'],
     ]);
     List<Edge> edges = [
       for (Map edgeInfo in edgesJson)
@@ -51,17 +59,17 @@ class DirectionsModel {
           await Globals.nodes.get(edgeInfo["end"]),
           edgeInfo["sheltered"],
           edgeInfo["stairs"],
-          edgeInfo["duration"]
-        )
+          edgeInfo["duration"],
+        ),
     ];
     return Path.autoJoin(edges, startDest, endDest);
-
   }
 
-  Future<List<Destination>> getNearbyDestinations(currentSelection) async{
+  Future<List<Destination>> getNearbyDestinations(currentSelection) async {
     currentSelection = currentSelection as TempDestination;
-    return Globals.destinations.getNearby(currentSelection.coordinate, Defaults.nearbyDestinationsCount);
-    
+    return Globals.destinations.getNearby(
+      currentSelection.coordinate,
+      Defaults.nearbyDestinationsCount,
+    );
   }
-
 }

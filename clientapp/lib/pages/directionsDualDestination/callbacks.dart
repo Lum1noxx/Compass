@@ -1,11 +1,9 @@
-
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
 import 'package:latlong2/latlong.dart';
 
 class DirectionsDualDestinationsCallbacks {
-  
   late final void Function(LatLng) onPinDrop;
   late final void Function(String) onFloorNameSelect;
   late final void Function() onGpsSelect;
@@ -19,9 +17,7 @@ class DirectionsDualDestinationsCallbacks {
   late final void Function(bool) onFilterUnshelteredChange;
   late final void Function() onLegendToggle;
 
-
   DirectionsDualDestinationsCallbacks(DirectionsDualVM vm) {
-
     onPinDrop = (LatLng position) {
       vm.pinDropLatLng(position);
     };
@@ -41,14 +37,14 @@ class DirectionsDualDestinationsCallbacks {
     onFindSelect = () {
       vm.findPath();
     };
-    onRoutePanelNodeSelect = (node){
+    onRoutePanelNodeSelect = (node) {
       if (node is Destination) {
         vm.setDest(node);
       } else {
         vm.focusItem(node);
       }
     };
-    onRoutePanelSegmentSelect = (segment){
+    onRoutePanelSegmentSelect = (segment) {
       vm.focusItem(segment);
     };
     onFilterStairsChange = (filter) {
@@ -61,5 +57,4 @@ class DirectionsDualDestinationsCallbacks {
       vm.toggleLegend();
     };
   }
-
 }

@@ -1,15 +1,20 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RouteFilters extends StatefulWidget {
-
   final DirectionsDualVM vm;
   final void Function(bool) onFilterStairsChange;
   final void Function(bool) onFilterUnshelteredChange;
 
-  const RouteFilters(this.vm, this.onFilterStairsChange, this.onFilterUnshelteredChange,  {super.key});
+  const RouteFilters(
+    this.vm,
+    this.onFilterStairsChange,
+    this.onFilterUnshelteredChange, {
+    super.key,
+  });
 
   @override
   State<RouteFilters> createState() => _RouteFiltersState();
@@ -25,35 +30,44 @@ class _RouteFiltersState extends State<RouteFilters> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             StairsFilter(widget.vm.filterStairs, widget.onFilterStairsChange),
-            ShelterFilter(widget.vm.filterUnsheltered, widget.onFilterUnshelteredChange)
-          ]
+            ShelterFilter(
+              widget.vm.filterUnsheltered,
+              widget.onFilterUnshelteredChange,
+            ),
+          ],
         );
-      }
+      },
     );
   }
 }
 
 class ShelterFilter extends SingleFilter {
-
-  ShelterFilter(bool checked, void Function(bool) onCheckChange, {super.key}) : super(
-    Icon(CupertinoIcons.umbrella_fill, size: Defaults.iconSize,),
-    checked, 
-    onCheckChange
-  );
+  ShelterFilter(bool checked, void Function(bool) onCheckChange, {super.key})
+    : super(
+        Icon(
+          CupertinoIcons.umbrella_fill,
+          size: Defaults.iconSize,
+          color: AppTheme.colors.neutral,
+        ),
+        checked,
+        onCheckChange,
+      );
 }
 
-
 class StairsFilter extends SingleFilter {
-
-  StairsFilter(bool checked, void Function(bool) onCheckChange, {super.key}) : super(
-    Icon(Icons.accessible_forward, size: Defaults.iconSize,),
-    checked, 
-    onCheckChange
-  );
+  StairsFilter(bool checked, void Function(bool) onCheckChange, {super.key})
+    : super(
+        Icon(
+          Icons.accessible_forward,
+          size: Defaults.iconSize,
+          color: AppTheme.colors.neutral,
+        ),
+        checked,
+        onCheckChange,
+      );
 }
 
 class SingleFilter extends StatelessWidget {
-
   final Widget icon;
   final bool checked;
   final void Function(bool) onCheckChange;
@@ -64,8 +78,9 @@ class SingleFilter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-      icon,
-      Switch(value: checked, onChanged: onCheckChange)
-    ],);    
+        icon,
+        Switch(value: checked, onChanged: onCheckChange),
+      ],
+    );
   }
 }

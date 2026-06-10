@@ -6,11 +6,9 @@ import 'package:clientapp/viewmodels/pageVM.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class DirectionsSingleVM extends DirectionsBaseVM {
-
   Destination? selectedDest;
 
   DirectionsSingleVM(super.navigator, super.model);
-
 
   @override
   void callTo(PageVM child) {
@@ -20,7 +18,8 @@ class DirectionsSingleVM extends DirectionsBaseVM {
     }
   }
 
-  @override void returnFrom(PageVM child) {
+  @override
+  void returnFrom(PageVM child) {
     if (child is DestinationSearchVM) {
       if (child.selection is Destination) {
         selectedDest = child.selection;
@@ -29,10 +28,9 @@ class DirectionsSingleVM extends DirectionsBaseVM {
     }
   }
 
-
   void focusItem(dynamic item) {
     assert(item is Destination);
-    itemInFocus = item;    
+    itemInFocus = item;
     notifyMapCamera();
     notifyListeners();
   }
@@ -45,5 +43,4 @@ class DirectionsSingleVM extends DirectionsBaseVM {
   void findPath() {
     navTo("directionsDual");
   }
-
 }

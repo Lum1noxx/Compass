@@ -22,15 +22,17 @@ abstract class DirectionsBaseVM extends PageVM {
   TempDestination? gps;
   bool showLegend = true;
 
-
   DirectionsBaseVM(super.navigator, this.model) {
-    model.streamGPS((position) {
-      gps = TempDestination.plane(position);
-      notifyListeners();
-    }).then((stream)=> gpsStream = stream);
+    model
+        .streamGPS((position) {
+          gps = TempDestination.plane(position);
+          notifyListeners();
+        })
+        .then((stream) => gpsStream = stream);
   }
 
-  @override void dispose() {
+  @override
+  void dispose() {
     super.dispose();
     mapController.dispose();
     if (gpsStream != null) {
@@ -38,13 +40,15 @@ abstract class DirectionsBaseVM extends PageVM {
     }
   }
 
-  @override void onPause() {
+  @override
+  void onPause() {
     if (gpsStream != null) {
       gpsStream!.pause();
     }
   }
 
-  @override void onExit() {
+  @override
+  void onExit() {
     mapController.dispose();
   }
 
@@ -70,22 +74,25 @@ abstract class DirectionsBaseVM extends PageVM {
       notifyListeners();
     }
   }
-  
 
   void notifyMapCamera() {
     if (itemInFocus is Node) {
       mapController.move(itemInFocus.getLatLng(), Defaults.mapFocusZoom);
     } else if (itemInFocus is Segment) {
-      mapController.fitCamera(CameraFit.bounds(
-        bounds: itemInFocus.getBounds(),
-        padding: EdgeInsets.all(Defaults.segmentViewPadding)
-      ));
+      mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: itemInFocus.getBounds(),
+          padding: EdgeInsets.all(Defaults.segmentViewPadding),
+        ),
+      );
     }
   }
 
   void pinDropLatLng(LatLng position) async {
-    itemInFocus = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
-    
+    itemInFocus = TempDestination(
+      Coordinate(position.latitude, position.longitude, selectedFloor),
+    );
+
     notifyMapCamera();
     nearbyDestinations = await model.getNearbyDestinations(itemInFocus!);
     notifyListeners();
@@ -96,7 +103,8 @@ abstract class DirectionsBaseVM extends PageVM {
     notifyListeners();
   }
 
-  bool isOnCurrentFloor(dynamic item) { // Node or edge
+  bool isOnCurrentFloor(dynamic item) {
+    // Node or edge
     if (!useSelectedFloor) {
       return true;
     }
@@ -108,6 +116,4 @@ abstract class DirectionsBaseVM extends PageVM {
       throw UnsupportedError("bad item type");
     }
   }
-
-
 }

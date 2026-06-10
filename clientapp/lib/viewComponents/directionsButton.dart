@@ -1,8 +1,8 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 
 class DirectionsButton extends StatelessWidget {
-
   final void Function() onSelect;
 
   const DirectionsButton(this.onSelect, {super.key});
@@ -13,6 +13,8 @@ class DirectionsButton extends StatelessWidget {
       onPressed: onSelect,
       alignment: Alignment.center,
       iconSize: Defaults.iconSize,
-      icon: Icon(Icons.directions));
+      color: AppTheme.colors.neutral,
+      icon: Icon(Icons.directions),
+    );
   }
 }

@@ -11,9 +11,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class CampusMap extends StatefulWidget {
-
   final DirectionsSingleVM vm;
   final void Function(LatLng) pinDropCallback;
   final void Function(Destination) onDestSelect;
@@ -21,16 +19,21 @@ class CampusMap extends StatefulWidget {
   final void Function() onGpsSelect;
   final void Function() onLegendToggle;
 
-
-  const CampusMap(this.vm, this.pinDropCallback, this.onDestSelect, this.onFloorNameSelect, this.onGpsSelect, this.onLegendToggle, {super.key});
+  const CampusMap(
+    this.vm,
+    this.pinDropCallback,
+    this.onDestSelect,
+    this.onFloorNameSelect,
+    this.onGpsSelect,
+    this.onLegendToggle, {
+    super.key,
+  });
 
   @override
   State<CampusMap> createState() => _CampusMapState();
-
 }
 
 class _CampusMapState extends State<CampusMap> {
-  
   @override
   Widget build(BuildContext context) {
     // return ListenableBuilder(
@@ -43,16 +46,17 @@ class _CampusMapState extends State<CampusMap> {
     // ],));
     return ListenableBuilder(
       listenable: widget.vm,
-      builder: (ctx, child)=>Stack(
+      builder: (ctx, child) => Stack(
         fit: StackFit.expand,
         children: [
           Align(
             alignment: Alignment.center,
             child: FlutterMap(
               options: MapOptions(
-                initialCenter:Defaults.mapPosition,
+                initialCenter: Defaults.mapPosition,
                 initialZoom: Defaults.mapInitialZoom,
-                onTap: (TapPosition tap, LatLng postion) => widget.pinDropCallback(postion),
+                onTap: (TapPosition tap, LatLng postion) =>
+                    widget.pinDropCallback(postion),
               ),
               mapController: widget.vm.mapController,
               children: [
@@ -62,47 +66,74 @@ class _CampusMapState extends State<CampusMap> {
                   urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   userAgentPackageName: "com.compass.clientapp",
                   tileProvider: NetworkTileProvider(
-                    cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
-                        maxCacheSize: 1_000_000_000, // 1 GB is the default
-                    )
-                  )
+                    cachingProvider:
+                        BuiltInMapCachingProvider.getOrCreateInstance(
+                          maxCacheSize: 1_000_000_000, // 1 GB is the default
+                        ),
+                  ),
                 ),
                 OverlayImageLayer(overlayImages: widget.vm.visibleFloorplans),
-               
-                MarkerLayer(markers: [
-                  if (widget.vm.gps != null)
-                    Marker(point: widget.vm.gps!.getLatLng(),
-                      child: GPSMarker(widget.vm.isOnCurrentFloor(widget.vm.gps!) , (){},)),
-                  if (widget.vm.itemInFocus is Destination && widget.vm.itemInFocus is! TempDestination)
-                    Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: SelectingMarker(widget.vm.isOnCurrentFloor(widget.vm.itemInFocus), (){},)),
-                  if (widget.vm.itemInFocus is TempDestination)
-                    Marker(point: widget.vm.itemInFocus!.getLatLng(),
-                      child: DroppedMarker(widget.vm.isOnCurrentFloor(widget.vm.itemInFocus), (){},)),
-                  for (Destination destination in widget.vm.nearbyDestinations) // nearby destinations
-                    Marker(point: destination.getLatLng(),
-                      child: NearbyMarker(widget.vm.isOnCurrentFloor(destination), () => widget.onDestSelect(destination),)),
-                ]),
-               
+
+                MarkerLayer(
+                  markers: [
+                    if (widget.vm.gps != null)
+                      Marker(
+                        point: widget.vm.gps!.getLatLng(),
+                        child: GPSMarker(
+                          widget.vm.isOnCurrentFloor(widget.vm.gps!),
+                          () {},
+                        ),
+                      ),
+                    if (widget.vm.itemInFocus is Destination &&
+                        widget.vm.itemInFocus is! TempDestination)
+                      Marker(
+                        point: widget.vm.itemInFocus!.getLatLng(),
+                        child: SelectingMarker(
+                          widget.vm.isOnCurrentFloor(widget.vm.itemInFocus),
+                          () {},
+                        ),
+                      ),
+                    if (widget.vm.itemInFocus is TempDestination)
+                      Marker(
+                        point: widget.vm.itemInFocus!.getLatLng(),
+                        child: DroppedMarker(
+                          widget.vm.isOnCurrentFloor(widget.vm.itemInFocus),
+                          () {},
+                        ),
+                      ),
+                    for (Destination destination
+                        in widget.vm.nearbyDestinations) // nearby destinations
+                      Marker(
+                        point: destination.getLatLng(),
+                        child: NearbyMarker(
+                          widget.vm.isOnCurrentFloor(destination),
+                          () => widget.onDestSelect(destination),
+                        ),
+                      ),
+                  ],
+                ),
+
                 RichAttributionWidget(
                   attributions: [
                     TextSourceAttribution(
                       'OpenStreetMap contributors',
-                      onTap: () => launchUrl(Uri.parse('https://openstreetmap.org')),
+                      onTap: () =>
+                          launchUrl(Uri.parse('https://openstreetmap.org')),
                     ),
                   ],
-                )
-              
-            ]),
+                ),
+              ],
+            ),
           ),
-          Container(
-            padding: EdgeInsets.all(10.0),
+          SafeArea(
+            top: true,
+            minimum: EdgeInsets.all(10),
             child: Align(
               alignment: Alignment.topRight,
               child: Column(
                 children: [
                   FloorPicker(widget.vm, widget.onFloorNameSelect),
-                  GpsButton(widget.onGpsSelect)
+                  GpsButton(widget.onGpsSelect),
                 ],
               ),
             ),
@@ -112,18 +143,23 @@ class _CampusMapState extends State<CampusMap> {
             height: Defaults.legendHeight,
             child: Align(
               alignment: Alignment.bottomLeft,
-              child: widget.vm.showLegend ? Row(children: [
-                Container(
-                  width: Defaults.legendWidth,
-                  height: Defaults.legendHeight,
-                  child: MapLegend(widget.vm),
-                ),
-                LegendButton(widget.onLegendToggle, true)
-              ],) : LegendButton(widget.onLegendToggle, false)
+              child: widget.vm.showLegend
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: Defaults.legendWidth,
+                          height: Defaults.legendHeight,
+                          child: MapLegend(widget.vm),
+                        ),
+                        LegendButton(widget.onLegendToggle, true),
+                      ],
+                    )
+                  : LegendButton(widget.onLegendToggle, false),
             ),
           ),
         ],
-      ));
-
+      ),
+    );
   }
 }

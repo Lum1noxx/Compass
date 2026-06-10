@@ -32,20 +32,19 @@ class Node {
   String toString() {
     return 'node: $name at $coordinate';
   }
+
   LatLng getLatLng() {
     return coordinate.getLatLng();
   }
 }
 
 class Destination extends Node {
-
   const Destination(super.name, super.coordinate);
 
   @override
   String toString() {
     return 'destination: $name at $coordinate';
   }
-
 }
 
 enum EdgeType {
@@ -56,15 +55,14 @@ enum EdgeType {
   waitForLift;
 
   static final Map<String, EdgeType> dict = {
-    for (EdgeType edgeType in EdgeType.values)
-      edgeType.name: edgeType
+    for (EdgeType edgeType in EdgeType.values) edgeType.name: edgeType,
   };
   static final Map<EdgeType, EdgeType> relatedTypes = {
-    walk : walk,
-    bus : bus,
-    lift : lift,
-    waitForBus : bus,
-    waitForLift : lift
+    walk: walk,
+    bus: bus,
+    lift: lift,
+    waitForBus: bus,
+    waitForLift: lift,
   };
 
   static EdgeType get(String name) {
@@ -73,8 +71,7 @@ enum EdgeType {
 
   bool isRelatedTo(EdgeType other) {
     return EdgeType.relatedTypes[this] == EdgeType.relatedTypes[other];
-  } 
-
+  }
 }
 
 class Edge {
@@ -85,7 +82,14 @@ class Edge {
   final bool stairs;
   final double duration;
 
-  const Edge(this.edgeType, this.start, this.end, this.sheltered, this.stairs, this.duration);
+  const Edge(
+    this.edgeType,
+    this.start,
+    this.end,
+    this.sheltered,
+    this.stairs,
+    this.duration,
+  );
 
   @override
   String toString() {
@@ -101,27 +105,30 @@ class Nodes {
   // name -> Node
 
   final Map<String, Node> map = {};
-  Future<void> fetch (List<String> names) async {
+  Future<void> fetch(List<String> names) async {
     names = [
       for (String name in names)
-        if (!map.containsKey(name))
-          name
+        if (!map.containsKey(name)) name,
     ];
     List<Map> json = await ApiCalls.node_coordinates(names);
     for (Map nodeObj in json) {
       map[nodeObj['name']] = Node(
         nodeObj['name'],
-        Coordinate(double.parse(nodeObj['lat']), double.parse(nodeObj['lng']), nodeObj['floor'])
+        Coordinate(
+          double.parse(nodeObj['lat']),
+          double.parse(nodeObj['lng']),
+          nodeObj['floor'],
+        ),
       );
     }
-  } 
-  Future<Node> get (String name) async{
+  }
+
+  Future<Node> get(String name) async {
     if (!map.containsKey(name)) {
       await fetch([name]);
     }
     return map[name]!;
   }
-
 }
 
 class Destinations {
@@ -130,41 +137,44 @@ class Destinations {
   Destinations(this.names, this.autocompleteSize) {
     autocompleteEngine = Woozy(limit: autocompleteSize, caseSensitive: false);
     autocompleteEngine.addEntries([
-      for (String name in names)
-        name.replaceAll(" ", "_")
+      for (String name in names) name.replaceAll(" ", "_"),
     ]);
   }
   final int autocompleteSize;
   final List<String> names;
   final Map<String, Destination> map = {};
   late Woozy autocompleteEngine;
-  
-  Future<void> fetch (List<String> names) async {
+
+  Future<void> fetch(List<String> names) async {
     names = [
       for (String name in names)
-        if (!map.containsKey(name))
-          name
+        if (!map.containsKey(name)) name,
     ];
     List<Map> json = await ApiCalls.dest_coordinates(names);
     for (Map destObj in json) {
       map[destObj['name']] = Destination(
         destObj['name'],
-        Coordinate(double.parse(destObj['lat']), double.parse(destObj['lng']), destObj['floor'])
+        Coordinate(
+          double.parse(destObj['lat']),
+          double.parse(destObj['lng']),
+          destObj['floor'],
+        ),
       );
     }
-  } 
+  }
 
-  Future<Destination> get (String name) async{
+  Future<Destination> get(String name) async {
     if (!map.containsKey(name)) {
       await fetch([name]);
     }
     return map[name]!;
   }
+
   List<String> autocomplete(String query) {
     query = query.replaceAll(" ", "_");
     return [
       for (MatchResult res in autocompleteEngine.search(query))
-        res.text.replaceAll("_", " ")
+        res.text.replaceAll("_", " "),
     ];
   }
 
@@ -173,7 +183,7 @@ class Destinations {
       coordinate.lat,
       coordinate.lng,
       coordinate.floor,
-      count
+      count,
     );
     List<Destination> res = [
       for (Map obj in json)
@@ -182,22 +192,18 @@ class Destinations {
           Coordinate(
             double.parse(obj['lat']),
             double.parse(obj['lng']),
-            obj['floor']
-          )
-        )
+            obj['floor'],
+          ),
+        ),
     ];
     for (Destination destination in res) {
-      map.putIfAbsent(destination.name, ()=>destination);
+      map.putIfAbsent(destination.name, () => destination);
     }
-    return [
-      for (Destination destination in res) 
-        map[destination.name]!
-    ];
+    return [for (Destination destination in res) map[destination.name]!];
   }
 }
 
 class Segment {
-  
   late final List<Edge> edges;
   late double duration;
 
@@ -217,11 +223,7 @@ class Segment {
     double s = 1_000_000;
     double e = -1;
     double w = 1_000_000;
-    for (Node node in [
-      for (Edge edge in edges)
-        edge.start,
-      edges.last.end
-    ]) {
+    for (Node node in [for (Edge edge in edges) edge.start, edges.last.end]) {
       n = max(n, node.coordinate.lat);
       s = min(s, node.coordinate.lat);
       e = max(e, node.coordinate.lng);
@@ -241,16 +243,14 @@ class Segment {
   EdgeType edgeType() {
     return edges.first.edgeType;
   }
-
 }
 
 class Path {
-
   static List<Segment> group(List<Edge> edges) {
     if (edges.isEmpty) {
       return [];
     }
-    List<Segment> segments =[];
+    List<Segment> segments = [];
     List<Edge> nextSegment = [];
     for (Edge edge in edges) {
       if (nextSegment.isEmpty || nextSegment.last.isSegmentRelatedTo(edge)) {
@@ -263,7 +263,7 @@ class Path {
     segments.add(Segment(nextSegment));
     return segments;
   }
-  
+
   List<Edge> edges;
   late final List<Segment> segments;
   final Map<Edge, Segment> _map = {};
@@ -285,22 +285,42 @@ class Path {
     if (edges.isEmpty) {
       edges = [
         Edge(
-          EdgeType.walk, start, end, true, false,
-          DistanceHaversine().distance(start.getLatLng(), end.getLatLng()) / Defaults.walkingSpeedMetresPerSec
-        )
+          EdgeType.walk,
+          start,
+          end,
+          true,
+          false,
+          DistanceHaversine().distance(start.getLatLng(), end.getLatLng()) /
+              Defaults.walkingSpeedMetresPerSec,
+        ),
       ];
     } else {
       edges = [
         Edge(
-          EdgeType.walk, start, edges.first.start, edges.first.sheltered, edges.first.stairs,
-          DistanceHaversine().distance(start.getLatLng(), edges.first.start.getLatLng()) / Defaults.walkingSpeedMetresPerSec
+          EdgeType.walk,
+          start,
+          edges.first.start,
+          edges.first.sheltered,
+          edges.first.stairs,
+          DistanceHaversine().distance(
+                start.getLatLng(),
+                edges.first.start.getLatLng(),
+              ) /
+              Defaults.walkingSpeedMetresPerSec,
         ),
-        for (Edge edge in edges)
-          edge,
+        for (Edge edge in edges) edge,
         Edge(
-          EdgeType.walk, edges.last.end, end, edges.last.sheltered, edges.last.stairs,
-          DistanceHaversine().distance(edges.last.end.getLatLng(), end.getLatLng()) / Defaults.walkingSpeedMetresPerSec
-        )
+          EdgeType.walk,
+          edges.last.end,
+          end,
+          edges.last.sheltered,
+          edges.last.stairs,
+          DistanceHaversine().distance(
+                edges.last.end.getLatLng(),
+                end.getLatLng(),
+              ) /
+              Defaults.walkingSpeedMetresPerSec,
+        ),
       ];
     }
     segments = group(edges);
@@ -318,17 +338,15 @@ class Path {
   Destination start() {
     return edges.first.start as Destination;
   }
-  
+
   Destination end() {
     return edges.last.end as Destination;
   }
 
-  Segment locate (Edge edge) {
+  Segment locate(Edge edge) {
     return _map[edge]!;
   }
-
 }
-
 
 class Floors {
   static String getName(int floor) {
@@ -338,8 +356,9 @@ class Floors {
       return 'L${floor}';
     }
   }
+
   static int getFloor(String name) {
-    int abs = int.parse(name.substring(1, name.length));  
+    int abs = int.parse(name.substring(1, name.length));
     if (name[0] == 'B') {
       return -abs;
     } else {
@@ -351,5 +370,6 @@ class Floors {
 class TempDestination extends Destination {
   /// this is soley for highlighting on map
   TempDestination(Coordinate coordinate) : super("", coordinate);
-  TempDestination.plane(LatLng position) : super("", Coordinate(position.latitude, position.longitude, 0));
+  TempDestination.plane(LatLng position)
+    : super("", Coordinate(position.latitude, position.longitude, 0));
 }

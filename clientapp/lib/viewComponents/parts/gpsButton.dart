@@ -1,8 +1,8 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 
 class GpsButton extends StatelessWidget {
-
   final void Function() onSelect;
 
   const GpsButton(this.onSelect, {super.key});
@@ -13,9 +13,8 @@ class GpsButton extends StatelessWidget {
       iconSize: Defaults.iconSize,
       onPressed: onSelect,
       alignment: Alignment.center,
-      icon: Icon(Icons.gps_fixed_rounded)
+      color: AppTheme.colors.tertiary,
+      icon: Icon(Icons.gps_fixed_rounded),
     );
   }
-
 }
-

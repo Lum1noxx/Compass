@@ -1,4 +1,5 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/pageChangeVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,22 +18,33 @@ class _MainActivityState extends State<MainActivity> {
   _MainActivityState();
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(listenable: vm, builder: (ctx, child){
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          vm.navBack();
-        },
-        child: Stack(children: [
+    return ListenableBuilder(
+      listenable: vm,
+      builder: (ctx, child) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            vm.navBack();
+          },
+          child: Stack(
+            children: [
               vm.currentPage,
-              IconButton(
-                iconSize: Defaults.iconSize,
-                alignment: Alignment.center,
-                onPressed: ()=>vm.navStack.last.navBack(),
-                icon: Icon(Icons.arrow_back_ios_outlined)),
-            ],),
-      );
-    });
-    
+              SafeArea(
+                left: true,
+                top: true,
+                minimum: EdgeInsets.all(10),
+                child: IconButton(
+                  iconSize: Defaults.iconSize,
+                  alignment: Alignment.center,
+                  color: AppTheme.colors.tertiary,
+                  onPressed: () => vm.navStack.last.navBack(),
+                  icon: Icon(Icons.arrow_back_ios_outlined),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

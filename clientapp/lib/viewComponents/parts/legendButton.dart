@@ -1,8 +1,8 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 
 class LegendButton extends StatelessWidget {
-
   final void Function() onSelect;
   final bool expanded;
 
@@ -16,34 +16,30 @@ class LegendButton extends StatelessWidget {
       icon: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Color.fromRGBO(150, 150, 150, 0.5)
-          ),
+          color: AppTheme.colors.secondary.withAlpha((0.7 * 255).round()),
+        ),
         height: Defaults.legendHeight,
         width: 20,
         child: expanded ? HideLegend() : ShowLegend(),
-      ) 
+      ),
     );
   }
-
 }
 
 class HideLegend extends StatelessWidget {
-  
   const HideLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.arrow_back_ios);
+    return Icon(Icons.arrow_back_ios, color: AppTheme.colors.neutral);
   }
 }
 
 class ShowLegend extends StatelessWidget {
-  
   const ShowLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.arrow_forward_ios);
+    return Icon(Icons.arrow_forward_ios, color: AppTheme.colors.neutral);
   }
 }
-

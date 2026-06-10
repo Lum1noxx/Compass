@@ -23,25 +23,24 @@ class PageChangeVM extends ChangeNotifier {
   PageChangeVM(String homePage) {
     DirectionsModel model = DirectionsModel();
     vms = {
-      'destinationSearch' : DestinationSearchVM(this, model),
-      'directionsDual' : DirectionsDualVM(this, model),
-      'directionsSingle' : DirectionsSingleVM(this, model)
+      'destinationSearch': DestinationSearchVM(this, model),
+      'directionsDual': DirectionsDualVM(this, model),
+      'directionsSingle': DirectionsSingleVM(this, model),
     };
     pages = {
-      'destinationSearch' : (vm) => DestinationSearchWidget(vm as DestinationSearchVM),
-      'directionsDual' : (vm) => DirectionsDualDestinationsWidget(vm as DirectionsDualVM),
-      'directionsSingle' : (vm) => DirectionsSingleDestinationWidget(vm as DirectionsSingleVM)
+      'destinationSearch': (vm) =>
+          DestinationSearchWidget(vm as DestinationSearchVM),
+      'directionsDual': (vm) =>
+          DirectionsDualDestinationsWidget(vm as DirectionsDualVM),
+      'directionsSingle': (vm) =>
+          DirectionsSingleDestinationWidget(vm as DirectionsSingleVM),
     };
-    vmIndex = {
-      for (String name in vms.keys)
-        vms[name]! : name
-    };
+    vmIndex = {for (String name in vms.keys) vms[name]!: name};
     PageVM first = vms[homePage]!;
     navStack.add(first);
     first.onEnter();
     currentPage = pages[homePage]!(first);
     first.onResume();
-
   }
 
   void navTo(String page) {

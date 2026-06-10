@@ -1,5 +1,6 @@
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/pages/directionsSingleDestination/callbacks.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewComponents/campusMap.dart';
 import 'package:clientapp/viewComponents/directionsButton.dart';
 import 'package:clientapp/viewComponents/parts/floorPicker.dart';
@@ -15,9 +16,7 @@ import 'dart:ui';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
-
 class DirectionsSingleDestinationWidget extends StatefulWidget {
-
   final DirectionsSingleVM vm;
 
   const DirectionsSingleDestinationWidget(this.vm, {super.key});
@@ -54,108 +53,122 @@ class _DirectionsSingleDestinationWidgetState
       },
       child: Scaffold(
         key: scaffoldKey,
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // {{SearchBarButton}}
-              Container(
-                width: 100,
-                height: 50,
-                decoration: BoxDecoration(
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                // {{CampusMap}}
+                Expanded(
+                  child: CampusMap(
+                    widget.vm,
+                    callbacks.onPinDrop,
+                    callbacks.onDestSelect,
+                    callbacks.onFloorNameSelect,
+                    callbacks.onGpsSelect,
+                    callbacks.onLegendToggle,
+                  ),
                 ),
-                child: SearchBarButton(widget.vm.itemInFocus?.name ?? "search:", callbacks.onSearchBarButtonSelect),
-              ),
-              Expanded(
-                flex: 10,
-                child: CampusMap(widget.vm, callbacks.onPinDrop, callbacks.onDestSelect, callbacks.onFloorNameSelect, callbacks.onGpsSelect, callbacks.onLegendToggle),
-              ),
-
-              ExpandableNotifier(
-                controller: panelExpandController,
-                child: ExpandablePanel(
-                  header: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      // {{PanelHeader}}
-                      Expanded(
-                        flex: 10,
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            panelExpandController.toggle();
-                          },
-                          child: Container(
-                            width: 100,
-                            height: 50,
-                            decoration: BoxDecoration(
+                ExpandableNotifier(
+                  controller: panelExpandController,
+                  child: ExpandablePanel(
+                    header: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        color: AppTheme.colors.primary,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          // {{PanelHeader}}
+                          Expanded(
+                            flex: 5,
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              // onTap: () async {
+                              //   panelExpandController.toggle();
+                              // },
+                              child: Container(
+                                width: 100,
+                                height: 70,
+                                decoration: BoxDecoration(),
+                                child: PanelHeader(
+                                  widget.vm,
+                                  panelExpandController,
+                                ),
+                              ),
                             ),
-                            child: PanelHeader(widget.vm),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            panelExpandController.toggle();
-                          },
-                          child: Container(
-                            width: 100,
-                            height: 50,
-                            decoration: BoxDecoration(),
-                          ),
-                        ),
-                      ),
 
-                      // {{directionsButton}}
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          width: 100,
-                          height: 50,
-                          decoration: BoxDecoration(
+                          // {{directionsButton}}
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              width: 100,
+                              height: 70,
+                              decoration: BoxDecoration(),
+                              child: DirectionsButton(
+                                callbacks.onDirectionSelect,
+                              ),
+                            ),
                           ),
-                          child: DirectionsButton(callbacks.onDirectionSelect),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  collapsed: Container(
-                    width: double.infinity,
-                    height: 0,
-                    decoration: BoxDecoration(
                     ),
-                  ),
-                  expanded:
-                      // {{PanelInfo}}
-                      Container(
-                    width: double.infinity,
-                    height: MediaQuery.sizeOf(context).height * 0.4,
-                    decoration: BoxDecoration(
+                    collapsed: Container(
+                      width: double.infinity,
+                      height: 0,
+                      decoration: BoxDecoration(color: AppTheme.colors.primary),
                     ),
-                    child: PanelInfo(widget.vm),
-                  ),
-                  theme: ExpandableThemeData(
-                    tapHeaderToExpand: false,
-                    tapBodyToExpand: false,
-                    tapBodyToCollapse: false,
-                    headerAlignment: ExpandablePanelHeaderAlignment.center,
-                    hasIcon: false,
+                    expanded:
+                        // {{PanelInfo}}
+                        Container(
+                          width: double.infinity,
+                          height: MediaQuery.sizeOf(context).height * 0.4,
+                          decoration: BoxDecoration(
+                            color: AppTheme.colors.primary,
+                          ),
+                          child: PanelInfo(widget.vm),
+                        ),
+                    theme: ExpandableThemeData(
+                      tapHeaderToExpand: true,
+                      tapBodyToExpand: false,
+                      tapBodyToCollapse: false,
+                      headerAlignment: ExpandablePanelHeaderAlignment.center,
+                      hasIcon: false,
+                    ),
                   ),
                 ),
+              ],
+            ),
+
+            SafeArea(
+              minimum: EdgeInsets.all(10),
+              top: true,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Spacer(flex: 1),
+                  Expanded(
+                    flex: 6,
+                    // {{SearchBarButton}}
+                    child: Container(
+                      child: SearchBarButton(
+                        widget.vm.itemInFocus?.name ?? "search:",
+                        callbacks.onSearchBarButtonSelect,
+                      ),
+                    ),
+                  ),
+                  Spacer(flex: 1),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

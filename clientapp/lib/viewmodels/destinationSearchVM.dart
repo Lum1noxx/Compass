@@ -4,7 +4,6 @@ import 'package:clientapp/viewmodels/pageVM.dart';
 import 'package:flutter/material.dart';
 
 class DestinationSearchVM extends TerminalPageVM {
-
   DestinationSearchVM(super.navigator, this.model);
 
   List<String> autocompleteResults = [];
@@ -14,7 +13,7 @@ class DestinationSearchVM extends TerminalPageVM {
   DirectionsModel model;
   FocusNode focusNode = FocusNode();
   TextEditingController controller = TextEditingController();
-  
+
   @override
   void dispose() {
     super.dispose();
@@ -30,7 +29,7 @@ class DestinationSearchVM extends TerminalPageVM {
 
   @override
   void onEnter() {
-    focusNode = FocusNode();    
+    focusNode = FocusNode();
     controller = TextEditingController();
   }
 
@@ -44,9 +43,8 @@ class DestinationSearchVM extends TerminalPageVM {
     notifyListeners();
   }
 
-  void setDestByName(String name) async{
+  void setDestByName(String name) async {
     selection = await model.getDest(name);
     navBack();
   }
-
 }

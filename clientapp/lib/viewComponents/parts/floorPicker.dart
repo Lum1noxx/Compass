@@ -1,11 +1,11 @@
 import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:flutter/material.dart';
 
 class FloorPicker extends StatefulWidget {
-
   final DirectionsBaseVM vm;
   final void Function(String) onFloorNameSelect;
 
@@ -15,11 +15,9 @@ class FloorPicker extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _FloorPickerState();
   }
-
 }
 
 class _FloorPickerState extends State<FloorPicker> {
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -27,29 +25,51 @@ class _FloorPickerState extends State<FloorPicker> {
       builder: (ctx, child) {
         return DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.grey.shade800,
-            shape: BoxShape.circle
-            ),
-          child: Container(
+            color: AppTheme.colors.primary,
+            border: Border.all(color: AppTheme.colors.tertiary, width: 2),
+            shape: BoxShape.circle,
+          ),
+          child: SizedBox(
             width: Defaults.iconSize,
             height: Defaults.iconSize,
-            padding: const EdgeInsets.all(6.0),
             child: DropdownButton<String>(
-                icon: SizedBox.shrink(),
-                underline: SizedBox.shrink(),
-                isDense: true,
-                value: widget.vm.useSelectedFloor ? Floors.getName(widget.vm.selectedFloor) : "all",
-                items: [
-                  DropdownMenuItem(value: "all", child: Text("all", style: TextStyle(backgroundColor: Colors.grey.shade800, color: Colors.white))),
-                  for (int floor in Constants.floors)
-                    DropdownMenuItem(value: Floors.getName(floor), child: Text(Floors.getName(floor), style: TextStyle(backgroundColor: Colors.grey.shade800, color: Colors.white)))
-                ],
-                onChanged: (floor) => widget.onFloorNameSelect(floor!)
-              ),
+              icon: SizedBox.shrink(),
+              isExpanded: true,
+              dropdownColor: AppTheme.colors.primary,
+              underline: SizedBox.shrink(),
+              value: widget.vm.useSelectedFloor
+                  ? Floors.getName(widget.vm.selectedFloor)
+                  : "all",
+              items: [
+                DropdownMenuItem(
+                  value: "all",
+                  alignment: AlignmentGeometry.center,
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.transparent),
+                    child: Text(
+                      "all",
+                      style: TextStyle(color: AppTheme.colors.neutral),
+                    ),
+                  ),
+                ),
+                for (int floor in Constants.floors)
+                  DropdownMenuItem(
+                    value: Floors.getName(floor),
+                    alignment: Alignment.center,
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.transparent),
+                      child: Text(
+                        Floors.getName(floor),
+                        style: TextStyle(color: AppTheme.colors.neutral),
+                      ),
+                    ),
+                  ),
+              ],
+              onChanged: (floor) => widget.onFloorNameSelect(floor!),
+            ),
           ),
         );
-      }
+      },
     );
   }
-
 }
