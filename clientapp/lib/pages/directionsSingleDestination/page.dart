@@ -153,7 +153,7 @@ class _DirectionsSingleDestinationWidgetState
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  SizedBox(width: Defaults.iconSize+20,),
+                  SizedBox(width: Defaults.iconSize + 20),
                   Expanded(
                     flex: 6,
                     // {{SearchBarButton}}
@@ -164,7 +164,7 @@ class _DirectionsSingleDestinationWidgetState
                       ),
                     ),
                   ),
-                  SizedBox(width: Defaults.iconSize+20,),
+                  SizedBox(width: Defaults.iconSize + 20),
                 ],
               ),
             ),

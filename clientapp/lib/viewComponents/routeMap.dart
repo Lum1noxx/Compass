@@ -203,8 +203,9 @@ class _RouteMapState extends State<RouteMap> {
               ),
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(10.0),
+          SafeArea(
+            top: true,
+            minimum: EdgeInsets.all(10.0),
             child: Align(
               alignment: Alignment.topRight,
               child: Column(
