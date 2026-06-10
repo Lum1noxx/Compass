@@ -50,7 +50,7 @@ class _MapLegendState extends State<MapLegend> {
           ),
           child: ListView(
             children: [
-              Text("Legend"),
+              Text("Legend",style: TextStyle(color: AppTheme.colors.neutral),),
               Wrap(
                 // markers
                 spacing: 10,

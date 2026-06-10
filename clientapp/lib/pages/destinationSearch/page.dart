@@ -5,9 +5,7 @@ import 'package:clientapp/viewmodels/destinationSearchVM.dart';
 
 import 'package:flutter/material.dart' hide SearchBar;
 
-
 class DestinationSearchWidget extends StatefulWidget {
-  
   final DestinationSearchVM vm;
 
   const DestinationSearchWidget(this.vm, {super.key});
@@ -52,9 +50,12 @@ class _DestinationSearchWidgetState extends State<DestinationSearchWidget> {
               Container(
                 width: 100,
                 height: 50,
-                decoration: BoxDecoration(
+                decoration: BoxDecoration(),
+                child: SearchBar(
+                  widget.vm,
+                  callbacks.onSearchBarEdit,
+                  callbacks.onSearchBarComplete,
                 ),
-                child: SearchBar(widget.vm, callbacks.onSearchBarEdit, callbacks.onSearchBarComplete),
               ),
 
               // {{SuggestionsList}}
@@ -64,9 +65,11 @@ class _DestinationSearchWidgetState extends State<DestinationSearchWidget> {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: BoxDecoration(),
+                    child: SuggestionsList(
+                      widget.vm,
+                      callbacks.onDestNameSelect,
                     ),
-                    child: SuggestionsList(widget.vm, callbacks.onDestNameSelect),
                   ),
                 ),
               ),

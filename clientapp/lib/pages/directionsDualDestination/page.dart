@@ -54,116 +54,123 @@ class _DirectionsDualDestinationsWidgetState
         key: scaffoldKey,
         body: Stack(
           children: [
-            Column(
-              children: [
-                Expanded(
-                  flex: 10,
-                  child:
-                      // {{RouteMap}}}
-                      RouteMap(
-                        widget.vm,
-                        callbacks.onPinDrop,
-                        callbacks.onEdgeMarkerTap,
-                        callbacks.onFloorNameSelect,
-                        callbacks.onGpsSelect,
-                        callbacks.onLegendToggle,
-                      ),
-                ),
-
-                ExpandableNotifier(
-                  controller: panelExpandController,
-                  child: ExpandablePanel(
-                    header: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+            SafeArea(
+              top: true,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 10,
+                    child:
+                        // {{RouteMap}}}
+                        RouteMap(
+                          widget.vm,
+                          callbacks.onPinDrop,
+                          callbacks.onEdgeMarkerTap,
+                          callbacks.onFloorNameSelect,
+                          callbacks.onGpsSelect,
+                          callbacks.onLegendToggle,
                         ),
-                        color: AppTheme.colors.primary,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          // {{PanelHeader}}
-                          Expanded(
-                            flex: 5,
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                panelExpandController.toggle();
-                              },
+                  ),
+
+                  ExpandableNotifier(
+                    controller: panelExpandController,
+                    child: ExpandablePanel(
+                      header: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                          color: AppTheme.colors.primary,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            // {{PanelHeader}}
+                            Expanded(
+                              flex: 5,
+                              child: InkWell(
+                                splashColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () async {
+                                  panelExpandController.toggle();
+                                },
+                                child: Container(
+                                  width: 100,
+                                  height: 70,
+                                  decoration: BoxDecoration(),
+                                  child: PanelHeader(
+                                    widget.vm,
+                                    panelExpandController,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // {{FindButton}}
+                            Expanded(
+                              flex: 1,
                               child: Container(
                                 width: 100,
                                 height: 70,
                                 decoration: BoxDecoration(),
-                                child: PanelHeader(
+                                child: FindButton(callbacks.onFindSelect),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      collapsed: Container(
+                        width: double.infinity,
+                        height: 0,
+                        decoration: BoxDecoration(
+                          color: AppTheme.colors.primary,
+                        ),
+                      ),
+                      expanded: Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.colors.primary,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            // {{PanelRouteList}}
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: MediaQuery.sizeOf(context).height * 0.5,
+                                child: PanelRouteList(
                                   widget.vm,
-                                  panelExpandController,
+                                  callbacks.onRoutePanelNodeSelect,
+                                  callbacks.onRoutePanelSegmentSelect,
                                 ),
                               ),
                             ),
-                          ),
-                          // {{FindButton}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              width: 100,
-                              height: 70,
-                              decoration: BoxDecoration(),
-                              child: FindButton(callbacks.onFindSelect),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    collapsed: Container(
-                      width: double.infinity,
-                      height: 0,
-                      decoration: BoxDecoration(color: AppTheme.colors.primary),
-                    ),
-                    expanded: Container(
-                      decoration: BoxDecoration(color: AppTheme.colors.primary),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          // {{PanelRouteList}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).height * 0.5,
-                              child: PanelRouteList(
-                                widget.vm,
-                                callbacks.onRoutePanelNodeSelect,
-                                callbacks.onRoutePanelSegmentSelect,
+
+                            // {{PanelInfo}}
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: MediaQuery.sizeOf(context).height * 0.5,
+                                decoration: BoxDecoration(),
+                                child: PanelInfo(widget.vm),
                               ),
                             ),
-                          ),
-
-                          // {{PanelInfo}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).height * 0.5,
-                              decoration: BoxDecoration(),
-                              child: PanelInfo(widget.vm),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                      theme: ExpandableThemeData(
+                        tapHeaderToExpand: true,
+                        tapBodyToExpand: false,
+                        tapBodyToCollapse: false,
+                        headerAlignment: ExpandablePanelHeaderAlignment.center,
+                        hasIcon: false,
                       ),
                     ),
-                    theme: ExpandableThemeData(
-                      tapHeaderToExpand: true,
-                      tapBodyToExpand: false,
-                      tapBodyToCollapse: false,
-                      headerAlignment: ExpandablePanelHeaderAlignment.center,
-                      hasIcon: false,
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             SafeArea(
               top: true,
@@ -173,7 +180,7 @@ class _DirectionsDualDestinationsWidgetState
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Spacer(),
+                      SizedBox(width: Defaults.iconSize + 20),
                       // {{DualSearchButtons}}
                       Expanded(
                         flex: 6,
@@ -185,7 +192,7 @@ class _DirectionsDualDestinationsWidgetState
                           child: Row(
                             children: [
                               Expanded(
-                                flex: 8,
+                                flex: 6,
                                 child: Container(
                                   decoration: BoxDecoration(),
                                   child: DualSearchBarButtons(
@@ -194,8 +201,8 @@ class _DirectionsDualDestinationsWidgetState
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                flex: 1,
+                              SizedBox(
+                                width: Defaults.iconSize + 10,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
@@ -244,7 +251,7 @@ class _DirectionsDualDestinationsWidgetState
                           ),
                         ),
                       ),
-                      Spacer(),
+                      SizedBox(width: Defaults.iconSize + 20),
                     ],
                   ),
                 ],
