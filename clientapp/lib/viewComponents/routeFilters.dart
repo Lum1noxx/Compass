@@ -79,7 +79,17 @@ class SingleFilter extends StatelessWidget {
     return Row(
       children: [
         icon,
-        Switch(value: checked, onChanged: onCheckChange),
+        SizedBox(
+          width: Defaults.switchSize,
+          child: FittedBox(child: Switch(
+            activeTrackColor: AppTheme.colors.accent,
+            activeThumbColor: AppTheme.colors.primary,
+            inactiveThumbColor: AppTheme.colors.neutral,
+            inactiveTrackColor: AppTheme.colors.secondary,
+            value: checked,
+            onChanged: onCheckChange
+            ))
+          ),
       ],
     );
   }

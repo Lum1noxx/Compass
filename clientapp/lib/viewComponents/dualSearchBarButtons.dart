@@ -27,6 +27,7 @@ class _DualSearchBarButtonsState extends State<DualSearchBarButtons> {
       listenable: widget.vm,
       builder: (ctx, child) {
         return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DecoratedSearchBarButton(

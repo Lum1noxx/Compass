@@ -183,6 +183,7 @@ class _DirectionsDualDestinationsWidgetState
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 flex: 6,
@@ -195,7 +196,7 @@ class _DirectionsDualDestinationsWidgetState
                                 ),
                               ),
                               SizedBox(
-                                width: Defaults.iconSize + 10,
+                                width: Defaults.iconSize *2 + 10,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [

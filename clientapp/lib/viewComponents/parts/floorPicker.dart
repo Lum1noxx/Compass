@@ -39,19 +39,8 @@ class _FloorPickerState extends State<FloorPicker> {
               underline: SizedBox.shrink(),
               value: widget.vm.useSelectedFloor
                   ? Floors.getName(widget.vm.selectedFloor)
-                  : "all",
+                  : "L1",
               items: [
-                DropdownMenuItem(
-                  value: "all",
-                  alignment: AlignmentGeometry.center,
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.transparent),
-                    child: Text(
-                      "all",
-                      style: TextStyle(color: AppTheme.colors.neutral),
-                    ),
-                  ),
-                ),
                 for (int floor in Constants.floors)
                   DropdownMenuItem(
                     value: Floors.getName(floor),

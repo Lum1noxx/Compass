@@ -157,12 +157,10 @@ class _DirectionsSingleDestinationWidgetState
                   Expanded(
                     flex: 6,
                     // {{SearchBarButton}}
-                    child: Container(
                       child: SearchBarButton(
                         widget.vm.itemInFocus?.name ?? "search:",
                         callbacks.onSearchBarButtonSelect,
                       ),
-                    ),
                   ),
                   SizedBox(width: Defaults.iconSize + 20),
                 ],
