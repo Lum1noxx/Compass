@@ -45,7 +45,6 @@ class _DirectionsSingleDestinationWidgetState
 
   @override
   Widget build(BuildContext context) {
-    ExpandableController panelExpandController = ExpandableController();
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -69,7 +68,7 @@ class _DirectionsSingleDestinationWidgetState
                   ),
                 ),
                 ExpandableNotifier(
-                  controller: panelExpandController,
+                  controller: widget.vm.panelController,
                   child: ExpandablePanel(
                     header: Container(
                       decoration: BoxDecoration(
@@ -99,7 +98,7 @@ class _DirectionsSingleDestinationWidgetState
                                 decoration: BoxDecoration(),
                                 child: PanelHeader(
                                   widget.vm,
-                                  panelExpandController,
+                                  widget.vm.panelController,
                                 ),
                               ),
                             ),

@@ -5,6 +5,7 @@ import 'package:clientapp/defaults.dart';
 import 'package:clientapp/floorplans.dart';
 import 'package:clientapp/models/directionsModel.dart';
 import 'package:clientapp/viewmodels/pageVM.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,6 +19,7 @@ abstract class DirectionsBaseVM extends PageVM {
 
   DirectionsModel model;
   MapController mapController = MapController();
+  ExpandableController panelController = ExpandableController();
   StreamSubscription? gpsStream;
   TempDestination? gps;
   bool showLegend = true;
@@ -35,6 +37,7 @@ abstract class DirectionsBaseVM extends PageVM {
   void dispose() {
     super.dispose();
     mapController.dispose();
+    panelController.dispose();
     if (gpsStream != null) {
       gpsStream!.cancel();
     }
@@ -50,11 +53,13 @@ abstract class DirectionsBaseVM extends PageVM {
   @override
   void onExit() {
     mapController.dispose();
+    panelController.dispose();
   }
 
   @override
   void onEnter() {
     mapController = MapController();
+    panelController = ExpandableController();
   }
 
   @override
@@ -85,6 +90,12 @@ abstract class DirectionsBaseVM extends PageVM {
           padding: EdgeInsets.all(Defaults.segmentViewPadding),
         ),
       );
+    }
+  }
+
+  void openPanel() {
+    if (!panelController.expanded) {
+      panelController.toggle();
     }
   }
 

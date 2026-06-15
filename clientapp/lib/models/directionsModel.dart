@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
@@ -41,28 +42,34 @@ class DirectionsModel {
     bool filterStairs,
     bool filterUnsheltered,
   ) async {
-    List<Map> edgesJson = await ApiCalls.shortest_path(
-      startDest.name,
-      endDest.name,
-      !filterStairs,
-      !filterUnsheltered,
-    );
-    await Globals.nodes.fetch([
-      for (Map edgeInfo in edgesJson) edgeInfo["start"],
-      if (edgesJson.isNotEmpty) edgesJson.last['end'],
-    ]);
-    List<Edge> edges = [
-      for (Map edgeInfo in edgesJson)
-        Edge(
-          EdgeType.get(edgeInfo["type"]),
-          await Globals.nodes.get(edgeInfo["start"]),
-          await Globals.nodes.get(edgeInfo["end"]),
-          edgeInfo["sheltered"],
-          edgeInfo["stairs"],
-          edgeInfo["duration"],
-        ),
-    ];
-    return Path.autoJoin(edges, startDest, endDest);
+    try {
+      List<Map> edgesJson = await ApiCalls.shortest_path(
+        startDest.name,
+        endDest.name,
+        !filterStairs,
+        !filterUnsheltered,
+      );
+      await Globals.nodes.fetch([
+        for (Map edgeInfo in edgesJson) edgeInfo["start"],
+        if (edgesJson.isNotEmpty) edgesJson.last['end'],
+      ]);
+      List<Edge> edges = [
+        for (Map edgeInfo in edgesJson)
+          Edge(
+            EdgeType.get(edgeInfo["type"]),
+            await Globals.nodes.get(edgeInfo["start"]),
+            await Globals.nodes.get(edgeInfo["end"]),
+            edgeInfo["sheltered"],
+            edgeInfo["stairs"],
+            edgeInfo["duration"],
+          ),
+      ];
+      return Path.autoJoin(edges, startDest, endDest);
+    } on EdgelessPathException catch (e) {
+      return EdgelessPath(startDest, endDest);
+    } on ImpossiblePathException catch (e) {
+      return ImpossiblePath(startDest, endDest);
+    }
   }
 
   Future<List<Destination>> getNearbyDestinations(currentSelection) async {

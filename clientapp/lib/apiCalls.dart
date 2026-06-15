@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/constants.dart';
+import 'package:clientapp/data.dart';
 import 'package:http/http.dart';
 
 class ApiCalls {
@@ -19,7 +21,20 @@ class ApiCalls {
       // "stairs" : allowStairs.toString()
     });
     final response = await get(request);
-    List<dynamic> json = jsonDecode(response.body)['edges'];
+    if (response.statusCode == 200) {
+      List<dynamic> json = jsonDecode(response.body)['edges'];
+      return [for (dynamic obj in json) obj as Map];
+    } else {
+      String errorMessage = jsonDecode(response.body)['error'];
+      if (errorMessage.toLowerCase() == "you are in the building") {
+        // already there
+        throw EdgelessPathException();
+      } else {
+        // impossible
+        throw ImpossiblePathException();
+      }
+    }
+    
     // List<Map> json = [ // STUB
     //   {
     //     "type": "walk",
@@ -55,7 +70,6 @@ class ApiCalls {
     //   }
 
     // ];
-    return [for (dynamic obj in json) obj as Map];
   }
 
   static Future<List<Map>> node_coordinates(List<String> names) async {

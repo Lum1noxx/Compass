@@ -22,24 +22,31 @@ class PanelRouteList extends StatefulWidget {
 class _PanelRouteListState extends State<PanelRouteList> {
   @override
   Widget build(BuildContext context) {
+
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (context, child) {
-        return ListView(
-          children: [
-            RoutePanelStart(),
-            for (Segment segment in widget.vm.lastRoute.segments)
-              Column(
-                children: [
-                  NodePanelItem(segment.start(), widget.onNodeSelect),
-                  SegmentPanelItem(segment, widget.onSegmentSelect),
-                ],
-              ),
-            if (widget.vm.lastRoute.length() > 0)
-              NodePanelItem(widget.vm.lastRoute.end(), widget.onNodeSelect),
-            RoutePanelEnd(),
-          ],
-        );
+        Path lastRoute = widget.vm.lastRoute;
+        if (lastRoute.isValid()) {
+          return ListView(
+            children: [
+              if (lastRoute.isValid())
+              RoutePanelStart(),
+              for (Segment segment in lastRoute.segments)
+                Column(
+                  children: [
+                    NodePanelItem(segment.start(), widget.onNodeSelect),
+                    SegmentPanelItem(segment, widget.onSegmentSelect),
+                  ],
+                ),
+              NodePanelItem(lastRoute.end(), widget.onNodeSelect),
+              RoutePanelEnd(),
+            ],
+          );
+        } else {
+          return InvalidPathPanel(lastRoute);
+        }
+        
       },
     );
   }
@@ -105,5 +112,15 @@ class SegmentPanelItem extends StatelessWidget {
         child: Text(segment.edgeType().name),
       ),
     );
+  }
+}
+
+class InvalidPathPanel extends StatelessWidget {
+  final Path path;
+  const InvalidPathPanel(this.path, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(path.toString());
   }
 }

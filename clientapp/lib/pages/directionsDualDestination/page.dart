@@ -43,7 +43,6 @@ class _DirectionsDualDestinationsWidgetState
   @override
   Widget build(BuildContext context) {
     ExpandableController filterExpandController = ExpandableController();
-    ExpandableController panelExpandController = ExpandableController();
 
     return GestureDetector(
       onTap: () {
@@ -71,7 +70,7 @@ class _DirectionsDualDestinationsWidgetState
                 ),
 
                 ExpandableNotifier(
-                  controller: panelExpandController,
+                  controller: widget.vm.panelController,
                   child: ExpandablePanel(
                     header: Container(
                       decoration: BoxDecoration(
@@ -92,16 +91,16 @@ class _DirectionsDualDestinationsWidgetState
                               focusColor: Colors.transparent,
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
-                              onTap: () async {
-                                panelExpandController.toggle();
-                              },
+                              // onTap: () async {
+                              //   widget.vm.panelController.toggle();
+                              // },
                               child: Container(
                                 width: 100,
                                 height: 70,
                                 decoration: BoxDecoration(),
                                 child: PanelHeader(
                                   widget.vm,
-                                  panelExpandController,
+                                  widget.vm.panelController,
                                 ),
                               ),
                             ),

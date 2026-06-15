@@ -28,11 +28,16 @@ class DirectionsSingleVM extends DirectionsBaseVM {
     }
   }
 
+  @override void onResume() {
+    openPanel();
+  }
+
   void focusItem(dynamic item) {
     assert(item is Destination);
     itemInFocus = item;
     notifyMapCamera();
     notifyListeners();
+    openPanel();
   }
 
   void searchDestination() {

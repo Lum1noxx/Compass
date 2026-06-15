@@ -346,6 +346,56 @@ class Path {
   Segment locate(Edge edge) {
     return _map[edge]!;
   }
+
+  bool isValid() {
+    return true;
+  }
+}
+
+class EmptyPath extends Path {
+
+  EmptyPath() : super([]);
+
+  @override
+  int length() {
+    return 0;
+  }
+
+  @override
+  bool isValid() {
+    return false;
+  }
+
+}
+
+class EdgelessPath extends Path {
+  
+  EdgelessPath(Destination start, Destination end) : super.autoJoin([], start, end);
+  
+  @override
+  int length() {
+    return 0;
+  }
+
+  @override
+  bool isValid() {
+    return false;
+  }
+}
+
+class ImpossiblePath extends Path {
+  
+  ImpossiblePath(Destination start, Destination end) : super.autoJoin([], start, end);
+  
+  @override
+  int length() {
+    return 0;
+  }
+
+  @override
+  bool isValid() {
+    return false;
+  }
 }
 
 class Floors {

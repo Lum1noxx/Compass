@@ -153,7 +153,7 @@ class _RouteMapState extends State<RouteMap> {
                           () => widget.vm.focusItem(segment.start()),
                         ),
                       ),
-                  if (widget.vm.lastRoute.length() > 0) // start destination
+                  if (widget.vm.lastRoute.isValid()) // start destination
                     Marker(
                       point: widget.vm.lastRoute.edges.first.start.getLatLng(),
                       child: RouteStartMarker(
@@ -163,7 +163,7 @@ class _RouteMapState extends State<RouteMap> {
                         () => widget.vm.setDest(widget.vm.lastRoute.start()),
                       ),
                     ),
-                  if (widget.vm.lastRoute.length() > 0) // end destination
+                  if (widget.vm.lastRoute.isValid()) // end destination
                     Marker(
                       point: widget.vm.lastRoute.edges.last.end.getLatLng(),
                       child: RouteEndMarker(
@@ -178,7 +178,7 @@ class _RouteMapState extends State<RouteMap> {
                       point: widget.vm.newStartDest!.getLatLng(),
                       child: SelectingMarker(
                         widget.vm.isOnCurrentFloor(widget.vm.newStartDest!),
-                        () => widget.vm.focusItem(widget.vm.lastRoute.end()),
+                        () => widget.vm.focusItem(widget.vm.newStartDest!),
                       ),
                     ),
                   if (widget.vm.newEndDest != null)
@@ -186,7 +186,7 @@ class _RouteMapState extends State<RouteMap> {
                       point: widget.vm.newEndDest!.getLatLng(),
                       child: SelectingMarker(
                         widget.vm.isOnCurrentFloor(widget.vm.newEndDest!),
-                        () => widget.vm.focusItem(widget.vm.lastRoute.end()),
+                        () => widget.vm.focusItem(widget.vm.newEndDest!),
                       ),
                     ),
                 ],

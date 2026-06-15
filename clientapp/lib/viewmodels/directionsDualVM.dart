@@ -4,7 +4,7 @@ import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/pageVM.dart';
 
 class DirectionsDualVM extends DirectionsBaseVM {
-  Path lastRoute = Path([]);
+  Path lastRoute = EmptyPath();
   Destination? newStartDest;
   Destination? newEndDest;
   bool settingEnd = false; // else, setting start
@@ -53,6 +53,7 @@ class DirectionsDualVM extends DirectionsBaseVM {
     }
     notifyMapCamera();
     notifyListeners();
+    openPanel();
   }
 
   void setDest(Destination destination) {
@@ -64,6 +65,7 @@ class DirectionsDualVM extends DirectionsBaseVM {
     itemInFocus = destination;
     notifyMapCamera();
     notifyListeners();
+    openPanel();
   }
 
   void findPath() async {
@@ -73,6 +75,7 @@ class DirectionsDualVM extends DirectionsBaseVM {
           .then((path) {
             lastRoute = path;
             notifyListeners();
+            openPanel();
           });
     }
   }

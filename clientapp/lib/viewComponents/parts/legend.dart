@@ -35,7 +35,7 @@ class _MapLegendState extends State<MapLegend> {
             LegendItem(NearbyMarker.icon(), "nearby places"),
         ];
         if (widget.vm is DirectionsDualVM) {
-          if ((widget.vm as DirectionsDualVM).lastRoute.length() > 0) {
+          if ((widget.vm as DirectionsDualVM).lastRoute.isValid()) {
             nodes.addAll([
               LegendItem(RouteStartMarker.icon(), "start"),
               LegendItem(RouteEndMarker.icon(), "end"),
@@ -65,7 +65,7 @@ class _MapLegendState extends State<MapLegend> {
                 ],
               ),
               if (widget.vm is DirectionsDualVM)
-                if ((widget.vm as DirectionsDualVM).lastRoute.length() > 0)
+                if ((widget.vm as DirectionsDualVM).lastRoute.isValid())
                   Wrap(
                     // polylines
                     spacing: 10,
