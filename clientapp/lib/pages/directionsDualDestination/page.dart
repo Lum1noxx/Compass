@@ -78,7 +78,7 @@ class _DirectionsDualDestinationsWidgetState
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20),
                         ),
-                        color: AppTheme.colors.primary,
+                        color: AppTheme.colors.background,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
@@ -96,7 +96,7 @@ class _DirectionsDualDestinationsWidgetState
                               // },
                               child: Container(
                                 width: 100,
-                                height: 70,
+                                height: 60,
                                 decoration: BoxDecoration(),
                                 child: PanelHeader(
                                   widget.vm,
@@ -110,7 +110,7 @@ class _DirectionsDualDestinationsWidgetState
                             flex: 1,
                             child: Container(
                               width: 100,
-                              height: 70,
+                              height: 60,
                               decoration: BoxDecoration(),
                               child: FindButton(callbacks.onFindSelect),
                             ),
@@ -118,36 +118,37 @@ class _DirectionsDualDestinationsWidgetState
                         ],
                       ),
                     ),
-                    collapsed: Container(
-                      width: double.infinity,
-                      height: 0,
-                      decoration: BoxDecoration(color: AppTheme.colors.primary),
-                    ),
+                    collapsed: Container(width: double.infinity, height: 0),
                     expanded: Container(
-                      decoration: BoxDecoration(color: AppTheme.colors.primary),
+                      decoration: BoxDecoration(
+                        color: AppTheme.colors.background,
+                      ),
+                      height: MediaQuery.sizeOf(context).height * 0.4,
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // {{PanelRouteList}}
                           Expanded(
                             flex: 1,
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).height * 0.5,
-                              child: PanelRouteList(
-                                widget.vm,
-                                callbacks.onRoutePanelNodeSelect,
-                                callbacks.onRoutePanelSegmentSelect,
-                              ),
+                            child: PanelRouteList(
+                              widget.vm,
+                              callbacks.onRoutePanelNodeSelect,
+                              callbacks.onRoutePanelSegmentSelect,
                             ),
                           ),
 
                           // {{PanelInfo}}
                           Expanded(
-                            flex: 1,
+                            flex: 2,
                             child: Container(
                               height: MediaQuery.sizeOf(context).height * 0.5,
                               decoration: BoxDecoration(),
-                              child: PanelInfo(widget.vm),
+                              child: PanelInfo(
+                                widget.vm,
+                                callbacks.onRoutePanelSegmentSelect,
+                                callbacks.onRoutePanelNodeSelect,
+                              ),
                             ),
                           ),
                         ],
@@ -172,13 +173,12 @@ class _DirectionsDualDestinationsWidgetState
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      SizedBox(width: Defaults.iconSize + 20),
                       // {{DualSearchButtons}}
                       Expanded(
                         flex: 6,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.colors.secondary,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -195,7 +195,7 @@ class _DirectionsDualDestinationsWidgetState
                                 ),
                               ),
                               SizedBox(
-                                width: Defaults.iconSize *2 + 10,
+                                width: Defaults.iconSize * 2 + 10,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [

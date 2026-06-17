@@ -43,6 +43,13 @@ Floorplans floorplans = Floorplans({
         LatLng(1.2958738430000001, 103.7757558119999999),
       ),
     ),
+    2: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/com3_2.png"),
+      bounds: LatLngBounds(
+        LatLng( 1.295664301, 103.773382061,),
+        LatLng( 1.293637396, 103.775665604,)
+      ),
+    ),
   },
   'com4': {
     2: OverlayImage(

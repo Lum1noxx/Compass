@@ -45,7 +45,7 @@ class _MapLegendState extends State<MapLegend> {
         }
         return Container(
           decoration: BoxDecoration(
-            color: AppTheme.colors.secondary,
+            color: AppTheme.colors.background,
             borderRadius: BorderRadius.circular(10),
           ),
           child: ListView(

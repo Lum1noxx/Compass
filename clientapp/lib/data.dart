@@ -20,7 +20,7 @@ class Coordinate {
   @override
   String toString() {
     // TODO: implement toString
-    return '($lat, $lng), floor $floor';
+    return 'Floor ${Floors.getName(floor)} at ($lat, $lng)';
   }
 }
 
@@ -43,7 +43,7 @@ class Destination extends Node {
 
   @override
   String toString() {
-    return 'destination: $name at $coordinate';
+    return '$name: $coordinate';
   }
 }
 
@@ -71,6 +71,10 @@ enum EdgeType {
 
   bool isRelatedTo(EdgeType other) {
     return EdgeType.relatedTypes[this] == EdgeType.relatedTypes[other];
+  }
+
+  EdgeType rootType() {
+    return EdgeType.relatedTypes[this]!;
   }
 }
 
@@ -204,6 +208,20 @@ class Destinations {
 }
 
 class Segment {
+  static void link(List<Segment> route) {
+    if (route.length < 2) {
+      return;
+    }
+    for (int i = 1; i < route.length - 1; i++) {
+      route[i].previous = route[i - 1];
+      route[i].next = route[i + 1];
+    }
+    route[0].next = route[1];
+    route[route.length - 1].previous = route[route.length - 2];
+  }
+
+  Segment? previous;
+  Segment? next;
   late final List<Edge> edges;
   late double duration;
 
@@ -241,7 +259,7 @@ class Segment {
   }
 
   EdgeType edgeType() {
-    return edges.first.edgeType;
+    return edges.first.edgeType.rootType();
   }
 }
 
@@ -261,12 +279,15 @@ class Path {
       }
     }
     segments.add(Segment(nextSegment));
+    Segment.link(segments);
     return segments;
   }
 
   List<Edge> edges;
   late final List<Segment> segments;
-  final Map<Edge, Segment> _map = {};
+  final Map<Edge, Segment> _edgesIndex = {};
+  final Map<Node, Segment> _nodesIndex = {};
+  double duration = 0;
 
   Path(this.edges) {
     if (edges.isEmpty) {
@@ -275,9 +296,12 @@ class Path {
     }
     assert(edges.first.start is Destination && edges.last.end is Destination);
     segments = group(edges);
+    _nodesIndex[segments.first.start()] = segments.first;
     for (Segment segment in segments) {
+      duration += segment.duration;
       for (Edge edge in segment.edges) {
-        _map[edge] = segment;
+        _edgesIndex[edge] = segment;
+        _nodesIndex[edge.end] = segment;
       }
     }
   }
@@ -324,9 +348,12 @@ class Path {
       ];
     }
     segments = group(edges);
+    _nodesIndex[segments.first.start()] = segments.first;
     for (Segment segment in segments) {
+      duration += segment.duration;
       for (Edge edge in segment.edges) {
-        _map[edge] = segment;
+        _edgesIndex[edge] = segment;
+        _nodesIndex[edge.end] = segment;
       }
     }
   }
@@ -343,8 +370,14 @@ class Path {
     return edges.last.end as Destination;
   }
 
-  Segment locate(Edge edge) {
-    return _map[edge]!;
+  Segment? locate(dynamic item) {
+    if (item is Edge) {
+      return _edgesIndex[item];
+    } else if (item is Node) {
+      return _nodesIndex[item];
+    } else {
+      throw UnsupportedError("can only locate segment of node or edge");
+    }
   }
 
   bool isValid() {
@@ -353,7 +386,6 @@ class Path {
 }
 
 class EmptyPath extends Path {
-
   EmptyPath() : super([]);
 
   @override
@@ -365,13 +397,12 @@ class EmptyPath extends Path {
   bool isValid() {
     return false;
   }
-
 }
 
 class EdgelessPath extends Path {
-  
-  EdgelessPath(Destination start, Destination end) : super.autoJoin([], start, end);
-  
+  EdgelessPath(Destination start, Destination end)
+    : super.autoJoin([], start, end);
+
   @override
   int length() {
     return 0;
@@ -384,9 +415,9 @@ class EdgelessPath extends Path {
 }
 
 class ImpossiblePath extends Path {
-  
-  ImpossiblePath(Destination start, Destination end) : super.autoJoin([], start, end);
-  
+  ImpossiblePath(Destination start, Destination end)
+    : super.autoJoin([], start, end);
+
   @override
   int length() {
     return 0;
@@ -419,7 +450,7 @@ class Floors {
 
 class TempDestination extends Destination {
   /// this is soley for highlighting on map
-  TempDestination(Coordinate coordinate) : super("", coordinate);
+  TempDestination(Coordinate coordinate) : super("dropped pin", coordinate);
   TempDestination.plane(LatLng position)
-    : super("", Coordinate(position.latitude, position.longitude, 0));
+    : super("dropped pin", Coordinate(position.latitude, position.longitude, 0));
 }

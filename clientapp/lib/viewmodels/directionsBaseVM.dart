@@ -11,9 +11,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 abstract class DirectionsBaseVM extends PageVM {
-  bool useSelectedFloor = false;
-  int selectedFloor = 0;
-  List<OverlayImage> visibleFloorplans = [];
+  bool useSelectedFloor = true;
+  int selectedFloor = 1;
+  List<OverlayImage> visibleFloorplans = floorplans.get(1);
   List<Destination> nearbyDestinations = [];
   dynamic itemInFocus; // Node or Segment
 

@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 enum EdgeLine {
-  // view manager class
+  // view manager classr
   walk(Colors.blueAccent, Defaults.edgeWidth, Defaults.edgeWidth),
   bus(Colors.green, Defaults.edgeWidth, 0),
-  lift(Colors.yellow, Defaults.edgeWidth, 0);
+  lift(Colors.purpleAccent, Defaults.edgeWidth, 0);
 
   static Map<EdgeType, EdgeLine> map = {
     EdgeType.walk: walk,

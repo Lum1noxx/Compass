@@ -6,20 +6,20 @@ class Defaults {
   static const int autocompleteSize = 10;
   static const int nearbyDestinationsCount = 5;
   static const double walkingSpeedMetresPerSec = 4 / 3;
-  static const double iconSize = 40;
-  static const double switchSize = 50;
+  static const double iconSize = 35;
+  static const double switchSize = 40;
 
   static const LatLng mapPosition = LatLng(1.2966, 103.7764);
   static const int gpsUpdateThreshold =
       1; // in metres, 0 == update for all movements
   static const double mapInitialZoom = 14.5;
-  static const double mapFocusZoom = 18.5;
+  static const double mapFocusZoom = 20;
   static const double segmentViewPadding = 80;
   static const double edgeWidth = 5;
   static const double otherFloorOpacity = 0.33;
   static const double mapMarkerSize = 20;
   static const double legendHeight = 200;
   static const double legendWidth = 300;
-  static const Color RouteStartColor = Colors.redAccent;
+  static const Color RouteStartColor = Colors.orange;
   static const Color RouteEndColor = Colors.greenAccent;
 }

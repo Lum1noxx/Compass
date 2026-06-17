@@ -1,6 +1,9 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
+import 'package:clientapp/viewComponents/parts/edgeLines.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PanelRouteList extends StatefulWidget {
@@ -22,56 +25,93 @@ class PanelRouteList extends StatefulWidget {
 class _PanelRouteListState extends State<PanelRouteList> {
   @override
   Widget build(BuildContext context) {
-
     return ListenableBuilder(
       listenable: widget.vm,
       builder: (context, child) {
         Path lastRoute = widget.vm.lastRoute;
         if (lastRoute.isValid()) {
-          return ListView(
-            children: [
-              if (lastRoute.isValid())
-              RoutePanelStart(),
-              for (Segment segment in lastRoute.segments)
+          return Container(
+            decoration: BoxDecoration(
+              color: AppTheme.colors.primary,
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: ListView(
+              children: [
                 Column(
                   children: [
-                    NodePanelItem(segment.start(), widget.onNodeSelect),
-                    SegmentPanelItem(segment, widget.onSegmentSelect),
+                    Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppTheme.colors.secondary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      height: 40,
+                      child: Text(
+                        "Route: ${lastRoute.duration.round()}s",
+                        style: TextStyle(color: AppTheme.colors.neutralAccent),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                      child: NodePanelItem(
+                        lastRoute.segments.first.start(),
+                        widget.onNodeSelect,
+                        widget.vm.itemInFocus ==
+                            lastRoute.segments.first.start(),
+                        colorOverride: Defaults.RouteStartColor,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 150,
+                      child: SegmentPanelItem(
+                        lastRoute.segments.first,
+                        widget.onSegmentSelect,
+                        widget.vm.itemInFocus == lastRoute.segments.first,
+                      ),
+                    ),
                   ],
                 ),
-              NodePanelItem(lastRoute.end(), widget.onNodeSelect),
-              RoutePanelEnd(),
-            ],
+                for (Segment segment in lastRoute.segments.getRange(
+                  1,
+                  lastRoute.segments.length,
+                ))
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 40,
+                        child: NodePanelItem(
+                          segment.start(),
+                          widget.onNodeSelect,
+                          widget.vm.itemInFocus == segment.start(),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 150,
+                        child: SegmentPanelItem(
+                          segment,
+                          widget.onSegmentSelect,
+                          widget.vm.itemInFocus == segment,
+                        ),
+                      ),
+                    ],
+                  ),
+                SizedBox(
+                  height: 40,
+                  child: NodePanelItem(
+                    lastRoute.end(),
+                    widget.onNodeSelect,
+                    widget.vm.itemInFocus == lastRoute.end(),
+                    colorOverride: Defaults.RouteEndColor,
+                  ),
+                ),
+              ],
+            ),
           );
         } else {
           return InvalidPathPanel(lastRoute);
         }
-        
       },
-    );
-  }
-}
-
-class RoutePanelStart extends StatelessWidget {
-  const RoutePanelStart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: Defaults.RouteStartColor),
-      child: Text("start"),
-    );
-  }
-}
-
-class RoutePanelEnd extends StatelessWidget {
-  const RoutePanelEnd({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: Defaults.RouteEndColor),
-      child: Text("end"),
     );
   }
 }
@@ -79,38 +119,128 @@ class RoutePanelEnd extends StatelessWidget {
 class NodePanelItem extends StatelessWidget {
   final Node node;
   final void Function(Node) onSelect;
+  final bool selected;
+  final Color? colorOverride;
 
-  const NodePanelItem(this.node, this.onSelect, {super.key});
+  const NodePanelItem(
+    this.node,
+    this.onSelect,
+    this.selected, {
+    this.colorOverride,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () => onSelect(node),
-      icon: DecoratedBox(
+      icon: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.orange,
+          borderRadius: BorderRadius.circular(20),
+          color: colorOverride ?? AppTheme.colors.secondary,
+          border: Border.all(
+            color: selected ? AppTheme.colors.accent : Colors.transparent,
+            width: selected ? 5 : 0,
+          ),
         ),
-        child: Text(node.name),
+        child: Text(
+          node.name,
+          style: TextStyle(color: AppTheme.colors.neutral),
+        ),
       ),
     );
   }
 }
 
 class SegmentPanelItem extends StatelessWidget {
+  static const Map<EdgeType, IconData> edgeIcons = {
+    EdgeType.walk: Icons.directions_walk,
+    EdgeType.bus: Icons.directions_bus,
+    EdgeType.lift: Icons.elevator,
+  };
+
   final Segment segment;
   final void Function(Segment) onSelect;
+  final bool selected;
 
-  const SegmentPanelItem(this.segment, this.onSelect, {super.key});
+  const SegmentPanelItem(
+    this.segment,
+    this.onSelect,
+    this.selected, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => onSelect(segment),
-      icon: DecoratedBox(
-        decoration: BoxDecoration(color: Colors.yellow),
-        child: Text(segment.edgeType().name),
-      ),
+    Color color = EdgeLine.of(segment.edges.first).color;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Spacer(),
+        IconButton(
+          onPressed: () => onSelect(segment),
+          icon: Column(
+            children: [
+              Container(
+                height: 10,
+                width: 12,
+                color: color,
+                margin: EdgeInsets.only(bottom: 5),
+              ),
+              Expanded(
+                child: Container(
+                  width: 12,
+                  decoration: BoxDecoration(color: color),
+                ),
+              ),
+              // Container(
+              //   width: 40,
+              //   alignment: Alignment.center,
+              //   decoration: BoxDecoration(
+              //     border: Border.all(color: color, width: selected ? 5 : 1),
+              //   ),
+              //   child: Text(
+              //     segment.edgeType().name,
+              //     style: TextStyle(
+              //       color: color,
+              //       fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              //     ),
+              //   ),
+              // ),
+              Container(
+                decoration: BoxDecoration(
+                  border: selected ? Border.all(color: color, width: 3) : null,
+                ),
+                child: Icon(
+                  edgeIcons[segment.edgeType()],
+                  color: color,
+                  size: Defaults.iconSize,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  width: 12,
+                  decoration: BoxDecoration(color: color),
+                ),
+              ),
+              Icon(
+                CupertinoIcons.arrowtriangle_down_fill,
+                size: Defaults.iconSize,
+                color: color,
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SizedBox(
+            height: 40,
+            child: Text(
+              "${segment.duration.round()}s",
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -121,6 +251,25 @@ class InvalidPathPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(path.toString());
+    String message;
+    if (path is EmptyPath) {
+      message = "no route to show";
+    } else if (path is EdgelessPath) {
+      message = "start location coincides with end location";
+    } else {
+      // path is ImpossiblePath
+      message = "unable to find a route - try again with fewer filters";
+    }
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppTheme.colors.primary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        message,
+        style: TextStyle(color: AppTheme.colors.neutralAccent),
+      ),
+    );
   }
 }

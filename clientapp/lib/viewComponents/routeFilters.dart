@@ -85,7 +85,7 @@ class SingleFilter extends StatelessWidget {
             activeTrackColor: AppTheme.colors.accent,
             activeThumbColor: AppTheme.colors.primary,
             inactiveThumbColor: AppTheme.colors.neutral,
-            inactiveTrackColor: AppTheme.colors.secondary,
+            inactiveTrackColor: AppTheme.colors.primary,
             value: checked,
             onChanged: onCheckChange
             ))

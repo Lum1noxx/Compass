@@ -56,5 +56,6 @@ class DirectionsDualDestinationsCallbacks {
     onLegendToggle = () {
       vm.toggleLegend();
     };
+
   }
 }

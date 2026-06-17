@@ -15,7 +15,7 @@ class SearchBarButton extends StatelessWidget {
       icon: Container(
         height: Defaults.iconSize,
         decoration: BoxDecoration(
-          color: AppTheme.colors.primary,
+          color: AppTheme.colors.background,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(

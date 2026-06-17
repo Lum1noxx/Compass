@@ -76,7 +76,7 @@ class _DirectionsSingleDestinationWidgetState
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20),
                         ),
-                        color: AppTheme.colors.primary,
+                        color: AppTheme.colors.background,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
@@ -94,7 +94,7 @@ class _DirectionsSingleDestinationWidgetState
                               // },
                               child: Container(
                                 width: 100,
-                                height: 70,
+                                height: 60,
                                 decoration: BoxDecoration(),
                                 child: PanelHeader(
                                   widget.vm,
@@ -109,7 +109,7 @@ class _DirectionsSingleDestinationWidgetState
                             flex: 1,
                             child: Container(
                               width: 100,
-                              height: 70,
+                              height: 60,
                               decoration: BoxDecoration(),
                               child: DirectionsButton(
                                 callbacks.onDirectionSelect,
@@ -122,7 +122,6 @@ class _DirectionsSingleDestinationWidgetState
                     collapsed: Container(
                       width: double.infinity,
                       height: 0,
-                      decoration: BoxDecoration(color: AppTheme.colors.primary),
                     ),
                     expanded:
                         // {{PanelInfo}}
@@ -130,9 +129,9 @@ class _DirectionsSingleDestinationWidgetState
                           width: double.infinity,
                           height: MediaQuery.sizeOf(context).height * 0.4,
                           decoration: BoxDecoration(
-                            color: AppTheme.colors.primary,
+                            color: AppTheme.colors.background,
                           ),
-                          child: PanelInfo(widget.vm),
+                          child: PanelInfo(widget.vm,(_){}, (_){}),
                         ),
                     theme: ExpandableThemeData(
                       tapHeaderToExpand: true,
@@ -152,7 +151,6 @@ class _DirectionsSingleDestinationWidgetState
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  SizedBox(width: Defaults.iconSize + 20),
                   Expanded(
                     flex: 6,
                     // {{SearchBarButton}}

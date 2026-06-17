@@ -16,7 +16,7 @@ class LegendButton extends StatelessWidget {
       icon: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: AppTheme.colors.secondary.withAlpha((0.7 * 255).round()),
+          color: AppTheme.colors.primary.withAlpha((0.7 * 255).round()),
         ),
         height: Defaults.legendHeight,
         width: 20,

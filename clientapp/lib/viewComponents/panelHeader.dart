@@ -88,10 +88,10 @@ class ExpandBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 30, top: 5),
+      margin: EdgeInsets.only(bottom: 20, top: 5),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppTheme.colors.secondary,
+        color: AppTheme.colors.primary,
         borderRadius: BorderRadius.circular(10),
       ),
       child: expanded
