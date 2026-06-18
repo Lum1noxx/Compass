@@ -1,11 +1,13 @@
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class GPSMarker extends NodeMarker {
   // current gps location
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.blue, 0, Colors.white, 3);
+    return NodeMarker.circleIcon(Colors.blue, 0, AppTheme.colors.neutral, 3);
   }
 
   const GPSMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -35,7 +37,9 @@ class DroppedMarker extends NodeMarker {
   // dropped pin
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return Transform.translate(
+      offset: const Offset(0, -10),
+      child: Icon(CupertinoIcons.location_solid, color: Colors.red,size: 25,), );
   }
 
   const DroppedMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -65,7 +69,7 @@ class WaypointMarker extends NodeMarker {
   // nodes between segments
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Colors.blue.shade600, 3, Colors.transparent, 0);
   }
 
   const WaypointMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -80,7 +84,7 @@ class RouteStartMarker extends NodeMarker {
   // start destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Defaults.RouteStartColor, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Defaults.RouteStartColor, 3, Colors.transparent, 0);
   }
 
   const RouteStartMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -95,7 +99,7 @@ class RouteEndMarker extends NodeMarker {
   // end destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Defaults.RouteEndColor, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Defaults.RouteEndColor, 3, Colors.transparent, 0);
   }
 
   const RouteEndMarker(super.onCurrentFloor, super.onTap, {super.key});

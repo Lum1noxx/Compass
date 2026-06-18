@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,10 @@ class SearchBarButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: Text(
+              child: AutoSizeText(
+                minFontSize: Defaults.autoTextMin,
+                maxFontSize: Defaults.autoTextMax,
+                maxLines: 2,
                 destName,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppTheme.colors.neutral),

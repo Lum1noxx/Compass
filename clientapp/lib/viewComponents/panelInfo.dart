@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
@@ -56,7 +57,11 @@ class _PanelInfoState extends State<PanelInfo> {
           panel = Container(
             decoration: BoxDecoration(color: AppTheme.colors.background),
             alignment: Alignment.center,
-            child: Text(
+            child: AutoSizeText(
+              minFontSize: Defaults.autoTextMin,
+              maxFontSize: Defaults.autoTextMax,
+              textAlign: TextAlign.center,
+              maxLines: 1,
               "nothing currently selected",
               style: TextStyle(color: AppTheme.colors.neutral),
             ),
@@ -89,13 +94,21 @@ class SegmentInfo extends StatelessWidget {
     if (segment.next != null) {
       bottomButton = TextButton(
         onPressed: () => onNeighbourSelect(segment.next!),
-        child: Text(
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 1,
           "next: ${segment.next!.edgeType().name}",
           style: TextStyle(color: AppTheme.colors.neutralAccent),
         ),
       );
     } else {
-      bottomButton = Text(
+      bottomButton = AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
         "you have arrived!",
         style: TextStyle(color: AppTheme.colors.neutralAccent),
       );
@@ -112,7 +125,11 @@ class SegmentInfo extends StatelessWidget {
     if (segment.edgeType() == EdgeType.lift) {
       topButton = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
-        child: Text(
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 1,
           "from ${Floors.getName(segment.start().coordinate.floor)}: ${segment.start().name}",
           style: TextStyle(color: AppTheme.colors.neutral),
         ),
@@ -120,7 +137,11 @@ class SegmentInfo extends StatelessWidget {
     } else {
       topButton = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
-        child: Text(
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 1,
           "from: ${segment.start().name}",
           style: TextStyle(color: AppTheme.colors.neutral),
         ),
@@ -241,7 +262,11 @@ class WalkEdgeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => onSelect(edge.end),
-      child: Text(
+      child: AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
         "${edge.end.name}",
         style: TextStyle(color: AppTheme.colors.neutral),
       ),
@@ -259,7 +284,11 @@ class BusEdgeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => onSelect(edge.end),
-      child: Text(
+      child: AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
         "${edge.end.name}",
         style: TextStyle(color: AppTheme.colors.neutral),
       ),
@@ -277,7 +306,11 @@ class LiftSegmentRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => onSelect(segment.end()),
-      child: Text(
+      child: AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
         "${Floors.getName(segment.end().coordinate.floor)}: ${segment.end().name}",
         style: TextStyle(color: AppTheme.colors.neutral),
       ),
@@ -295,8 +328,12 @@ class NodeInfo extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: AppTheme.colors.background),
       alignment: Alignment.center,
-      child: Text(
+      child: AutoSizeText(
         node.toString(),
+        maxLines: 2,
+        textAlign: TextAlign.center,
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
         style: TextStyle(color: AppTheme.colors.neutral),
       ),
     );

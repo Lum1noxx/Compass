@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
@@ -37,8 +38,11 @@ class _PanelHeaderState extends State<PanelHeader> {
             builder: (child, ctx) {
               if (widget.vm.nodeInFocus != null) {
                 return NodeHeader(widget.vm.nodeInFocus!);
-              } else if (widget.vm is DirectionsDualVM && (widget.vm as DirectionsDualVM).segmentInFocus != null) {
-                return SegmentHeader((widget.vm as DirectionsDualVM).segmentInFocus!);
+              } else if (widget.vm is DirectionsDualVM &&
+                  (widget.vm as DirectionsDualVM).segmentInFocus != null) {
+                return SegmentHeader(
+                  (widget.vm as DirectionsDualVM).segmentInFocus!,
+                );
               } else {
                 return SizedBox.shrink();
               }
@@ -58,8 +62,10 @@ class SegmentHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return AutoSizeText(
       segment.edgeType().name,
+      minFontSize: Defaults.autoTextMin,
+      maxFontSize: Defaults.autoTextMax,
       textAlign: TextAlign.center,
       style: TextStyle(color: AppTheme.colors.neutralAccent),
     );
@@ -73,8 +79,11 @@ class NodeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return AutoSizeText(
       node.name,
+      minFontSize: Defaults.autoTextMin,
+      maxFontSize: Defaults.autoTextMax,
+      maxLines: 2,
       textAlign: TextAlign.center,
       style: TextStyle(color: AppTheme.colors.neutralAccent),
     );

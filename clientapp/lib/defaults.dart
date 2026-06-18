@@ -8,6 +8,8 @@ class Defaults {
   static const double walkingSpeedMetresPerSec = 4 / 3;
   static const double iconSize = 35;
   static const double switchSize = 40;
+  static const double autoTextMin = 8;
+  static const double autoTextMax = 24;
 
   static const LatLng mapPosition = LatLng(1.2966, 103.7764);
   static const int gpsUpdateThreshold =

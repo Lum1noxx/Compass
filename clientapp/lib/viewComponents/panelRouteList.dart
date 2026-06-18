@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
@@ -46,7 +47,11 @@ class _PanelRouteListState extends State<PanelRouteList> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   height: 40,
-                  child: Text(
+                  child: AutoSizeText(
+                    minFontSize: Defaults.autoTextMin,
+                    maxFontSize: Defaults.autoTextMax,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
                     "Route: ${lastRoute.duration.round()}s",
                     style: TextStyle(color: AppTheme.colors.neutralAccent),
                   ),
@@ -139,7 +144,11 @@ class NodePanelItem extends StatelessWidget {
             width: selected ? 5 : 0,
           ),
         ),
-        child: Text(
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 2,
           node.name,
           style: TextStyle(color: AppTheme.colors.neutral),
         ),
@@ -230,7 +239,11 @@ class SegmentPanelItem extends StatelessWidget {
         Expanded(
           child: SizedBox(
             height: 40,
-            child: Text(
+            child: AutoSizeText(
+              minFontSize: Defaults.autoTextMin,
+              maxFontSize: Defaults.autoTextMax,
+              textAlign: TextAlign.center,
+              maxLines: 2,
               "${segment.duration.round()}s",
               style: TextStyle(color: AppTheme.colors.neutral),
             ),
@@ -262,7 +275,11 @@ class InvalidPathPanel extends StatelessWidget {
         color: AppTheme.colors.primary,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(
+      child: AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 2,
         message,
         style: TextStyle(color: AppTheme.colors.neutralAccent),
       ),

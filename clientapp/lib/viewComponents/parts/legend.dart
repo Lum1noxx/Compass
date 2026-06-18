@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
@@ -51,7 +52,13 @@ class _MapLegendState extends State<MapLegend> {
           child: ListView(
             padding: EdgeInsets.all(0),
             children: [
-              Text("Legend",style: TextStyle(color: AppTheme.colors.neutral),),
+              AutoSizeText(
+                minFontSize: Defaults.autoTextMin,
+                maxFontSize: Defaults.autoTextMax,
+                maxLines: 1,
+                "Legend",
+                style: TextStyle(color: AppTheme.colors.neutral),
+              ),
               Wrap(
                 // markers
                 spacing: 10,
@@ -102,7 +109,13 @@ class LegendItem extends StatelessWidget {
     return Row(
       children: [
         icon,
-        Text(label, style: TextStyle(color: AppTheme.colors.neutral)),
+        AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          maxLines: 1,
+          label,
+          style: TextStyle(color: AppTheme.colors.neutral),
+        ),
       ],
     );
   }

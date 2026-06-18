@@ -198,7 +198,8 @@ class _RouteMapState extends State<RouteMap> {
                           () => widget.vm.focusItem(widget.vm.lastRoute.end()),
                         ),
                       ),
-                    if (widget.vm.newStartDest != null)
+                    if ((widget.vm.newStartDest ?? widget.vm.nodeInFocus) !=
+                        widget.vm.nodeInFocus)
                       Marker(
                         point: widget.vm.newStartDest!.getLatLng(),
                         child: RouteStartMarker(
@@ -206,7 +207,8 @@ class _RouteMapState extends State<RouteMap> {
                           () => widget.vm.focusItem(widget.vm.newStartDest!),
                         ),
                       ),
-                    if (widget.vm.newEndDest != null)
+                    if ((widget.vm.newEndDest ?? widget.vm.nodeInFocus) !=
+                        widget.vm.nodeInFocus)
                       Marker(
                         point: widget.vm.newEndDest!.getLatLng(),
                         child: RouteEndMarker(
