@@ -43,12 +43,24 @@ class DirectionsModel {
     bool filterUnsheltered,
   ) async {
     try {
-      List<Map> edgesJson = await ApiCalls.shortest_path(
-        startDest.name,
-        endDest.name,
-        !filterStairs,
-        !filterUnsheltered,
-      );
+      List<Map> edgesJson;
+      if (startDest is TempDestination) {
+        edgesJson = await ApiCalls.use_current_location(
+          startDest.coordinate.lat,
+          startDest.coordinate.lng,
+          startDest.coordinate.floor,
+          endDest.name,
+          filterStairs,
+          filterUnsheltered,
+        );
+      } else {
+        edgesJson = await ApiCalls.shortest_path(
+          startDest.name,
+          endDest.name,
+          filterStairs,
+          filterUnsheltered,
+        );
+      }
       await Globals.nodes.fetch([
         for (Map edgeInfo in edgesJson) edgeInfo["start"],
         if (edgesJson.isNotEmpty) edgesJson.last['end'],

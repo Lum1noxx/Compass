@@ -183,7 +183,7 @@ class Destinations {
   }
 
   Future<List<Destination>> getNearby(Coordinate coordinate, int count) async {
-    List<Map> json = await ApiCalls.near_destinations(
+    List<Map> json = await ApiCalls.get_near_destinations(
       coordinate.lat,
       coordinate.lng,
       coordinate.floor,
@@ -450,7 +450,7 @@ class Floors {
 
 class TempDestination extends Destination {
   /// this is soley for highlighting on map
-  TempDestination(Coordinate coordinate) : super("dropped pin", coordinate);
+  TempDestination(Coordinate coordinate) : super(coordinate.toString(), coordinate);
   TempDestination.plane(LatLng position)
-    : super("dropped pin", Coordinate(position.latitude, position.longitude, 0));
+    : super("(${position.latitude}, ${position.longitude})", Coordinate(position.latitude, position.longitude, 0));
 }

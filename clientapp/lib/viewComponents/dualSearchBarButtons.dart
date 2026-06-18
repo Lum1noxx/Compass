@@ -31,12 +31,12 @@ class _DualSearchBarButtonsState extends State<DualSearchBarButtons> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DecoratedSearchBarButton(
-              widget.vm.newStartDest?.name ?? "choose start:",
+              widget.vm.newStartDest?.name ?? "current location",
               () => widget.onSearchBarButtonSelect(false),
               !widget.vm.settingEnd,
             ),
             DecoratedSearchBarButton(
-              widget.vm.newEndDest?.name ?? "choose end:",
+              widget.vm.newEndDest?.name ?? "current location",
               () => widget.onSearchBarButtonSelect(true),
               widget.vm.settingEnd,
             ),

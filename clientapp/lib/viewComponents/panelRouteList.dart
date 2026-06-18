@@ -37,40 +37,36 @@ class _PanelRouteListState extends State<PanelRouteList> {
             ),
 
             child: ListView(
+              padding: EdgeInsets.all(0),
               children: [
-                Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppTheme.colors.secondary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      height: 40,
-                      child: Text(
-                        "Route: ${lastRoute.duration.round()}s",
-                        style: TextStyle(color: AppTheme.colors.neutralAccent),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                      child: NodePanelItem(
-                        lastRoute.segments.first.start(),
-                        widget.onNodeSelect,
-                        widget.vm.itemInFocus ==
-                            lastRoute.segments.first.start(),
-                        colorOverride: Defaults.RouteStartColor,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 150,
-                      child: SegmentPanelItem(
-                        lastRoute.segments.first,
-                        widget.onSegmentSelect,
-                        widget.vm.itemInFocus == lastRoute.segments.first,
-                      ),
-                    ),
-                  ],
+                Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppTheme.colors.secondary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  height: 40,
+                  child: Text(
+                    "Route: ${lastRoute.duration.round()}s",
+                    style: TextStyle(color: AppTheme.colors.neutralAccent),
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                  child: NodePanelItem(
+                    lastRoute.segments.first.start(),
+                    widget.onNodeSelect,
+                    widget.vm.nodeInFocus == lastRoute.segments.first.start(),
+                    colorOverride: Defaults.RouteStartColor,
+                  ),
+                ),
+                SizedBox(
+                  height: 150,
+                  child: SegmentPanelItem(
+                    lastRoute.segments.first,
+                    widget.onSegmentSelect,
+                    widget.vm.nodeInFocus == lastRoute.segments.first,
+                  ),
                 ),
                 for (Segment segment in lastRoute.segments.getRange(
                   1,
@@ -83,7 +79,7 @@ class _PanelRouteListState extends State<PanelRouteList> {
                         child: NodePanelItem(
                           segment.start(),
                           widget.onNodeSelect,
-                          widget.vm.itemInFocus == segment.start(),
+                          widget.vm.nodeInFocus == segment.start(),
                         ),
                       ),
                       SizedBox(
@@ -91,7 +87,7 @@ class _PanelRouteListState extends State<PanelRouteList> {
                         child: SegmentPanelItem(
                           segment,
                           widget.onSegmentSelect,
-                          widget.vm.itemInFocus == segment,
+                          widget.vm.nodeInFocus == segment,
                         ),
                       ),
                     ],
@@ -101,7 +97,7 @@ class _PanelRouteListState extends State<PanelRouteList> {
                   child: NodePanelItem(
                     lastRoute.end(),
                     widget.onNodeSelect,
-                    widget.vm.itemInFocus == lastRoute.end(),
+                    widget.vm.nodeInFocus == lastRoute.end(),
                     colorOverride: Defaults.RouteEndColor,
                   ),
                 ),

@@ -5,7 +5,7 @@ class GPSMarker extends NodeMarker {
   // current gps location
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Colors.blue, 0, Colors.white, 3);
   }
 
   const GPSMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -80,7 +80,7 @@ class RouteStartMarker extends NodeMarker {
   // start destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Defaults.RouteStartColor, 0, Colors.transparent, 0);
   }
 
   const RouteStartMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -95,7 +95,7 @@ class RouteEndMarker extends NodeMarker {
   // end destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Defaults.RouteEndColor, 0, Colors.transparent, 0);
   }
 
   const RouteEndMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -107,10 +107,10 @@ class RouteEndMarker extends NodeMarker {
 }
 
 class SelectingMarker extends NodeMarker {
-  // selected destination
+  // selected node/ dest
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.red, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(Defaults.edgeHighlight, 0, Colors.transparent, 0);
   }
 
   const SelectingMarker(super.onCurrentFloor, super.onTap, {super.key});

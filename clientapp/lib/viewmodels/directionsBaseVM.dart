@@ -15,7 +15,7 @@ abstract class DirectionsBaseVM extends PageVM {
   int selectedFloor = 1;
   List<OverlayImage> visibleFloorplans = floorplans.get(1);
   List<Destination> nearbyDestinations = [];
-  dynamic itemInFocus; // Node or Segment
+  Node? nodeInFocus; // Node or Dest
 
   DirectionsModel model;
   MapController mapController = MapController();
@@ -27,7 +27,7 @@ abstract class DirectionsBaseVM extends PageVM {
   DirectionsBaseVM(super.navigator, this.model) {
     model
         .streamGPS((position) {
-          gps = TempDestination.plane(position);
+          gps = TempDestination(Coordinate(position.latitude, position.longitude, selectedFloor));
           notifyListeners();
         })
         .then((stream) => gpsStream = stream);
@@ -81,15 +81,8 @@ abstract class DirectionsBaseVM extends PageVM {
   }
 
   void notifyMapCamera() {
-    if (itemInFocus is Node) {
-      mapController.move(itemInFocus.getLatLng(), Defaults.mapFocusZoom);
-    } else if (itemInFocus is Segment) {
-      mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: itemInFocus.getBounds(),
-          padding: EdgeInsets.all(Defaults.segmentViewPadding),
-        ),
-      );
+    if (nodeInFocus != null) {
+      mapController.move(nodeInFocus!.getLatLng(), Defaults.mapFocusZoom);
     }
   }
 
@@ -99,14 +92,20 @@ abstract class DirectionsBaseVM extends PageVM {
     }
   }
 
+  void focusItem(dynamic item) {
+    assert(item is Destination);
+    nodeInFocus = item;
+    notifyMapCamera();
+    notifyListeners();
+    openPanel();
+  }
+
   void pinDropLatLng(LatLng position) async {
-    itemInFocus = TempDestination(
+    TempDestination dest = TempDestination(
       Coordinate(position.latitude, position.longitude, selectedFloor),
     );
-
-    notifyMapCamera();
-    nearbyDestinations = await model.getNearbyDestinations(itemInFocus!);
-    notifyListeners();
+    nearbyDestinations = await model.getNearbyDestinations(dest);
+    focusItem(dest);
   }
 
   void toggleLegend() {

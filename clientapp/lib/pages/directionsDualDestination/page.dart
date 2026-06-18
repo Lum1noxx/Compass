@@ -207,7 +207,7 @@ class _DirectionsDualDestinationsWidgetState
                                         header: Icon(
                                           Icons.filter_alt,
                                           size: Defaults.iconSize,
-                                          color: AppTheme.colors.neutral,
+                                          color: AppTheme.colors.tertiary,
                                         ),
                                         collapsed: Container(
                                           width: 100,

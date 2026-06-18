@@ -155,7 +155,7 @@ class _DirectionsSingleDestinationWidgetState
                     flex: 6,
                     // {{SearchBarButton}}
                       child: SearchBarButton(
-                        widget.vm.itemInFocus?.name ?? "search:",
+                        widget.vm.nodeInFocus?.name ?? "search:",
                         callbacks.onSearchBarButtonSelect,
                       ),
                   ),

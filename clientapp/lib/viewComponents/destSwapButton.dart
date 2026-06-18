@@ -13,7 +13,7 @@ class DestSwapButton extends StatelessWidget {
     return IconButton(
       onPressed: onSelect,
       iconSize: Defaults.iconSize,
-      color: AppTheme.colors.neutral,
+      color: AppTheme.colors.tertiary,
       alignment: Alignment.center,
       icon: Icon(Icons.swap_vert),
     );

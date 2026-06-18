@@ -10,15 +10,15 @@ class ApiCalls {
   static Future<List<Map>> shortest_path(
     String start,
     String end,
-    bool allowStairs,
-    bool allowUnsheltered,
+    bool filterStairs,
+    bool filterUnsheltered,
   ) async {
     print("api call::shortest_path::${start}::${end}");
     Uri request = Uri.https(Constants.baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
       "end": end.replaceAll(' ', "_"),
-      // "sheltered" : (!allowUnsheltered).toString(), /// REMOVE BEFORE FLIGHT
-      // "stairs" : allowStairs.toString()
+      // "sheltered" : (filterUnsheltered).toString(), /// ADD BEFORE FLIGHT
+      // "stairs" : (!filterStairs).toString()
     });
     final response = await get(request);
     if (response.statusCode == 200) {
@@ -34,7 +34,7 @@ class ApiCalls {
         throw ImpossiblePathException();
       }
     }
-    
+
     // List<Map> json = [ // STUB
     //   {
     //     "type": "walk",
@@ -70,6 +70,42 @@ class ApiCalls {
     //   }
 
     // ];
+  }
+
+  static Future<List<Map>> use_current_location(
+    double lat,
+    double lng,
+    int floor,
+    String end,
+    bool filterStairs,
+    bool filterUnsheltered,
+  ) async {
+    print("api call::use_current_location::$lat, $lng, $floor, $end");
+    Uri request = Uri.https(Constants.baseUrl, "/use_current_location", {
+      'lat': lat.toString(),
+      'lng': lng.toString(),
+      'floor': floor.toString(),
+      "end": end.replaceAll(' ', "_"),
+      // "sheltered" : (filterUnsheltered).toString(), /// ADD BEFORE FLIGHT
+      // "stairs" : (!filterStairs).toString()
+    });
+    return shortest_path("COM3", end, filterStairs, filterUnsheltered);
+
+    /// REMOVE BEFORE FLIGHT 
+    // final response = await get(request); /// ADD BEFORE FLIGHT
+    // if (response.statusCode == 200) {
+    //   List<dynamic> json = jsonDecode(response.body)['edges'];
+    //   return [for (dynamic obj in json) obj as Map];
+    // } else {
+    //   String errorMessage = jsonDecode(response.body)['error'];
+    //   if (errorMessage.toLowerCase() == "you are in the building") {
+    //     // already there
+    //     throw EdgelessPathException();
+    //   } else {
+    //     // impossible
+    //     throw ImpossiblePathException();
+    //   }
+    // }
   }
 
   static Future<List<Map>> node_coordinates(List<String> names) async {
@@ -112,14 +148,14 @@ class ApiCalls {
     return [for (dynamic obj in json) obj as Map];
   }
 
-  static Future<List<Map<dynamic, dynamic>>> near_destinations(
+  static Future<List<Map<dynamic, dynamic>>> get_near_destinations(
     double lat,
     double lng,
     int floor,
     int count,
   ) async {
     print("api call::near_destinations::$lat, $lng, $floor, $count");
-    Uri request = Uri.https(Constants.baseUrl, "/near_destinations", {
+    Uri request = Uri.https(Constants.baseUrl, "/get_near_destinations", {
       'lat': lat.toString(),
       'lng': lng.toString(),
       'floor': floor.toString(),

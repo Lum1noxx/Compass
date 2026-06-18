@@ -38,11 +38,7 @@ class DirectionsDualDestinationsCallbacks {
       vm.findPath();
     };
     onRoutePanelNodeSelect = (node) {
-      if (node is Destination) {
-        vm.setDest(node);
-      } else {
-        vm.focusItem(node);
-      }
+      vm.focusItem(node, keepSegment: true);
     };
     onRoutePanelSegmentSelect = (segment) {
       vm.focusItem(segment);
@@ -56,6 +52,5 @@ class DirectionsDualDestinationsCallbacks {
     onLegendToggle = () {
       vm.toggleLegend();
     };
-
   }
 }

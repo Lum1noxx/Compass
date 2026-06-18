@@ -47,7 +47,7 @@ class ShelterFilter extends SingleFilter {
         Icon(
           CupertinoIcons.umbrella_fill,
           size: Defaults.iconSize,
-          color: AppTheme.colors.neutral,
+          color: AppTheme.colors.tertiary,
         ),
         checked,
         onCheckChange,
@@ -60,7 +60,7 @@ class StairsFilter extends SingleFilter {
         Icon(
           Icons.accessible_forward,
           size: Defaults.iconSize,
-          color: AppTheme.colors.neutral,
+          color: AppTheme.colors.tertiary,
         ),
         checked,
         onCheckChange,

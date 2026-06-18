@@ -27,10 +27,10 @@ class _MapLegendState extends State<MapLegend> {
         List<LegendItem> nodes = [
           if (widget.vm.gps != null)
             LegendItem(GPSMarker.icon(), "gps position"),
-          if (widget.vm.itemInFocus is TempDestination)
+          if (widget.vm.nodeInFocus is TempDestination)
             LegendItem(DroppedMarker.icon(), "dropped pin"),
-          if (widget.vm.itemInFocus is Destination)
-            LegendItem(SelectingMarker.icon(), "selected place"),
+          if (widget.vm.nodeInFocus is Node)
+            LegendItem(SelectingMarker.icon(), "selected"),
           if (widget.vm.nearbyDestinations.isNotEmpty)
             LegendItem(NearbyMarker.icon(), "nearby places"),
         ];
@@ -49,6 +49,7 @@ class _MapLegendState extends State<MapLegend> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: ListView(
+            padding: EdgeInsets.all(0),
             children: [
               Text("Legend",style: TextStyle(color: AppTheme.colors.neutral),),
               Wrap(
@@ -59,7 +60,7 @@ class _MapLegendState extends State<MapLegend> {
                   for (LegendItem node in nodes)
                     SizedBox(
                       width: Defaults.legendWidth / 2 - 10,
-                      height: Defaults.iconSize,
+                      height: Defaults.iconSize * 0.7,
                       child: node,
                     ),
                 ],
@@ -78,7 +79,6 @@ class _MapLegendState extends State<MapLegend> {
                       ])
                         SizedBox(
                           width: Defaults.legendWidth / 2 - 10,
-                          height: Defaults.iconSize,
                           child: item,
                         ),
                     ],
@@ -101,11 +101,7 @@ class LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SizedBox(
-          width: Defaults.iconSize,
-          height: Defaults.iconSize,
-          child: icon,
-        ),
+        icon,
         Text(label, style: TextStyle(color: AppTheme.colors.neutral)),
       ],
     );

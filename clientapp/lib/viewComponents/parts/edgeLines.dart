@@ -1,5 +1,6 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,8 +8,9 @@ import 'package:flutter_map/flutter_map.dart';
 enum EdgeLine {
   // view manager classr
   walk(Colors.blueAccent, Defaults.edgeWidth, Defaults.edgeWidth),
+  lift(Colors.lightGreen, Defaults.edgeWidth, Defaults.edgeWidth),
   bus(Colors.green, Defaults.edgeWidth, 0),
-  lift(Colors.purpleAccent, Defaults.edgeWidth, 0);
+  highlighted(Defaults.edgeHighlight, Defaults.edgeWidth+2, 0);
 
   static Map<EdgeType, EdgeLine> map = {
     EdgeType.walk: walk,

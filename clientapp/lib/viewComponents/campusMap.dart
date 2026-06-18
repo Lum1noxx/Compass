@@ -84,20 +84,20 @@ class _CampusMapState extends State<CampusMap> {
                           () {},
                         ),
                       ),
-                    if (widget.vm.itemInFocus is Destination &&
-                        widget.vm.itemInFocus is! TempDestination)
+                    if (widget.vm.nodeInFocus is Destination &&
+                        widget.vm.nodeInFocus is! TempDestination)
                       Marker(
-                        point: widget.vm.itemInFocus!.getLatLng(),
+                        point: widget.vm.nodeInFocus!.getLatLng(),
                         child: SelectingMarker(
-                          widget.vm.isOnCurrentFloor(widget.vm.itemInFocus),
+                          widget.vm.isOnCurrentFloor(widget.vm.nodeInFocus),
                           () {},
                         ),
                       ),
-                    if (widget.vm.itemInFocus is TempDestination)
+                    if (widget.vm.nodeInFocus is TempDestination)
                       Marker(
-                        point: widget.vm.itemInFocus!.getLatLng(),
+                        point: widget.vm.nodeInFocus!.getLatLng(),
                         child: DroppedMarker(
-                          widget.vm.isOnCurrentFloor(widget.vm.itemInFocus),
+                          widget.vm.isOnCurrentFloor(widget.vm.nodeInFocus),
                           () {},
                         ),
                       ),

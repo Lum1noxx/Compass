@@ -17,9 +17,12 @@ class Defaults {
   static const double segmentViewPadding = 80;
   static const double edgeWidth = 5;
   static const double otherFloorOpacity = 0.33;
-  static const double mapMarkerSize = 20;
+  static const double mapMarkerSize = 15;
   static const double legendHeight = 200;
   static const double legendWidth = 300;
+
+  // universal colors: must work with all themes
   static const Color RouteStartColor = Colors.orange;
   static const Color RouteEndColor = Colors.greenAccent;
+  static const Color edgeHighlight = Colors.purpleAccent;
 }

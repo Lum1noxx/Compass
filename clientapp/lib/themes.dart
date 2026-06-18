@@ -10,22 +10,22 @@ class AppTheme {
     if (darkMode) {
       // Dark theme
       colors = AppTheme(
-        Color(0xFF0F172A),
-        Color(0xFF1E293B),
-        Color.fromARGB(0, 200, 114, 250),
-        Color(0xFF38BDF8),
-        Color(0xFFE2E8F0),
-        Color(0xFFF8FAFC),
+        const Color(0xFF0B1220),
+        const Color(0xFF172033),
+        const Color(0xFF243046),
+        const Color(0xFF38BDF8),
+        const Color(0xFFF8FAFC),
+        const Color(0xFFBFDBFE),
       );
     } else {
       // Light theme
       colors = AppTheme(
-        Color(0xFFF8FAFC),
-        Color(0xFFE2E8F0),
-        Color.fromARGB(0, 200, 114, 250),
-        Color(0xFF0284C7),
-        Color(0xFF1E293B),
-        Color(0xFF0F172A),
+        const Color(0xFFF8FAFC),
+        const Color(0xFFE2E8F0),
+        const Color(0xFFCBD5E1),
+        const Color(0xFF0EA5E9),
+        const Color(0xFF0F172A),
+        const Color(0xFF0284C7),
       );
     }
   }

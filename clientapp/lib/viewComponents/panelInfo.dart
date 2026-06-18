@@ -1,4 +1,5 @@
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/directionsDualVM.dart';
@@ -35,12 +36,13 @@ class _PanelInfoState extends State<PanelInfo> {
         } else {
           route = EmptyPath();
         }
-        if (widget.vm.itemInFocus is Node) {
-          node = widget.vm.itemInFocus as Node;
-          segment = route.locate(widget.vm.itemInFocus);
-        } else if (widget.vm.itemInFocus is Segment) {
-          segment = widget.vm.itemInFocus as Segment;
+        if (widget.vm is DirectionsDualVM) {
+          segment = (widget.vm as DirectionsDualVM).segmentInFocus;
         }
+        if (widget.vm.nodeInFocus != null) {
+          segment ??= route.locate(widget.vm.nodeInFocus);
+        }
+        node = widget.vm.nodeInFocus;
         if (segment != null) {
           panel = SegmentInfo(
             segment,
@@ -54,7 +56,10 @@ class _PanelInfoState extends State<PanelInfo> {
           panel = Container(
             decoration: BoxDecoration(color: AppTheme.colors.background),
             alignment: Alignment.center,
-            child: Text("nothing currently selected"),
+            child: Text(
+              "nothing currently selected",
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
           );
         }
         return panel;
@@ -79,7 +84,23 @@ class SegmentInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [];
+    Widget topButton;
+    Widget bottomButton;
+    if (segment.next != null) {
+      bottomButton = TextButton(
+        onPressed: () => onNeighbourSelect(segment.next!),
+        child: Text(
+          "next: ${segment.next!.edgeType().name}",
+          style: TextStyle(color: AppTheme.colors.neutralAccent),
+        ),
+      );
+    } else {
+      bottomButton = Text(
+        "you have arrived!",
+        style: TextStyle(color: AppTheme.colors.neutralAccent),
+      );
+    }
+
     // if (segment.previous != null) {
     //   children.add(
     //     TextButton(
@@ -89,49 +110,84 @@ class SegmentInfo extends StatelessWidget {
     //   );
     // }
     if (segment.edgeType() == EdgeType.lift) {
-      children.add(
-        TextButton(
-          onPressed: () => onNodeSelect(segment.start()),
-          child: Text(
-            "from ${Floors.getName(segment.start().coordinate.floor)}: ${segment.start().name}",
-          ),
+      topButton = TextButton(
+        onPressed: () => onNodeSelect(segment.start()),
+        child: Text(
+          "from ${Floors.getName(segment.start().coordinate.floor)}: ${segment.start().name}",
+          style: TextStyle(color: AppTheme.colors.neutral),
         ),
       );
     } else {
-      children.add(
-        TextButton(
-          onPressed: () => onNodeSelect(segment.start()),
-          child: Text("from: ${segment.start().name}"),
+      topButton = TextButton(
+        onPressed: () => onNodeSelect(segment.start()),
+        child: Text(
+          "from: ${segment.start().name}",
+          style: TextStyle(color: AppTheme.colors.neutral),
         ),
       );
     }
+    List<Widget> children = [
+      Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.colors.primary,
+              borderRadius: BorderRadius.circular(10),
+              border: segment.start() == selectedNode
+                  ? Border.all(color: Defaults.edgeHighlight, width: 3)
+                  : null,
+            ),
+            child: topButton,
+          ),
+        ],
+      ),
+    ];
 
     if (segment.edgeType() == EdgeType.walk) {
       for (Edge edge in segment.edges) {
-        children.add(WalkEdgeRow(edge, onNodeSelect, edge.end == selectedNode));
+        children.add(
+          SegmentPanelRowWrapped(
+            selected: edge.end == selectedNode,
+            child: WalkEdgeRow(edge, onNodeSelect),
+          ),
+        );
       }
     } else if (segment.edgeType() == EdgeType.bus) {
-      for (Edge edge in segment.edges) {
-        children.add(BusEdgeRow(edge, onNodeSelect, edge.end == selectedNode));
+      for (Edge edge in segment.edges.getRange(1, segment.edges.length - 1)) {
+        // exclude waiting edges
+        children.add(
+          SegmentPanelRowWrapped(
+            selected: edge.end == selectedNode,
+            child: BusEdgeRow(edge, onNodeSelect),
+          ),
+        );
       }
     } else {
       // segment.edgeType() == EdgeType.lift
       children.add(
-        LiftSegmentRow(segment, onNodeSelect, segment.end() == selectedNode),
-      );
-    }
-    if (segment.next != null) {
-      children.add(
-        TextButton(
-          onPressed: () => onNeighbourSelect(segment.next!),
-          child: Text("next: ${segment.next!.edgeType().name}"),
+        SegmentPanelRowWrapped(
+          selected: segment.end() == selectedNode,
+          child: LiftSegmentRow(segment, onNodeSelect),
         ),
       );
-    } else {
-      children.add(Text("you have arrived!"));
     }
+    children.add(
+      Row(
+        children: [
+          Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppTheme.colors.secondary,
+            ),
+            margin: EdgeInsets.all(5),
+            child: bottomButton,
+          ),
+        ],
+      ),
+    );
 
-    return Column(children: children);
+    return ListView(padding: EdgeInsets.all(0), children: children);
   }
 }
 
@@ -139,24 +195,55 @@ class SegmentInfo extends StatelessWidget {
 
 // }
 
-class WalkEdgeRow extends StatelessWidget {
-  final Edge edge;
+class SegmentPanelRowWrapped extends StatelessWidget {
+  final Widget child;
   final bool selected;
-  final void Function(Node) onSelect;
 
-  const WalkEdgeRow(this.edge, this.onSelect, this.selected);
+  const SegmentPanelRowWrapped({
+    required this.child,
+    required this.selected,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: selected
-            ? Border.all(color: AppTheme.colors.accent, width: 3)
-            : null,
-      ),
-      child: TextButton(
-        onPressed: () => onSelect(edge.end),
-        child: Text("${edge.end.name}"),
+    return Column(
+      children: [
+        Container(
+          width: 5,
+          height: 40,
+          decoration: BoxDecoration(
+            color: selected ? Defaults.edgeHighlight : AppTheme.colors.neutral,
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.colors.primary,
+            borderRadius: BorderRadius.circular(10),
+            border: selected
+                ? Border.all(color: Defaults.edgeHighlight, width: 3)
+                : null,
+          ),
+          child: child,
+        ),
+      ],
+    );
+  }
+}
+
+class WalkEdgeRow extends StatelessWidget {
+  final Edge edge;
+  final void Function(Node) onSelect;
+
+  const WalkEdgeRow(this.edge, this.onSelect);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () => onSelect(edge.end),
+      child: Text(
+        "${edge.end.name}",
+        style: TextStyle(color: AppTheme.colors.neutral),
       ),
     );
   }
@@ -164,22 +251,17 @@ class WalkEdgeRow extends StatelessWidget {
 
 class BusEdgeRow extends StatelessWidget {
   final Edge edge;
-  final bool selected;
   final void Function(Node) onSelect;
 
-  const BusEdgeRow(this.edge, this.onSelect, this.selected);
+  const BusEdgeRow(this.edge, this.onSelect);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: selected
-            ? Border.all(color: AppTheme.colors.accent, width: 3)
-            : null,
-      ),
-      child: TextButton(
-        onPressed: () => onSelect(edge.end),
-        child: Text("${edge.end.name}"),
+    return TextButton(
+      onPressed: () => onSelect(edge.end),
+      child: Text(
+        "${edge.end.name}",
+        style: TextStyle(color: AppTheme.colors.neutral),
       ),
     );
   }
@@ -187,24 +269,17 @@ class BusEdgeRow extends StatelessWidget {
 
 class LiftSegmentRow extends StatelessWidget {
   final Segment segment;
-  final bool selected;
   final void Function(Node) onSelect;
 
-  const LiftSegmentRow(this.segment, this.onSelect, this.selected);
+  const LiftSegmentRow(this.segment, this.onSelect);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: selected
-            ? Border.all(color: AppTheme.colors.accent, width: 3)
-            : null,
-      ),
-      child: TextButton(
-        onPressed: () => onSelect(segment.end()),
-        child: Text(
-          "${Floors.getName(segment.end().coordinate.floor)}: ${segment.end().name}",
-        ),
+    return TextButton(
+      onPressed: () => onSelect(segment.end()),
+      child: Text(
+        "${Floors.getName(segment.end().coordinate.floor)}: ${segment.end().name}",
+        style: TextStyle(color: AppTheme.colors.neutral),
       ),
     );
   }
@@ -217,11 +292,13 @@ class NodeInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       decoration: BoxDecoration(color: AppTheme.colors.background),
       alignment: Alignment.center,
-      child: Text(node.toString()),
+      child: Text(
+        node.toString(),
+        style: TextStyle(color: AppTheme.colors.neutral),
+      ),
     );
   }
 }

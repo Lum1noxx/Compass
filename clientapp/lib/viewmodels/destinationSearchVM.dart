@@ -25,6 +25,8 @@ class DestinationSearchVM extends TerminalPageVM {
   void onExit() {
     focusNode.dispose();
     controller.dispose();
+    selection = null;
+    autocompleteResults = [];
   }
 
   @override
