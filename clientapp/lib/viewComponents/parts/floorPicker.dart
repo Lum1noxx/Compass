@@ -37,9 +37,7 @@ class _FloorPickerState extends State<FloorPicker> {
               isExpanded: true,
               dropdownColor: AppTheme.colors.primary,
               underline: SizedBox.shrink(),
-              value: widget.vm.useSelectedFloor
-                  ? Floors.getName(widget.vm.selectedFloor)
-                  : "L1",
+              value: Floors.getName(widget.vm.selectedFloor),
               items: [
                 for (int floor in Constants.floors)
                   DropdownMenuItem(

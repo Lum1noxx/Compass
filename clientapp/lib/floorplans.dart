@@ -69,7 +69,6 @@ Floorplans floorplans = Floorplans({
   },
 });
 
-/// CONFIG
 class Floorplans {
   final Map<int, List<OverlayImage>> plans = {};
 

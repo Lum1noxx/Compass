@@ -11,6 +11,14 @@ import 'package:clientapp/viewmodels/pageVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// viewmodel for main activity, handles page navigation
+/// 
+/// callback sequence:
+/// - nav to: enter -> call -> pause -> bind -> resume -> exit
+/// - nav back: enter -> return -> pause -> bind -> resume -> exit
+/// 
+/// public members:
+/// - currentPage: active page
 class PageChangeVM extends ChangeNotifier {
   late Map<String, PageVM> vms;
   late Map<String, Widget Function(PageVM)> pages;
@@ -20,6 +28,10 @@ class PageChangeVM extends ChangeNotifier {
   late Widget currentPage;
   List<PageVM> navStack = [];
 
+  /// register pages (viewmodels + views) and set home page
+  /// 
+  /// Args:
+  /// - homePage: name of initial page. It is also the permanent bottom of navigation stack
   PageChangeVM(String homePage) {
     DirectionsModel model = DirectionsModel();
     vms = {
@@ -42,7 +54,14 @@ class PageChangeVM extends ChangeNotifier {
     currentPage = pages[homePage]!(first);
     first.onResume();
   }
-
+  
+  /// navigate to a new page, pushing onto navigation stack
+  /// 
+  /// callback sequence:
+  /// - enter -> call -> pause -> bind -> resume -> exit
+  /// 
+  /// Args:
+  /// - page: name of new page
   void navTo(String page) {
     PageVM from = navStack.last;
     PageVM child = vms[page]!;
@@ -56,6 +75,10 @@ class PageChangeVM extends ChangeNotifier {
     from.onExit();
   }
 
+  /// return to the previous page, popped from navigation stack
+  /// 
+  /// callback sequence:
+  /// - enter -> return -> pause -> bind -> resume -> exit
   void navBack() {
     if (navStack.length < 2) {
       return;

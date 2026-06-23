@@ -6,7 +6,42 @@ import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:http/http.dart';
 
+/// static-style class for API calls to backend
+///
+/// arguments are passed as http-native query types,
+/// responses are returned as directly-translated values of json types
 class ApiCalls {
+  /// request for shortest path between start and end [Destination]s, subject to accessibility and shelter constraints
+  ///
+  /// Args:
+  /// - start: name of start [Destination]
+  /// - end: name of end [Destination]
+  /// - filterStairs: whether to only consider accessible paths
+  /// - filterUnsheltered: whether to only consider sheltered paths
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing an [Edge] on the optimal path
+  ///
+  /// Examples:
+  ///   >>> shortest_path("COM3", "COM4", false, false)
+  ///   [
+  ///       {
+  ///           "type": "walk",
+  ///           "start": "com3 linkway (com4) entrance",
+  ///           "end": "com4 linkway entrance",
+  ///           "sheltered": true,
+  ///           "stairs": false,
+  ///           "duration": 19.5
+  ///       },
+  ///       {
+  ///           "type": "walk",
+  ///           "start": "com4 linkway entrance",
+  ///           "end": "com4 l2 toilet branch",
+  ///           "sheltered": true,
+  ///           "stairs": false,
+  ///           "duration": 7.5
+  ///       }
+  ///   ]
   static Future<List<Map>> shortest_path(
     String start,
     String end,
@@ -72,6 +107,39 @@ class ApiCalls {
     // ];
   }
 
+  /// request for shortest path between start [Coordinate] and end [Destination], subject to accessibility and shelter constraints
+  ///
+  /// Args:
+  /// - lat: latitude of start [Coordinate]
+  /// - lng: longitude of start [Coordinate]
+  /// - floor: floor of start [Coordinate]
+  /// - end: name of end [Destination]
+  /// - filterStairs: whether to only consider accessible paths
+  /// - filterUnsheltered: whether to only consider sheltered paths
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing an [Edge] on the optimal path
+  ///
+  /// Examples:
+  ///   >>> use_current_location(1.294824, 103.775045, 1, "COM4", false, false)
+  ///   [
+  ///       {
+  ///           "type": "walk",
+  ///           "start": "com3 linkway (com4) entrance",
+  ///           "end": "com4 linkway entrance",
+  ///           "sheltered": true,
+  ///           "stairs": false,
+  ///           "duration": 19.5
+  ///       },
+  ///       {
+  ///           "type": "walk",
+  ///           "start": "com4 linkway entrance",
+  ///           "end": "com4 l2 toilet branch",
+  ///           "sheltered": true,
+  ///           "stairs": false,
+  ///           "duration": 7.5
+  ///       }
+  ///   ]
   static Future<List<Map>> use_current_location(
     double lat,
     double lng,
@@ -91,7 +159,7 @@ class ApiCalls {
     });
     return shortest_path("COM3", end, filterStairs, filterUnsheltered);
 
-    /// REMOVE BEFORE FLIGHT 
+    /// REMOVE BEFORE FLIGHT
     // final response = await get(request); /// ADD BEFORE FLIGHT
     // if (response.statusCode == 200) {
     //   List<dynamic> json = jsonDecode(response.body)['edges'];
@@ -108,6 +176,24 @@ class ApiCalls {
     // }
   }
 
+  /// request for nodes with the given names
+  ///
+  /// Args:
+  /// - names: [List] of node names
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing a [Node] 
+  ///
+  /// Examples:
+  ///   >>> node_coordinates(["kr mrt exit a"])
+  ///   [
+  ///     {
+  ///         "name": "kr mrt exit a",
+  ///         "lat": "1.2943409261",
+  ///         "lng": "103.7846244386",
+  ///         "floor": 1
+  ///     }
+  ///   ]
   static Future<List<Map>> node_coordinates(List<String> names) async {
     print("api call::node_coordinates::${names}");
     Uri request = Uri.https(Constants.baseUrl, "/node_coordinates", {
@@ -128,6 +214,24 @@ class ApiCalls {
     return [for (dynamic obj in json) obj as Map];
   }
 
+  /// request for destinations with the given names
+  ///
+  /// Args:
+  /// - names: [List] of [Destination] names
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing a [Destination]
+  ///
+  /// Examples:
+  ///   >>> dest_coordinates(["COM3"])
+  ///   [
+  ///     {
+  ///         "name": "COM3",
+  ///         "lat": "1.2948846706",
+  ///         "lng": "103.7746737202",
+  ///         "floor": 1
+  ///     }
+  ///   ]
   static Future<List<Map>> dest_coordinates(List<String> names) async {
     print("api call::dest_coordinates::${names}");
     Uri request = Uri.https(Constants.baseUrl, "/dest_coordinates", {
@@ -148,6 +252,27 @@ class ApiCalls {
     return [for (dynamic obj in json) obj as Map];
   }
 
+  /// request for [Destination]s nearest to a given [Coordinate]
+  ///
+  /// Args:
+  /// - lat: latitude of given [Coordinate]
+  /// - lng: longitude of given [Coordinate]
+  /// - floor: floor of given [Coordinate]
+  /// - coount: number of [Destination]s to return
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing a [Destination]
+  ///
+  /// Examples:
+  ///   >>> dest_coordinates(1.294884, 103.774673, 1, 1)
+  ///   [
+  ///     {
+  ///         "name": "COM3",
+  ///         "lat": "1.2948846706",
+  ///         "lng": "103.7746737202",
+  ///         "floor": 1
+  ///     }
+  ///   ]
   static Future<List<Map<dynamic, dynamic>>> get_near_destinations(
     double lat,
     double lng,

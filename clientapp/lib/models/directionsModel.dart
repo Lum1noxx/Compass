@@ -7,7 +7,22 @@ import 'package:clientapp/main.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+/// main model for app 
+/// 
+/// coordinates core logic for all app features:
+/// 1. Find nearby destinations
+/// 2. GPS location
+/// 3. search for destinations using autocomplete
+/// 4. find best route between destinations and/or coordinates
 class DirectionsModel {
+
+  /// initialise a live GPS position stream with a callback
+  /// 
+  /// Args:
+  /// - callback: callback which triggers whenever a new GPS position is streamed
+  /// 
+  /// Returns:
+  /// - newly-created stream of GPS positions
   Future<StreamSubscription> streamGPS(void Function(LatLng) callback) async {
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.best,
@@ -28,14 +43,39 @@ class DirectionsModel {
     return stream;
   }
 
+  /// retrieve the [Destination] with the given name
+  /// 
+  /// Args:
+  /// - destName: name of destination
+  /// 
+  /// Returns:
+  /// - [Destination] with the given name
   Future<Destination> getDest(String destName) async {
     return Globals.destinations.get(destName);
   }
 
+
+  /// retrieve autocomplete suggestions for a partial destination name input
+  /// 
+  /// Args:
+  /// - query: partial destination name input
+  /// 
+  /// Returns:
+  /// - [List] of suggested destination names
   List<String> queryAutocomplete(String query) {
     return Globals.destinations.autocomplete(query);
   }
 
+  /// find the optimal [Path] between start and end [Destination]s, with accessibility and shelter constraints 
+  /// 
+  /// Args:
+  /// - startDest: start [Destination]
+  /// - endDest: end [Destination]
+  /// - filterStairs: whether to only consider accessible paths
+  /// - filterUnsheltered: whether to only consider sheltered paths
+  /// 
+  /// Returns:
+  /// - newly-created stream of GPS positions
   Future<Path> findPath(
     Destination startDest,
     Destination endDest,
@@ -84,8 +124,14 @@ class DirectionsModel {
     }
   }
 
-  Future<List<Destination>> getNearbyDestinations(currentSelection) async {
-    currentSelection = currentSelection as TempDestination;
+  /// retrieve [Destination]s nearest to selected [TempDestination]
+  /// 
+  /// Args:
+  /// - currentSelection: [TempDestination] wrapping a [Coordinate]
+  /// 
+  /// Returns:
+  /// - [List] of destinations
+  Future<List<Destination>> getNearbyDestinations(TempDestination currentSelection) async {
     return Globals.destinations.getNearby(
       currentSelection.coordinate,
       Defaults.nearbyDestinationsCount,

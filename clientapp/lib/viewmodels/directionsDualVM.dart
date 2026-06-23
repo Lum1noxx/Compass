@@ -6,6 +6,20 @@ import 'package:clientapp/viewmodels/pageVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+/// viewmodel for dual directions page
+///
+/// this page is for user to find and view a [Path] by specifying start and end [Destination]s
+/// 
+/// public members:
+/// - lastRoute: most recent [Path] requested by user
+///   - initally [EmptyPath] when no request has been made yet
+/// - segmentInFocus: most recent [Segment] selected by user, if any
+/// - newStartDest: user-selected start [Destination] for the next [Path], if any
+/// - newEndDest: user-selected end [Destination] for the next [Path], if any
+/// - settingEnd: whether the user is currently selecting [newEndDest]
+///   - else, user is selecting [newStartDest]
+/// - filterStairs: whether to only consider accessible paths for the next [Path]
+/// - filterUnsheltered: whether to only consider sheltered paths for the next [Path]
 class DirectionsDualVM extends DirectionsBaseVM {
   Path lastRoute = EmptyPath();
   Segment? segmentInFocus;
@@ -24,6 +38,9 @@ class DirectionsDualVM extends DirectionsBaseVM {
   @override
   void callTo(PageVM child) {}
 
+  /// use the selected [Destination] when returning from [DestinationSearchVM]
+  /// 
+  /// sets either [newStartDest] or [newEndDest], depending on [settingEnd]
   @override
   void returnFrom(PageVM child) {
     if (child is DestinationSearchVM) {
@@ -38,16 +55,21 @@ class DirectionsDualVM extends DirectionsBaseVM {
     }
   }
 
+  /// setter for [filterStairs]
   void setFilterStairs(bool filter) {
     filterStairs = filter;
     notifyListeners();
   }
 
+  /// setter for [filterUnsheltered]
   void setFilterUnsheltered(bool filter) {
     filterUnsheltered = filter;
     notifyListeners();
   }
 
+  /// pan to and zoom in on the user selection ([nodeInFocus] or [segmentInFocus]) on the map
+  /// 
+  /// if there is both [nodeInFocus] and [segmentInFocus], [nodeInFocus] takes priority
   @override
   void notifyMapCamera() {
     if (nodeInFocus != null) {
@@ -62,6 +84,17 @@ class DirectionsDualVM extends DirectionsBaseVM {
     }
   }
 
+
+  /// set a [Node] or [Segment] as the user selection
+  /// 
+  /// if [item] is [Node], set both [nodeInFocus] and [segmentInFocus]
+  ///   - [segmentInFocus] is set by locating [item] in [lastRoute]
+  ///   - keep the original [segmentInFocus] if there is no [Segment] containing [item] in [lastRoute]
+  /// if [item] is [Segment], only set [segmentInFocus]
+  /// 
+  /// Args:
+  /// - item: user-selected [Node] or [Segment]
+  /// - keepSegment: whether to keep the original [segmentInFocus] when setting [nodeInFocus]
   @override
   void focusItem(dynamic item, {bool keepSegment = false}) {
     assert(item is Node || item is Edge || item is Segment);
@@ -93,6 +126,9 @@ class DirectionsDualVM extends DirectionsBaseVM {
     openPanel();
   }
 
+  /// find the optimal [Path] between [newStartDest] and [newEndDest], considering [filterStairs] and [filterUnsheltered]
+  /// 
+  /// do nothing is either [newStartDest] or [newEndDest] is missing
   void findPath() async {
     Destination? start = newStartDest ?? gps;
     Destination? end = newEndDest ?? gps;
@@ -106,12 +142,19 @@ class DirectionsDualVM extends DirectionsBaseVM {
     });
   }
 
+  /// navigate to [DestinationSearchVM] to search for a [Destination] by name
+  /// 
+  /// searches for either [newStartDest] or [newEndDest], depending on [settingEnd]
+  /// 
+  /// Args
+  /// - settingEnd: whether to search for [newEndDest]
   void searchDestination(bool settingEnd) {
     this.settingEnd = settingEnd;
     navTo("destinationSearch");
     notifyListeners();
   }
 
+  /// swap [newStartDest] and [newEndDest]
   void swapDestinations() {
     Destination? temp = newStartDest;
     newStartDest = newEndDest;
