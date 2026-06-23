@@ -19,3 +19,7 @@ class DestinationAdmin(ImportExportModelAdmin):
 @admin.register(AdjacencyList)
 class AdjacencyListAdmin(ImportExportModelAdmin):
     resource_class = AdjacencyListResource
+
+@admin.register(BusSchedule)
+class BusScheduleAdmin(ImportExportModelAdmin):
+    resource_class = BusScheduleResource

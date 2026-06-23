@@ -100,8 +100,8 @@ def get_near_destinations(request):
     return Response({'destinations': destSerializer.data})
 
 
-@api_view(['GET'])
 # use current gps location to find shortest path
+@api_view(['GET'])
 def use_current_location(request):
     lat = float(request.GET.get('lat'))
     lng = float(request.GET.get('lng'))
@@ -119,14 +119,9 @@ def use_current_location(request):
         return Response({'error': f'Destination {end} not found'}, status=status.HTTP_404_NOT_FOUND)
     
     #create edge from current location to top 3 nearest nodes on the same floor
-    nearest_nodes = []
-    for node in Node.objects.filter(floor=current_node.floor):
-        distance = haversine(current_node, node)
-        nearest_nodes.append((node, distance))
-    nearest_nodes = sorted(nearest_nodes, key=lambda x: x[1])[:3]
-
+    nearest_nodes = nearby_nodes(current_node, 3)
     temp_edges = []
-    for node, distance in nearest_nodes:
+    for node in nearest_nodes:
         edge = Edge(type='temp_edge', start=current_node, end=node, sheltered=True, stairs=False, weight=round(distance), unit='metres', duration=0.0)
         edge.save()
         temp_edges.append(edge)
