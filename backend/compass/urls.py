@@ -27,4 +27,6 @@ urlpatterns = [
     path('node_coordinates/', views.get_node_coordinates),
     path('edges/', views.get_edges),
     path('shortest_path/', views.calculate_shortest_path),
+    path('near_destinations/', views.get_near_destinations),
+    path('use_location/', views.use_current_location),
 ]

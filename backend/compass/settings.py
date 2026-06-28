@@ -21,11 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-!v(u^%-=u^%wb-lvdx(dmd!f(h)2@n%gbm(iz+lb27=#i24n&1'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-local-dev-key')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
@@ -89,47 +87,6 @@ DATABASES = {
     }
 }
 
-
-# if 'POSTGRES_URL' in os.environ:
-#     raw_db_url = os.environ.get("POSTGRES_URL", "")
-#     # If the URL contains Vercel's custom arguments, strip them out
-#     if "?" in raw_db_url:
-#         # Keeps everything before the '?' and just appends standard sslmode
-#         base_url = raw_db_url.split("?")[0]
-#         cleaned_db_url = f"{base_url}?sslmode=require"
-#     else:
-#         cleaned_db_url = raw_db_url
-#     # This block runs on Vercel (Production/Preview)
-#     DATABASES = {
-#         'default': dj_database_url.config(
-#             default=cleaned_db_url,
-#             conn_max_age=600,
-#             conn_health_checks=True,
-#             ssl_require=True  # Most providers like Neon/Supabase require SSL
-#         )
-#     }
-# else:
-#     # This block runs on your local machine
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-
-# raw_db_url = "postgres://postgres.yqpiufjhxwfekaqgeqan:g0qeeCqcJcreUFdV@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x"
-#     # If the URL contains Vercel's custom arguments, strip them out
-# if "?" in raw_db_url:
-#     # Keeps everything before the '?' and just appends standard sslmode
-#     base_url = raw_db_url.split("?")[0]
-#     cleaned_db_url = f"{base_url}?sslmode=require"
-# else:
-#     cleaned_db_url = raw_db_url
-# DATABASES = {
-#     'default': dj_database_url.parse(
-#         cleaned_db_url
-#     )
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

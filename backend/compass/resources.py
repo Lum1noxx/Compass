@@ -57,3 +57,9 @@ class AdjacencyListResource(resources.ModelResource):
         model = AdjacencyList
         import_id_fields = ('node', 'adjacent_node', 'edge')
         fields = ('node', 'adjacent_node', 'edge')
+
+class BusScheduleResource(resources.ModelResource):
+    class Meta:
+        model = BusSchedule
+        import_id_fields = ('bus', 'day', 'from_time')
+        fields = ('bus', 'day', 'from_time', 'to_time', 'waitAve')

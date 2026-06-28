@@ -55,3 +55,13 @@ class AdjacencyList(models.Model):
 
     def __str__ (self):
         return f"{self.node} is adjacent to {self.adjacent_node} by {self.edge}"
+    
+class BusSchedule(models.Model):
+    bus = models.CharField(max_length=10)
+    day = models.CharField(max_length=10, choices=[('Weekday', 'Weekday'), ('Saturday', 'Saturday'), ('Sunday', 'Sunday')])
+    from_time = models.TimeField()
+    to_time = models.TimeField()
+    waitAve = models.FloatField(default=0.0)
+
+    def __str__ (self):
+        return f"Bus {self.bus} on {self.day} from {self.from_time} to {self.to_time}"
