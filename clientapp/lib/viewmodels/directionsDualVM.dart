@@ -137,6 +137,8 @@ class DirectionsDualVM extends DirectionsBaseVM {
     }
     model.findPath(start, end, filterStairs, filterUnsheltered).then((path) {
       lastRoute = path;
+      segmentInFocus = path.isValid() ? path.segments.first : null;
+      nodeInFocus = start;
       notifyListeners();
       openPanel();
     });

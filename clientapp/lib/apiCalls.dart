@@ -52,8 +52,10 @@ class ApiCalls {
     Uri request = Uri.https(Constants.baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
       "end": end.replaceAll(' ', "_"),
-      // "sheltered" : (filterUnsheltered).toString(), /// ADD BEFORE FLIGHT
-      // "stairs" : (!filterStairs).toString()
+      "sheltered": (filterUnsheltered).toString(),
+
+      /// ADD BEFORE FLIGHT
+      "stairs": (!filterStairs).toString(),
     });
     final response = await get(request);
     if (response.statusCode == 200) {
@@ -121,7 +123,7 @@ class ApiCalls {
   /// - [List] of [Map]s, each representing an [Edge] on the optimal path
   ///
   /// Examples:
-  ///   >>> use_current_location(1.294824, 103.775045, 1, "COM4", false, false)
+  ///   >>> use_location(1.294824, 103.775045, 1, "COM4", false, false)
   ///   [
   ///       {
   ///           "type": "walk",
@@ -140,7 +142,7 @@ class ApiCalls {
   ///           "duration": 7.5
   ///       }
   ///   ]
-  static Future<List<Map>> use_current_location(
+  static Future<List<Map>> use_location(
     double lat,
     double lng,
     int floor,
@@ -148,32 +150,34 @@ class ApiCalls {
     bool filterStairs,
     bool filterUnsheltered,
   ) async {
-    print("api call::use_current_location::$lat, $lng, $floor, $end");
-    Uri request = Uri.https(Constants.baseUrl, "/use_current_location", {
+    print("api call::use_location::$lat, $lng, $floor, $end");
+    Uri request = Uri.https(Constants.baseUrl, "/use_location", {
       'lat': lat.toString(),
       'lng': lng.toString(),
       'floor': floor.toString(),
       "end": end.replaceAll(' ', "_"),
-      // "sheltered" : (filterUnsheltered).toString(), /// ADD BEFORE FLIGHT
-      // "stairs" : (!filterStairs).toString()
-    });
-    return shortest_path("COM3", end, filterStairs, filterUnsheltered);
+      "sheltered": (filterUnsheltered).toString(),
 
-    /// REMOVE BEFORE FLIGHT
-    // final response = await get(request); /// ADD BEFORE FLIGHT
-    // if (response.statusCode == 200) {
-    //   List<dynamic> json = jsonDecode(response.body)['edges'];
-    //   return [for (dynamic obj in json) obj as Map];
-    // } else {
-    //   String errorMessage = jsonDecode(response.body)['error'];
-    //   if (errorMessage.toLowerCase() == "you are in the building") {
-    //     // already there
-    //     throw EdgelessPathException();
-    //   } else {
-    //     // impossible
-    //     throw ImpossiblePathException();
-    //   }
-    // }
+      /// ADD BEFORE FLIGHT
+      "stairs": (!filterStairs).toString(),
+    });
+    // return shortest_path("COM3", end, filterStairs, filterUnsheltered); /// REMOVE BEFORE FLIGHT
+    final response = await get(request);
+
+    /// ADD BEFORE FLIGHT
+    if (response.statusCode == 200) {
+      List<dynamic> json = jsonDecode(response.body)['edges'];
+      return [for (dynamic obj in json) obj as Map];
+    } else {
+      String errorMessage = jsonDecode(response.body)['error'];
+      if (errorMessage.toLowerCase() == "you are in the building") {
+        // already there
+        throw EdgelessPathException();
+      } else {
+        // impossible
+        throw ImpossiblePathException();
+      }
+    }
   }
 
   /// request for nodes with the given names
@@ -182,7 +186,7 @@ class ApiCalls {
   /// - names: [List] of node names
   ///
   /// Returns:
-  /// - [List] of [Map]s, each representing a [Node] 
+  /// - [List] of [Map]s, each representing a [Node]
   ///
   /// Examples:
   ///   >>> node_coordinates(["kr mrt exit a"])
@@ -211,7 +215,15 @@ class ApiCalls {
     //       "floor": 1
     //     }
     // ];
-    return [for (dynamic obj in json) obj as Map];
+    return [
+      for (dynamic obj in json)
+        {
+          'name': obj['name'],
+          'lat': double.parse(obj['lat']),
+          'lng': double.parse(obj['lng']),
+          'floor': obj['floor'],
+        },
+    ];
   }
 
   /// request for destinations with the given names
@@ -249,7 +261,15 @@ class ApiCalls {
     //       "floor": 1
     //     }
     // ];
-    return [for (dynamic obj in json) obj as Map];
+    return [
+      for (dynamic obj in json)
+        {
+          'name': obj['name'],
+          'lat': double.parse(obj['lat']),
+          'lng': double.parse(obj['lng']),
+          'floor': obj['floor'],
+        },
+    ];
   }
 
   /// request for [Destination]s nearest to a given [Coordinate]
@@ -264,7 +284,7 @@ class ApiCalls {
   /// - [List] of [Map]s, each representing a [Destination]
   ///
   /// Examples:
-  ///   >>> dest_coordinates(1.294884, 103.774673, 1, 1)
+  ///   >>> near_destinations(1.294884, 103.774673, 1, 1)
   ///   [
   ///     {
   ///         "name": "COM3",
@@ -273,55 +293,60 @@ class ApiCalls {
   ///         "floor": 1
   ///     }
   ///   ]
-  static Future<List<Map<dynamic, dynamic>>> get_near_destinations(
+  static Future<List<Map<dynamic, dynamic>>> near_destinations(
     double lat,
     double lng,
     int floor,
     int count,
   ) async {
     print("api call::near_destinations::$lat, $lng, $floor, $count");
-    Uri request = Uri.https(Constants.baseUrl, "/get_near_destinations", {
+    Uri request = Uri.https(Constants.baseUrl, "/near_destinations", {
       'lat': lat.toString(),
       'lng': lng.toString(),
       'floor': floor.toString(),
       'count': count.toString(),
     });
-    // final response = await get(request);
-    // List<dynamic> json = jsonDecode(response.body)['destinations'];
+    final response = await get(request);
+    List<dynamic> json = jsonDecode(response.body)['destinations'];
 
-    List<dynamic> json = [
-      // STUB
-      {
-        'name': 'COM1',
-        'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-        'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-        'floor': 1,
-      },
-      {
-        'name': 'COM2',
-        'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-        'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-        'floor': 1,
-      },
-      {
-        'name': 'COM3',
-        'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-        'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-        'floor': 1,
-      },
-      {
-        'name': 'COM4',
-        'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-        'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-        'floor': 1,
-      },
-      {
-        'name': 'COM5',
-        'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-        'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-        'floor': 1,
-      },
-    ];
-    return [for (dynamic obj in json) obj as Map];
+    // List<dynamic> json = [
+    //   /// REMOVE BEFORE FLIGHT
+    //   {
+    //     'name': 'COM1',
+    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'floor': 1,
+    //   },
+    //   {
+    //     'name': 'COM2',
+    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'floor': 1,
+    //   },
+    //   {
+    //     'name': 'COM3',
+    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'floor': 1,
+    //   },
+    //   {
+    //     'name': 'COM4',
+    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'floor': 1,
+    //   },
+    //   {
+    //     'name': 'COM5',
+    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
+    //     'floor': 1,
+    //   },
+    // ];
+    return [for (dynamic obj in json) {
+      'name' : obj['name'],
+      'lat' : double.parse(obj['lat']),
+      'lng' : double.parse(obj['lng']),
+      'floor' : obj['floor']
+    }];
   }
 }

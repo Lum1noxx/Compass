@@ -14,11 +14,11 @@ class Defaults {
   static const LatLng mapPosition = LatLng(1.2966, 103.7764);
   static const int gpsUpdateThreshold =
       1; // in metres, 0 == update for all movements
-  static const double mapInitialZoom = 14.5;
+  static const double mapInitialZoom = 15;
   static const double mapFocusZoom = 20;
   static const double segmentViewPadding = 80;
   static const double edgeWidth = 5;
-  static const double otherFloorOpacity = 0.33;
+  static const double otherFloorOpacity = 0.5;
   static const double mapMarkerSize = 15;
   static const double legendHeight = 200;
   static const double legendWidth = 300;

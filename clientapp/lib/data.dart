@@ -191,11 +191,7 @@ class Nodes {
     for (Map nodeObj in json) {
       map[nodeObj['name']] = Node(
         nodeObj['name'],
-        Coordinate(
-          double.parse(nodeObj['lat']),
-          double.parse(nodeObj['lng']),
-          nodeObj['floor'],
-        ),
+        Coordinate(nodeObj['lat'], nodeObj['lng'], nodeObj['floor']),
       );
     }
   }
@@ -253,11 +249,7 @@ class Destinations {
     for (Map destObj in json) {
       map[destObj['name']] = Destination(
         destObj['name'],
-        Coordinate(
-          double.parse(destObj['lat']),
-          double.parse(destObj['lng']),
-          destObj['floor'],
-        ),
+        Coordinate(destObj['lat'], destObj['lng'], destObj['floor']),
       );
     }
   }
@@ -304,28 +296,29 @@ class Destinations {
   /// Returns:
   /// - [List] of destinations
   Future<List<Destination>> getNearby(Coordinate coordinate, int count) async {
-    List<Map> json = await ApiCalls.get_near_destinations(
+    List<Map> json = await ApiCalls.near_destinations(
       coordinate.lat,
       coordinate.lng,
       coordinate.floor,
       count,
     );
-    List<Destination> res = [
-      for (Map obj in json)
-        map[obj['name']] ??
-            Destination(
-              obj['name'],
-              Coordinate(
-                double.parse(obj['lat']),
-                double.parse(obj['lng']),
-                obj['floor'],
-              ),
-            ),
-    ];
+    List<Destination> res = [];
+
+    for (Map obj in json) {
+      map.putIfAbsent(
+        obj['name'],
+        () => Destination(
+          obj['name'],
+          Coordinate(obj['lat'], obj['lng'], obj['floor']),
+        ),
+      );
+      res.add(map[obj['name']]!);
+    }
+
     for (Destination destination in res) {
       map.putIfAbsent(destination.name, () => destination);
     }
-    return [for (Destination destination in res) map[destination.name]!];
+    return res;
   }
 }
 
@@ -567,6 +560,9 @@ class Path {
   /// - [Segment]
   /// - or [null], if not found
   Segment? locate(dynamic item) {
+    if (item == null) {
+      return null;
+    }
     if (item is Edge) {
       return _edgesIndex[item];
     } else if (item is Node) {
@@ -624,8 +620,12 @@ class EdgelessPath extends Path {
 ///
 /// this means that no path was found that connects [start] and [end]
 class ImpossiblePath extends Path {
-  ImpossiblePath(Destination start, Destination end)
-    : super.autoJoin([], start, end);
+  late Destination startDest;
+  late Destination endDest;
+  ImpossiblePath(Destination start, Destination end) : super([]) {
+    startDest = start;
+    endDest = end;
+  }
 
   @override
   int length() {
@@ -635,6 +635,16 @@ class ImpossiblePath extends Path {
   @override
   bool isValid() {
     return false;
+  }
+
+  @override
+  Destination end() {
+    return endDest;
+  }
+
+  @override
+  Destination start() {
+    return endDest;
   }
 }
 

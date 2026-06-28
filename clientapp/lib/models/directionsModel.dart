@@ -36,7 +36,8 @@ class DirectionsModel {
         Geolocator.getPositionStream(locationSettings: locationSettings).listen(
           (Position? position) {
             if (position != null) {
-              callback.call(LatLng(position.latitude, position.longitude));
+              callback.call(LatLng(position.latitude, position.longitude)); /// ADD BEFORE FLIGHT
+              // callback.call(LatLng(1.29445088, 103.7744729)); /// REMOVE BEFORE FLIGHT
             }
           },
         );
@@ -85,14 +86,14 @@ class DirectionsModel {
     try {
       List<Map> edgesJson;
       if (startDest is TempDestination) {
-        edgesJson = await ApiCalls.use_current_location(
+        edgesJson = (await ApiCalls.use_location(
           startDest.coordinate.lat,
           startDest.coordinate.lng,
           startDest.coordinate.floor,
           endDest.name,
           filterStairs,
           filterUnsheltered,
-        );
+        )).sublist(1);
       } else {
         edgesJson = await ApiCalls.shortest_path(
           startDest.name,

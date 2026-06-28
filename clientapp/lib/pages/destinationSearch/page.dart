@@ -1,4 +1,5 @@
 import 'package:clientapp/pages/destinationSearch/callbacks.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewComponents/searchBar.dart';
 import 'package:clientapp/viewComponents/suggestionsList.dart';
 import 'package:clientapp/viewmodels/destinationSearchVM.dart';
@@ -40,6 +41,7 @@ class _DestinationSearchWidgetState extends State<DestinationSearchWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
+        backgroundColor: AppTheme.colors.background,
         body: SafeArea(
           top: true,
           child: Column(

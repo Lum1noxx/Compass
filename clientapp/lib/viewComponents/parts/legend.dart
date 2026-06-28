@@ -52,13 +52,13 @@ class _MapLegendState extends State<MapLegend> {
           child: ListView(
             padding: EdgeInsets.all(0),
             children: [
-              AutoSizeText(
-                minFontSize: Defaults.autoTextMin,
-                maxFontSize: Defaults.autoTextMax,
-                maxLines: 1,
-                "Legend",
-                style: TextStyle(color: AppTheme.colors.neutral),
-              ),
+              // AutoSizeText(
+              //   minFontSize: Defaults.autoTextMin,
+              //   maxFontSize: Defaults.autoTextMax,
+              //   maxLines: 1,
+              //   "Legend",
+              //   style: TextStyle(color: AppTheme.colors.neutral),
+              // ),
               Wrap(
                 // markers
                 spacing: 10,

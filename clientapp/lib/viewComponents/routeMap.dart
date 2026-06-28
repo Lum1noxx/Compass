@@ -111,7 +111,7 @@ class _RouteMapState extends State<RouteMap> {
                         point: widget.vm.gps!.getLatLng(),
                         child: GPSMarker(
                           widget.vm.isOnCurrentFloor(widget.vm.gps!),
-                          () {},
+                          () => widget.vm.focusItem(widget.vm.gps),
                         ),
                       ),
                     if (widget.vm.nodeInFocus is TempDestination)
@@ -119,7 +119,7 @@ class _RouteMapState extends State<RouteMap> {
                         point: widget.vm.nodeInFocus!.getLatLng(),
                         child: DroppedMarker(
                           widget.vm.isOnCurrentFloor(widget.vm.nodeInFocus),
-                          () {},
+                          () => widget.vm.focusItem(widget.vm.nodeInFocus),
                         ),
                       ),
                     for (Destination destination
@@ -176,30 +176,30 @@ class _RouteMapState extends State<RouteMap> {
                                   () => widget.vm.focusItem(segment.start()),
                                 ),
                         ),
-                    if (widget.vm.lastRoute.isValid()) // start destination
+                    if (widget.vm.lastRoute is! EmptyPath)
                       Marker(
-                        point: widget.vm.lastRoute.edges.first.start
-                            .getLatLng(),
+                        // start destination of route
+                        point: widget.vm.lastRoute.start().getLatLng(),
                         child: RouteStartMarker(
                           widget.vm.isOnCurrentFloor(
-                            widget.vm.lastRoute.edges.first.start,
+                            widget.vm.lastRoute.start(),
                           ),
                           () =>
                               widget.vm.focusItem(widget.vm.lastRoute.start()),
                         ),
                       ),
-                    if (widget.vm.lastRoute.isValid()) // end destination
+                    if (widget.vm.lastRoute is! EmptyPath)
                       Marker(
-                        point: widget.vm.lastRoute.edges.last.end.getLatLng(),
+                        // end destination of route
+                        point: widget.vm.lastRoute.end().getLatLng(),
                         child: RouteEndMarker(
                           widget.vm.isOnCurrentFloor(
-                            widget.vm.lastRoute.edges.last.end,
+                            widget.vm.lastRoute.end(),
                           ),
                           () => widget.vm.focusItem(widget.vm.lastRoute.end()),
                         ),
                       ),
-                    if ((widget.vm.newStartDest ?? widget.vm.nodeInFocus) !=
-                        widget.vm.nodeInFocus)
+                    if (widget.vm.newStartDest!= null && widget.vm.lastRoute.locate(widget.vm.newStartDest) == null)
                       Marker(
                         point: widget.vm.newStartDest!.getLatLng(),
                         child: RouteStartMarker(
@@ -207,8 +207,7 @@ class _RouteMapState extends State<RouteMap> {
                           () => widget.vm.focusItem(widget.vm.newStartDest!),
                         ),
                       ),
-                    if ((widget.vm.newEndDest ?? widget.vm.nodeInFocus) !=
-                        widget.vm.nodeInFocus)
+                    if (widget.vm.newEndDest!= null && widget.vm.lastRoute.locate(widget.vm.newEndDest) == null)
                       Marker(
                         point: widget.vm.newEndDest!.getLatLng(),
                         child: RouteEndMarker(

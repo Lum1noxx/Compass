@@ -129,8 +129,9 @@ abstract class DirectionsBaseVM extends PageVM {
     TempDestination dest = TempDestination(
       Coordinate(position.latitude, position.longitude, selectedFloor),
     );
-    nearbyDestinations = await model.getNearbyDestinations(dest);
     focusItem(dest);
+    nearbyDestinations = await model.getNearbyDestinations(dest);
+    notifyListeners();
   }
 
   /// toggle the visisbility of the map legend

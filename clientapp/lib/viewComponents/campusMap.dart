@@ -81,7 +81,7 @@ class _CampusMapState extends State<CampusMap> {
                         point: widget.vm.gps!.getLatLng(),
                         child: GPSMarker(
                           widget.vm.isOnCurrentFloor(widget.vm.gps!),
-                          () {},
+                          () => widget.vm.focusItem(widget.vm.gps),
                         ),
                       ),
                     if (widget.vm.nodeInFocus is Destination &&
@@ -90,7 +90,7 @@ class _CampusMapState extends State<CampusMap> {
                         point: widget.vm.nodeInFocus!.getLatLng(),
                         child: SelectingMarker(
                           widget.vm.isOnCurrentFloor(widget.vm.nodeInFocus),
-                          () {},
+                          () => widget.vm.focusItem(widget.vm.nodeInFocus),
                         ),
                       ),
                     if (widget.vm.nodeInFocus is TempDestination)
@@ -98,7 +98,7 @@ class _CampusMapState extends State<CampusMap> {
                         point: widget.vm.nodeInFocus!.getLatLng(),
                         child: DroppedMarker(
                           widget.vm.isOnCurrentFloor(widget.vm.nodeInFocus),
-                          () {},
+                          () => widget.vm.focusItem(widget.vm.nodeInFocus),
                         ),
                       ),
                     for (Destination destination
