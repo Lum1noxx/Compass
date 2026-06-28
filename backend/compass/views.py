@@ -84,20 +84,23 @@ def get_near_destinations(request):
     current_dest = Destination(name='current_location', lat=lat, lng=lng, floor= floor if floor is not None else 0)
     current_dest.save()
     
-    nearby_dests = []
-    for dest in Destination.objects.all():
-        if floor is not None and dest.floor != floor:
-            continue
-        if dest.name == 'current_location':
-            continue
-        current_dest_db = Destination.objects.get(name='current_location')
-        distance = haversine(current_dest_db, dest)
-        nearby_dests.append((dest, distance))
-    nearby_dests.sort(key=lambda x: x[1])
-    nearby_dests = [dest[0] for dest in nearby_dests[:count]]
-    destSerializer = DestSerializer(nearby_dests, many=True)
-    current_dest.delete()
-    return Response({'destinations': destSerializer.data})
+    try:
+        nearby_dests = []
+        for dest in Destination.objects.all():
+            if floor is not None and dest.floor != floor:
+                continue
+            if dest.name == 'current_location':
+                continue
+            current_dest_db = Destination.objects.get(name='current_location')
+            distance = haversine(current_dest_db, dest)
+            nearby_dests.append((dest, distance))
+        nearby_dests.sort(key=lambda x: x[1])
+        nearby_dests = [dest[0] for dest in nearby_dests[:count]]
+        destSerializer = DestSerializer(nearby_dests, many=True)
+        return Response({'destinations': destSerializer.data})
+    
+    finally:
+        current_dest.delete()
 
 
 # use current gps location to find shortest path
@@ -116,35 +119,41 @@ def use_current_location(request):
     try:
         end_dest = Destination.objects.get(name=end)
     except Destination.DoesNotExist:
+        current_node.delete()
         return Response({'error': f'Destination {end} not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    #create edge from current location to top 3 nearest nodes on the same floor
-    nearest_nodes = nearby_nodes(current_node, 3)
-    temp_edges = []
-    for node in nearest_nodes:
-        edge = Edge(type='temp_edge', start=current_node, end=node, sheltered=True, stairs=False, weight=round(distance), unit='metres', duration=0.0)
-        edge.save()
-        temp_edges.append(edge)
-        AdjacencyList.objects.create(node=current_node, adjacent_node=node, edge=edge)
+    try:
+        #create edge from current location to top 3 nearest nodes on the same floor
+        nearest_nodes = nearby_nodes(current_node, 3)
+        temp_edges = []
+        for node in nearest_nodes:
+            distance = haversine(current_node, node)
+            edge = Edge(type='temp_edge', start=current_node, end=node, sheltered=True, stairs=False, weight=round(distance), unit='metres', duration=0.0)
+            edge.save()
+            temp_edges.append(edge)
+            AdjacencyList.objects.create(node=current_node, adjacent_node=node, edge=edge)
 
-    end_nodes = end_dest.nodes.all()
-    sheltered = request.GET.get('sheltered') == 'true'
-    stairs = request.GET.get('stairs') == 'true'
+        end_nodes = end_dest.nodes.all()
+        sheltered = request.GET.get('sheltered') == 'true'
+        stairs = request.GET.get('stairs') == 'true'
 
-    # run a star algorithm
-    path = a_star_search([current_node], list(end_nodes), sheltered, stairs)
-    if path is None:
-        return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
-    if len(path) == 0:
-        return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
-
-    #delete current location node and temp edges
-    current_node.delete()
-    for edge in temp_edges:
-        edge.delete()
+        # run a star algorithm
+        path = a_star_search([current_node], list(end_nodes), sheltered, stairs)
+        if path is None:
+            return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
+        if len(path) == 0:
+            return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
+        
+        edgeSerializer = EdgeSerializer(path, many=True)
+        return Response({'edges': edgeSerializer.data})
     
-    edgeSerializer = EdgeSerializer(path, many=True)
-    return Response({'edges': edgeSerializer.data})
+    finally:
+        #delete current location node and temp edges
+        current_node.delete()
+        for edge in temp_edges:
+            edge.delete()
+        
+
 
 
 
