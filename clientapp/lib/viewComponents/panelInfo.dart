@@ -3,18 +3,21 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PanelInfo extends StatefulWidget {
   final DirectionsBaseVM vm;
   final void Function(Segment) onSegmentNeighbourSelect;
   final void Function(Node) onNodeSelect;
+  final void Function() onVenueSelect;
 
   const PanelInfo(
     this.vm,
     this.onSegmentNeighbourSelect,
-    this.onNodeSelect, {
+    this.onNodeSelect,
+    this.onVenueSelect, {
     super.key,
   });
 
@@ -32,13 +35,13 @@ class _PanelInfoState extends State<PanelInfo> {
         Widget panel;
         Segment? segment;
         Node? node;
-        if (widget.vm is DirectionsDualVM) {
-          route = (widget.vm as DirectionsDualVM).lastRoute;
+        if (widget.vm is NavigationVM) {
+          route = (widget.vm as NavigationVM).lastRoute;
         } else {
           route = EmptyPath();
         }
-        if (widget.vm is DirectionsDualVM) {
-          segment = (widget.vm as DirectionsDualVM).segmentInFocus;
+        if (widget.vm is NavigationVM) {
+          segment = (widget.vm as NavigationVM).segmentInFocus;
         }
         if (widget.vm.nodeInFocus != null) {
           segment ??= route.locate(widget.vm.nodeInFocus);
@@ -52,7 +55,7 @@ class _PanelInfoState extends State<PanelInfo> {
             selectedNode: node,
           );
         } else if (node != null) {
-          panel = NodeInfo(node);
+          panel = NodeInfo(node, widget.onVenueSelect);
         } else {
           panel = Container(
             decoration: BoxDecoration(color: AppTheme.colors.background),
@@ -320,21 +323,61 @@ class LiftSegmentRow extends StatelessWidget {
 
 class NodeInfo extends StatelessWidget {
   final Node node;
+  final void Function() onVenueSelect;
 
-  const NodeInfo(this.node, {super.key});
+  const NodeInfo(this.node, this.onVenueSelect, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: AppTheme.colors.background),
       alignment: Alignment.center,
-      child: AutoSizeText(
-        node.toString(),
-        maxLines: 2,
-        textAlign: TextAlign.center,
-        minFontSize: Defaults.autoTextMin,
-        maxFontSize: Defaults.autoTextMax,
-        style: TextStyle(color: AppTheme.colors.neutral),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          AutoSizeText(
+            node.toString(),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+          Row(
+            children: [
+              Spacer(),
+              IconButton(
+                onPressed: onVenueSelect,
+                icon: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: AppTheme.colors.primary
+                  ),
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.building_2_fill,
+                        size: Defaults.iconSize,
+                        color: AppTheme.colors.neutral,
+                      ),
+                      AutoSizeText(
+                        minFontSize: Defaults.autoTextMin,
+                        maxFontSize: Defaults.autoTextMax,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        "find vacant venues nearby",
+                        style: TextStyle(color: AppTheme.colors.neutral),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Spacer(),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -6,7 +6,7 @@ import 'package:clientapp/viewComponents/parts/gpsButton.dart';
 import 'package:clientapp/viewComponents/parts/legend.dart';
 import 'package:clientapp/viewComponents/parts/legendButton.dart';
 import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -14,7 +14,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RouteMap extends StatefulWidget {
-  final DirectionsDualVM vm;
+  final NavigationVM vm;
   final void Function(LatLng) pinDropCallback;
   final void Function(Edge) onEdgeMarkerTap;
   final void Function(String) onFloorNameSelect;

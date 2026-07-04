@@ -1,11 +1,11 @@
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RouteFilters extends StatefulWidget {
-  final DirectionsDualVM vm;
+  final NavigationVM vm;
   final void Function(bool) onFilterStairsChange;
   final void Function(bool) onFilterUnshelteredChange;
 

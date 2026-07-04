@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
+  ApiCalls.heartbeat();
   runApp(const MainApp());
 }
 
@@ -58,7 +60,7 @@ class _MainAppState extends State<MainApp> {
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
       ),
-      home: Scaffold(body: MainActivity()),
+      home: MainActivity()
     );
   }
 }

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
-import 'package:clientapp/models/directionsModel.dart';
+import 'package:clientapp/models/compassModel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
@@ -16,18 +16,18 @@ void main() {
   ], 2);
   Globals.nodes = Nodes();
   test("getDest", () async {
-    DirectionsModel model = DirectionsModel();
+    CompassModel model = CompassModel();
     Destination dest = await model.getDest("COM3");
     expect(dest.name, "COM3");
   });
   test("queryAutocomplete", () {
-    DirectionsModel model = DirectionsModel();
+    CompassModel model = CompassModel();
     List<String> res = model.queryAutocomplete("M3");
     expect(res.first, "COM3");
   });
   group("findPath and getNodesOnPath", () {
     test("first findPath, valid and no filters", () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination pitstop = await Globals.destinations.get("PitStop@SoC");
       Path path = await model.findPath(makers, pitstop, false, false);
@@ -39,7 +39,7 @@ void main() {
       }
     });
     test("second findPath, valid and no filters", () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination pitstop = await Globals.destinations.get("PitStop@SoC");
       await model.findPath(makers, pitstop, false, false);
@@ -54,7 +54,7 @@ void main() {
     });
 
     test("valid but longer, both filters", () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination sr21 = await Globals.destinations.get("COM3 seminar room 21");
       Path filter = await model.findPath(makers, sr21, true, true);
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('invalid, one destination contains the other', () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination com3 = await Globals.destinations.get("COM3");
       Path filter = await model.findPath(makers, com3, false, false);
@@ -83,21 +83,21 @@ void main() {
     });
 
     test('invalid, destination does not exist', () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination com5 = Destination("COM5", Coordinate(1, 100, 1));
       Path filter = await model.findPath(makers, com5, false, false);
       expect(filter is ImpossiblePath, true);
     });
     test('invalid due to filter', () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       Destination makers = await Globals.destinations.get("Makers@SoC");
       Destination pitstop = await Globals.destinations.get("PitStop@SoC");
       Path filter = await model.findPath(makers, pitstop, true, true);
       expect(filter is ImpossiblePath, true);
     });
     test('by coordinate, valid but longer with filters', () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       TempDestination makers = TempDestination(
         Coordinate(1.2948950536, 103.7743995103, 1),
       ); // Makers@SoC
@@ -119,7 +119,7 @@ void main() {
       assert(filter.duration > noFilter.duration);
     });
     test('by coordinate, invalid due to filters', () async {
-      DirectionsModel model = DirectionsModel();
+      CompassModel model = CompassModel();
       TempDestination makers = TempDestination(
         Coordinate(1.2948950536, 103.7743995103, 1),
       ); // Makers@SoC
@@ -129,7 +129,7 @@ void main() {
     });
   });
   test("getNearbyDestinations", () async {
-    DirectionsModel model = DirectionsModel();
+    CompassModel model = CompassModel();
     TempDestination probe = TempDestination(
       Coordinate(1.2948950536, 103.7743995103, 1),
     );

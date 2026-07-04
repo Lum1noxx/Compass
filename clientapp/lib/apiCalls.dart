@@ -11,6 +11,15 @@ import 'package:http/http.dart';
 /// arguments are passed as http-native query types,
 /// responses are returned as directly-translated values of json types
 class ApiCalls {
+
+  /// heartbeat request to wake up backend server
+  static void heartbeat() {
+    print("api call::heartbeat");
+
+    // ADD BEFORE FLIGHT
+    // Uri request = Uri.https(Constants.baseUrl, "/heartbeat");
+    // get(request);
+  }
   /// request for shortest path between start and end [Destination]s, subject to accessibility and shelter constraints
   ///
   /// Args:
