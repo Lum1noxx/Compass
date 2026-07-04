@@ -416,6 +416,8 @@ class Segment {
 /// - edges: constituent [Edge]s
 /// - segments: constituent [Segment]s
 /// - duration: total duration of [segments]
+/// - stairFilterMet: this satisfies stairs filter of request
+/// - shelterFilterMet: this satisfies shelter filter of request
 class Path {
   /// classify adjacent [Edge]s into linked [Segment]s
   ///
@@ -447,9 +449,13 @@ class Path {
   late final List<Segment> segments;
   final Map<Edge, Segment> _edgesIndex = {};
   final Map<Node, Segment> _nodesIndex = {};
+  late bool stairFilterMet;
+  late bool shelterFilterMet;
   double duration = 0;
 
   Path(this.edges) {
+    stairFilterMet = true;
+    shelterFilterMet = true;
     if (edges.isEmpty) {
       segments = [];
       return;
@@ -472,7 +478,13 @@ class Path {
   /// - edges: partial [List] of adjacent [Edge]s, exclusing [start] and [end]
   /// - start: start [Destination] of this
   /// - end: final [Destination] of this
-  Path.autoJoin(this.edges, Destination start, Destination end) {
+  Path.autoJoin(
+    this.edges,
+    Destination start,
+    Destination end,
+    this.stairFilterMet,
+    this.shelterFilterMet,
+  ) {
     if (edges.isEmpty) {
       edges = [
         Edge(
@@ -603,7 +615,7 @@ class EmptyPath extends Path {
 /// this means that either [start] == [end] or one contains the other
 class EdgelessPath extends Path {
   EdgelessPath(Destination start, Destination end)
-    : super.autoJoin([], start, end);
+    : super.autoJoin([], start, end, true, true);
 
   @override
   int length() {
@@ -700,4 +712,24 @@ class TempDestination extends Destination {
         "(${position.latitude}, ${position.longitude})",
         Coordinate(position.latitude, position.longitude, 0),
       );
+}
+
+enum FilterLevel {
+  none("none", 0),
+  prefer("prefer", 1),
+  strict("strict", 2);
+
+  static FilterLevel get(int level) {
+    if (level == 0) {
+      return FilterLevel.none;
+    }
+    if (level == 1) {
+      return FilterLevel.prefer;
+    }
+    return FilterLevel.strict;
+  }
+
+  final String name;
+  final int level;
+  const FilterLevel(this.name, this.level);
 }

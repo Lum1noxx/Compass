@@ -26,8 +26,8 @@ class NavigationVM extends DirectionsBaseVM {
   Destination? newStartDest;
   Destination? newEndDest;
   bool settingEnd = false; // else, setting start
-  bool filterStairs = true;
-  bool filterUnsheltered = true;
+  FilterLevel filterStairs = FilterLevel.none;
+  FilterLevel filterUnsheltered = FilterLevel.none;
 
   NavigationVM(super.navigator, super.model);
 
@@ -49,14 +49,14 @@ class NavigationVM extends DirectionsBaseVM {
   }
 
   /// setter for [filterStairs]
-  void setFilterStairs(bool filter) {
-    filterStairs = filter;
+  void setFilterStairs(int filter) {
+    filterStairs = FilterLevel.get(filter);
     notifyListeners();
   }
 
   /// setter for [filterUnsheltered]
-  void setFilterUnsheltered(bool filter) {
-    filterUnsheltered = filter;
+  void setFilterUnsheltered(int filter) {
+    filterUnsheltered = FilterLevel.get(filter);
     notifyListeners();
   }
 

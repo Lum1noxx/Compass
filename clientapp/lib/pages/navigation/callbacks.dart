@@ -13,8 +13,8 @@ class DirectionsDualDestinationsCallbacks {
   late final void Function() onFindSelect;
   late final void Function(Node) onRoutePanelNodeSelect;
   late final void Function(Segment) onRoutePanelSegmentSelect;
-  late final void Function(bool) onFilterStairsChange;
-  late final void Function(bool) onFilterUnshelteredChange;
+  late final void Function(int) onFilterStairsChange;
+  late final void Function(int) onFilterUnshelteredChange;
   late final void Function() onLegendToggle;
   late final void Function() onVenueSelect;
 

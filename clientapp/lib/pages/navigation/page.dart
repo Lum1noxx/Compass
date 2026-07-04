@@ -196,7 +196,7 @@ class _DirectionsDualDestinationsWidgetState
                                 ),
                               ),
                               SizedBox(
-                                width: Defaults.iconSize * 2 + 10,
+                                width: Defaults.iconSize * 3 + 10,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   children: [

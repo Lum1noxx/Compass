@@ -11,7 +11,6 @@ import 'package:http/http.dart';
 /// arguments are passed as http-native query types,
 /// responses are returned as directly-translated values of json types
 class ApiCalls {
-
   /// heartbeat request to wake up backend server
   static void heartbeat() {
     print("api call::heartbeat");
@@ -20,20 +19,22 @@ class ApiCalls {
     // Uri request = Uri.https(Constants.baseUrl, "/heartbeat");
     // get(request);
   }
+
   /// request for shortest path between start and end [Destination]s, subject to accessibility and shelter constraints
   ///
   /// Args:
   /// - start: name of start [Destination]
   /// - end: name of end [Destination]
-  /// - filterStairs: whether to only consider accessible paths
-  /// - filterUnsheltered: whether to only consider sheltered paths
+  /// - filterStairs: [FilterLevel] for considering accessible paths
+  /// - filterUnsheltered: [FilterLevel] for considering sheltered paths
   ///
   /// Returns:
-  /// - [List] of [Map]s, each representing an [Edge] on the optimal path
+  /// - [Map]
   ///
   /// Examples:
-  ///   >>> shortest_path("COM3", "COM4", false, false)
-  ///   [
+  ///   >>> shortest_path("COM3", "COM4", FilterLevel.prefer, FilterLevel.strict)
+  ///   {
+  ///     "edges": [
   ///       {
   ///           "type": "walk",
   ///           "start": "com3 linkway (com4) entrance",
@@ -50,72 +51,86 @@ class ApiCalls {
   ///           "stairs": false,
   ///           "duration": 7.5
   ///       }
-  ///   ]
-  static Future<List<Map>> shortest_path(
+  ///     ],
+  ///     "shelterPref": 1,
+  ///     "stairsPref": 2
+  ///   }
+  static Future<Map> shortest_path(
     String start,
     String end,
-    bool filterStairs,
-    bool filterUnsheltered,
+    FilterLevel filterStairs,
+    FilterLevel filterUnsheltered,
   ) async {
-    print("api call::shortest_path::${start}::${end}");
+    print(
+      "api call::shortest_path::${start}::${end}::$filterStairs::$filterUnsheltered",
+    );
     Uri request = Uri.https(Constants.baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
       "end": end.replaceAll(' ', "_"),
-      "sheltered": (filterUnsheltered).toString(),
-
-      /// ADD BEFORE FLIGHT
-      "stairs": (!filterStairs).toString(),
+      "shelterPref": filterUnsheltered.level.toString(),
+      "stairsPref": filterStairs.level.toString(),
     });
-    final response = await get(request);
-    if (response.statusCode == 200) {
-      List<dynamic> json = jsonDecode(response.body)['edges'];
-      return [for (dynamic obj in json) obj as Map];
-    } else {
-      String errorMessage = jsonDecode(response.body)['error'];
-      if (errorMessage.toLowerCase() == "you are in the building") {
-        // already there
-        throw EdgelessPathException();
-      } else {
-        // impossible
-        throw ImpossiblePathException();
-      }
-    }
 
-    // List<Map> json = [ // STUB
-    //   {
-    //     "type": "walk",
-    //     "start": "terrace",
-    //     "end": "com3 bus stop",
-    //     "sheltered": true,
-    //     "stairs": true,
-    //     "duration": 60
-    //   },
-    //   {
-    //     "type": "waitForBus",
-    //     "start": "com3 bus stop",
-    //     "end": "d1 at com3",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 300
-    //   },
-    //   {
-    //     "type": "bus",
-    //     "start": "d1 at com3",
-    //     "end": "utown bus stop",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 180
-    //   },
-    //   {
-    //     "type": "walk",
-    //     "start": "utown bus stop",
-    //     "end": "flavours",
-    //     "sheltered": false,
-    //     "stairs": false,
-    //     "duration": 90
+    /// REMOVE BEFORE FLIGHT
+    request = Uri.https(Constants.baseUrl, "/shortest_path", {
+      "start": start.replaceAll(' ', "_"),
+      "end": end.replaceAll(' ', "_"),
+      "sheltered": (filterUnsheltered.level == 2).toString(),
+      "stairs": (filterStairs.level < 2).toString(),
+    });
+
+    /// ADD BEFORE FLIGHT
+    // final response = await get(request);
+    // if (response.statusCode == 200) {
+    //   return jsonDecode(response.body);
+    // } else {
+    //   String errorMessage = jsonDecode(response.body)['error'];
+    //   if (errorMessage.toLowerCase() == "you are in the building") {
+    //     // already there
+    //     throw EdgelessPathException();
+    //   } else {
+    //     // impossible
+    //     throw ImpossiblePathException();
     //   }
+    // }
 
-    // ];
+    /// REMOVE BEFORE FLIGHT
+       List<Map> edges = [
+      // STUB
+      {
+        "type": "walk",
+        "start": "terrace",
+        "end": "com3 bus stop",
+        "sheltered": true,
+        "stairs": true,
+        "duration": 60,
+      },
+      {
+        "type": "waitForBus",
+        "start": "com3 bus stop",
+        "end": "COM3 bus stop (D1)",
+        "sheltered": true,
+        "stairs": false,
+        "duration": 300,
+      },
+      {
+        "type": "bus",
+        "start": "COM3 bus stop (D1)",
+        "end": "Utown bus stop",
+        "sheltered": true,
+        "stairs": false,
+        "duration": 180,
+      },
+      {
+        "type": "walk",
+        "start": "Utown bus stop",
+        "end": "Utown SRC Flavours",
+        "sheltered": false,
+        "stairs": false,
+        "duration": 90,
+      },
+    ];
+    return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for shortest path between start [Coordinate] and end [Destination], subject to accessibility and shelter constraints
@@ -125,15 +140,16 @@ class ApiCalls {
   /// - lng: longitude of start [Coordinate]
   /// - floor: floor of start [Coordinate]
   /// - end: name of end [Destination]
-  /// - filterStairs: whether to only consider accessible paths
-  /// - filterUnsheltered: whether to only consider sheltered paths
+  /// - filterStairs: [FilterLevel] for considering accessible paths
+  /// - filterUnsheltered: [FilterLevel] for considering sheltered paths
   ///
   /// Returns:
-  /// - [List] of [Map]s, each representing an [Edge] on the optimal path
+  /// - [Map]
   ///
   /// Examples:
-  ///   >>> use_location(1.294824, 103.775045, 1, "COM4", false, false)
-  ///   [
+  ///   >>> use_location(1.294824, 103.775045, 1, "COM4",  FilterLevel.prefer, FilterLevel.strict)
+  ///   {
+  ///     "edges": [
   ///       {
   ///           "type": "walk",
   ///           "start": "com3 linkway (com4) entrance",
@@ -150,14 +166,17 @@ class ApiCalls {
   ///           "stairs": false,
   ///           "duration": 7.5
   ///       }
-  ///   ]
-  static Future<List<Map>> use_location(
+  ///     ],
+  ///     "shelterPref": 1,
+  ///     "stairsPref": 2
+  ///   }
+  static Future<Map> use_location(
     double lat,
     double lng,
     int floor,
     String end,
-    bool filterStairs,
-    bool filterUnsheltered,
+    FilterLevel filterStairs,
+    FilterLevel filterUnsheltered,
   ) async {
     print("api call::use_location::$lat, $lng, $floor, $end");
     Uri request = Uri.https(Constants.baseUrl, "/use_location", {
@@ -165,28 +184,72 @@ class ApiCalls {
       'lng': lng.toString(),
       'floor': floor.toString(),
       "end": end.replaceAll(' ', "_"),
-      "sheltered": (filterUnsheltered).toString(),
-
-      /// ADD BEFORE FLIGHT
-      "stairs": (!filterStairs).toString(),
+      "sheltered": filterUnsheltered.level.toString(),
+      "stairs": filterStairs.level.toString(),
     });
-    // return shortest_path("COM3", end, filterStairs, filterUnsheltered); /// REMOVE BEFORE FLIGHT
-    final response = await get(request);
+
+    /// REMOVE BEFORE FLIGHT
+    request = Uri.https(Constants.baseUrl, "/use_location", {
+      'lat': lat.toString(),
+      'lng': lng.toString(),
+      'floor': floor.toString(),
+      "end": end.replaceAll(' ', "_"),
+      "sheltered": (filterUnsheltered.level == 2).toString(),
+      "stairs": (filterStairs.level < 2).toString(),
+    });
 
     /// ADD BEFORE FLIGHT
-    if (response.statusCode == 200) {
-      List<dynamic> json = jsonDecode(response.body)['edges'];
-      return [for (dynamic obj in json) obj as Map];
-    } else {
-      String errorMessage = jsonDecode(response.body)['error'];
-      if (errorMessage.toLowerCase() == "you are in the building") {
-        // already there
-        throw EdgelessPathException();
-      } else {
-        // impossible
-        throw ImpossiblePathException();
-      }
-    }
+    // final response = await get(request);
+    // if (response.statusCode == 200) {
+    //   return jsonDecode(response.body);
+    // } else {
+    //   String errorMessage = jsonDecode(response.body)['error'];
+    //   if (errorMessage.toLowerCase() == "you are in the building") {
+    //     // already there
+    //     throw EdgelessPathException();
+    //   } else {
+    //     // impossible
+    //     throw ImpossiblePathException();
+    //   }
+    // }
+
+    /// REMOVE BEFORE FLIGHT
+    List<Map> edges = [
+      // STUB
+      {
+        "type": "walk",
+        "start": "terrace",
+        "end": "com3 bus stop",
+        "sheltered": true,
+        "stairs": true,
+        "duration": 60,
+      },
+      {
+        "type": "waitForBus",
+        "start": "com3 bus stop",
+        "end": "COM3 bus stop (D1)",
+        "sheltered": true,
+        "stairs": false,
+        "duration": 300,
+      },
+      {
+        "type": "bus",
+        "start": "COM3 bus stop (D1)",
+        "end": "Utown bus stop",
+        "sheltered": true,
+        "stairs": false,
+        "duration": 180,
+      },
+      {
+        "type": "walk",
+        "start": "Utown bus stop",
+        "end": "Utown SRC Flavours",
+        "sheltered": false,
+        "stairs": false,
+        "duration": 90,
+      },
+    ];
+    return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for nodes with the given names
@@ -351,11 +414,14 @@ class ApiCalls {
     //     'floor': 1,
     //   },
     // ];
-    return [for (dynamic obj in json) {
-      'name' : obj['name'],
-      'lat' : double.parse(obj['lat']),
-      'lng' : double.parse(obj['lng']),
-      'floor' : obj['floor']
-    }];
+    return [
+      for (dynamic obj in json)
+        {
+          'name': obj['name'],
+          'lat': double.parse(obj['lat']),
+          'lng': double.parse(obj['lng']),
+          'floor': obj['floor'],
+        },
+    ];
   }
 }

@@ -267,7 +267,7 @@ class InvalidPathPanel extends StatelessWidget {
       message = "start location coincides with end location";
     } else {
       // path is ImpossiblePath
-      message = "unable to find a route - try again with fewer filters";
+      message = "unable to find a route";
     }
     return Container(
       alignment: Alignment.center,
