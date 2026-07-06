@@ -1,9 +1,15 @@
+import 'package:clientapp/defaults.dart';
 import 'package:clientapp/pages/venues/callbacks.dart';
 import 'package:clientapp/themes.dart';
-import 'package:clientapp/viewComponents/searchBar.dart';
-import 'package:clientapp/viewComponents/suggestionsList.dart';
-import 'package:clientapp/viewmodels/searchVM.dart';
+import 'package:clientapp/viewComponents/campusMap.dart';
+import 'package:clientapp/viewComponents/directionsButton.dart';
+import 'package:clientapp/viewComponents/findVenuesButton.dart';
+import 'package:clientapp/viewComponents/panelHeader.dart';
+import 'package:clientapp/viewComponents/panelInfo.dart';
+import 'package:clientapp/viewComponents/panelVenueList.dart';
+import 'package:clientapp/viewComponents/searchBarButton.dart';
 import 'package:clientapp/viewmodels/venuesVM.dart';
+import 'package:expandable/expandable.dart';
 
 import 'package:flutter/material.dart' hide SearchBar;
 
@@ -42,16 +48,123 @@ class _VenuesWidgetState extends State<VenuesWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: AppTheme.colors.background,
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-         
-            ],
-          ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                // {{CampusMap}}
+                Expanded(
+                  child: CampusMap(
+                    widget.vm,
+                    callbacks.onPinDrop,
+                    callbacks.onVenueSelect,
+                    callbacks.onFloorNameSelect,
+                    callbacks.onGpsSelect,
+                    callbacks.onLegendToggle,
+                  ),
+                ),
+                ExpandableNotifier(
+                  controller: widget.vm.panelController,
+                  child: ExpandablePanel(
+                    header: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        color: AppTheme.colors.background,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          // {{PanelHeader}}
+                          Expanded(
+                            flex: 5,
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              // onTap: () async {
+                              //   panelExpandController.toggle();
+                              // },
+                              child: Container(
+                                width: 100,
+                                height: 60,
+                                decoration: BoxDecoration(),
+                                child: PanelHeader(
+                                  widget.vm,
+                                  widget.vm.panelController,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // {{directionsButton}}
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              width: 100,
+                              height: 60,
+                              decoration: BoxDecoration(),
+                              child: FindVenuesButton(
+                                callbacks.onFindSelect,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    collapsed: Container(
+                      width: double.infinity,
+                      height: 0,
+                    ),
+                    expanded:
+                        // {{PanelInfo}}
+                        Container(
+                          width: double.infinity,
+                          height: MediaQuery.sizeOf(context).height * 0.4,
+                          decoration: BoxDecoration(
+                            color: AppTheme.colors.background,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(flex:1, child: PanelVenueList(widget.vm, callbacks.onVenueSelect)),
+                              Expanded(flex: 2, child: PanelInfo(widget.vm,(_){}, (_){}, callbacks.onFindSelect)),
+                            ],
+                          ),
+                        ),
+                    theme: ExpandableThemeData(
+                      tapHeaderToExpand: true,
+                      tapBodyToExpand: false,
+                      tapBodyToCollapse: false,
+                      headerAlignment: ExpandablePanelHeaderAlignment.center,
+                      hasIcon: false,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            SafeArea(
+              minimum: EdgeInsets.all(10),
+              top: true,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    // {{SearchBarButton}}
+                      child: SearchBarButton(
+                        widget.vm.nodeInFocus?.name ?? "search for location to find vacant rooms nearby:",
+                        callbacks.onSearchBarButtonSelect,
+                      ),
+                  ),
+                  SizedBox(width: Defaults.iconSize + 20),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

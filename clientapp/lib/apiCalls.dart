@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 /// static-style class for API calls to backend
@@ -95,7 +96,7 @@ class ApiCalls {
     // }
 
     /// REMOVE BEFORE FLIGHT
-       List<Map> edges = [
+    List<Map> edges = [
       // STUB
       {
         "type": "walk",
@@ -421,6 +422,108 @@ class ApiCalls {
           'lat': double.parse(obj['lat']),
           'lng': double.parse(obj['lng']),
           'floor': obj['floor'],
+        },
+    ];
+  }
+
+  /// request for vacant [Venue]s nearest to a given [Coordinate]
+  ///
+  /// Args:
+  /// - lat: latitude of given [Coordinate]
+  /// - lng: longitude of given [Coordinate]
+  /// - count: number of [Venue]s to return
+  /// - dayOfWeek: [String] name of day of week (e.g. "Monday")
+  /// - start: start [TimeOfDay] for vacancy query
+  /// - end: end [TimeOfDay] for vacancy query
+  ///
+  /// Returns:
+  /// - [List] of [Map]s, each representing a [Venue]
+  ///
+  /// Examples:
+  ///   >>> near_venues(1.294884, 103.774673, 1, "Monday", 1230, 1500)
+  ///   [
+  ///     {
+  ///         "name": "COM3",
+  ///         "lat": "1.2948846706",
+  ///         "lng": "103.7746737202",
+  ///         "floor": 1,
+  ///         "occupied": [
+  ///           {
+  ///             "from": '0800',
+  ///             "to": '1200'
+  ///           },
+  ///           {
+  ///             "from": '1600',
+  ///             "to": '1800'
+  ///           }
+  ///         ]
+  ///     }
+  ///   ]
+  static Future<List<Map<dynamic, dynamic>>> near_rooms(
+    double lat,
+    double lng,
+    int count,
+    String dayOfWeek,
+    String startHHMM,
+    String endHHMM,
+  ) async {
+    print(
+      "api call::near_rooms::$lat, $lng, $count, $dayOfWeek, $startHHMM, $endHHMM",
+    );
+    Uri request = Uri.https(Constants.baseUrl, "/near_rooms", {
+      'lat': lat.toString(),
+      'lng': lng.toString(),
+      'count': count.toString(),
+      'day': dayOfWeek,
+      'start': startHHMM,
+      'end': endHHMM,
+    });
+    final response = await get(request);
+
+    /// ADD BEFORE FLIGHT
+    // List<dynamic> json = jsonDecode(response.body)['rooms'];
+
+    /// REMOVE BEFORE FLIGHT
+    List<dynamic> json = [
+      {
+        "name": "room1",
+        "lat": "1.2941846706",
+        "lng": "103.7716737202",
+        "floor": 1,
+        "occupied": [
+          {"from": '0800', "to": '1200'},
+          {"from": '1600', "to": '1800'},
+        ],
+      },
+      {
+        "name": "room2",
+        "lat": "1.2942846706",
+        "lng": "103.7726737202",
+        "floor": 2,
+        "occupied": [
+          {"from": '1030', "to": '1230'},
+          {"from": '1400', "to": '1800'},
+        ],
+      },
+      {
+        "name": "room3",
+        "lat": "1.2943846706",
+        "lng": "103.7736737202",
+        "floor": -1,
+        "occupied": [
+          {"from": '0800', "to": '1000'},
+          {"from": '1230', "to": '1400'},
+        ],
+      },
+    ];
+    return [
+      for (dynamic obj in json)
+        {
+          'name': obj['name'],
+          'lat': double.parse(obj['lat']),
+          'lng': double.parse(obj['lng']),
+          'floor': obj['floor'],
+          'occupied': obj['occupied'],
         },
     ];
   }

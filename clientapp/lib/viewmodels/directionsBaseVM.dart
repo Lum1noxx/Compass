@@ -62,7 +62,7 @@ abstract class DirectionsBaseVM extends PageVM {
   @override
   void callTo(PageVM child) {
     if (child is VenuesVM) {
-      child.pin = nodeInFocus?.getLatLng();
+      child.nodeInFocus = nodeInFocus;
     } else if (child is NavigationVM) {
       child.newStartDest = null;
       child.newEndDest = nodeInFocus as Destination?;

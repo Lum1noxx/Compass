@@ -4,7 +4,7 @@ import 'package:clientapp/pages/navigation/callbacks.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewComponents/destSwapButton.dart';
 import 'package:clientapp/viewComponents/dualSearchBarButtons.dart';
-import 'package:clientapp/viewComponents/findButton.dart';
+import 'package:clientapp/viewComponents/findRouteButton.dart';
 import 'package:clientapp/viewComponents/panelHeader.dart';
 import 'package:clientapp/viewComponents/panelInfo.dart';
 import 'package:clientapp/viewComponents/panelRouteList.dart';
@@ -114,7 +114,7 @@ class _DirectionsDualDestinationsWidgetState
                               width: 100,
                               height: 60,
                               decoration: BoxDecoration(),
-                              child: FindButton(callbacks.onFindSelect),
+                              child: FindRouteButton(callbacks.onFindSelect),
                             ),
                           ),
                         ],

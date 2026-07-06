@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
@@ -732,4 +733,66 @@ enum FilterLevel {
   final String name;
   final int level;
   const FilterLevel(this.name, this.level);
+}
+
+class Period {
+  static Period fromHHMM(String start, String end) {
+    return Period(
+      TimeOfDay(
+        hour: int.parse(start.substring(0, 2)),
+        minute: int.parse(start.substring(2, 4)),
+      ),
+      TimeOfDay(
+        minute: int.parse(end.substring(2, 4)),
+        hour: int.parse(end.substring(0, 2)),
+      ),
+    );
+  }
+
+  final TimeOfDay start;
+  final TimeOfDay end;
+  const Period(this.start, this.end);
+
+  Duration duration() {
+    return DateTime(
+      2000,
+      1,
+      1,
+      end.hour,
+      end.minute,
+    ).difference(DateTime(2000, 1, 1, start.hour, start.minute));
+  }
+
+  String startHHMM() {
+    return '${start.hour.toString().padLeft(2, '0')}${start.minute.toString().padLeft(2, '0')}';
+  }
+
+  String endHHMM() {
+    return '${end.hour.toString().padLeft(2, '0')}${end.minute.toString().padLeft(2, '0')}';
+  }
+
+  Period truncated(Duration unit) {
+    return Period(_truncateTime(start, unit), _truncateTime(end, unit));
+  }
+
+  TimeOfDay _truncateTime(TimeOfDay time, Duration unit) {
+    int units =
+        (Duration(hours: time.hour, minutes: time.minute).inMilliseconds /
+                unit.inMilliseconds)
+            .round();
+    return TimeOfDay.fromDateTime(
+      DateTime(
+        2000,
+        1,
+        1,
+        0,
+        0,
+      ).add(Duration(milliseconds: unit.inMilliseconds * units)),
+    );
+  }
+}
+
+class Venue extends Destination {
+  final List<Period> occupied;
+  Venue(super.name, super.coordinate, this.occupied);
 }

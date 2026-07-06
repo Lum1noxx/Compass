@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/apiCalls.dart';
+import 'package:clientapp/constants.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
@@ -153,5 +155,39 @@ class CompassModel {
       currentSelection.coordinate,
       Defaults.nearbyDestinationsCount,
     );
+  }
+
+  /// retrieve vacant [Venue]s nearest to selected [TempDestination]
+  ///
+  /// Args:
+  /// - currentSelection: [TempDestination] wrapping a [Coordinate]
+  ///
+  /// Returns:
+  /// - [List] of [Venue]s
+  Future<List<Venue>> getVacantVenues(
+    Destination dest,
+    int dayOfWeek,
+    Period period,
+  ) async {
+    period = period.truncated(Defaults.venueBookingUnit);
+    List venues = await ApiCalls.near_rooms(
+      dest.coordinate.lat,
+      dest.coordinate.lng,
+      Defaults.nearbyVenuesCount,
+      Constants.daysOfWeek[dayOfWeek],
+      period.startHHMM(),
+      period.endHHMM(),
+    );
+    return [
+      for (Map venue in venues)
+        Venue(
+          venue['name'],
+          Coordinate(venue['lat'], venue['lng'], venue['floor']),
+          [
+            for (Map period in venue['occupied'])
+              Period.fromHHMM(period['from'], period['to']),
+          ],
+        ),
+    ];
   }
 }

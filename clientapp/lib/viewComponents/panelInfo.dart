@@ -54,6 +54,8 @@ class _PanelInfoState extends State<PanelInfo> {
             widget.onNodeSelect,
             selectedNode: node,
           );
+        } else if (node is Venue) {
+          panel = VenueInfo(node as Venue);
         } else if (node != null) {
           panel = NodeInfo(node, widget.onVenueSelect);
         } else {
@@ -352,7 +354,7 @@ class NodeInfo extends StatelessWidget {
                 icon: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: AppTheme.colors.primary
+                    color: AppTheme.colors.primary,
                   ),
                   padding: EdgeInsets.all(5),
                   child: Row(
@@ -377,6 +379,36 @@ class NodeInfo extends StatelessWidget {
               Spacer(),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class VenueInfo extends StatelessWidget {
+  final Venue venue;
+  const VenueInfo(this.venue, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.colors.primary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: AutoSizeText(
+              venue.name,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              minFontSize: Defaults.autoTextMin,
+              maxFontSize: Defaults.autoTextMax,
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
+          ),
+          Expanded(child: ListView(padding: EdgeInsets.all(0), children: [Container()],)),
         ],
       ),
     );
