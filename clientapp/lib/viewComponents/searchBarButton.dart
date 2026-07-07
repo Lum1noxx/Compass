@@ -12,9 +12,9 @@ class SearchBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      padding: EdgeInsets.all(5),
       onPressed: onSelect,
       icon: Container(
-        height: Defaults.iconSize,
         decoration: BoxDecoration(
           color: AppTheme.colors.background,
           borderRadius: BorderRadius.circular(20),

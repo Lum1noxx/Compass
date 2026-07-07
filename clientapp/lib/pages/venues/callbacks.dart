@@ -1,6 +1,7 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/viewmodels/venuesVM.dart';
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 class VenuesCallbacks {
@@ -11,7 +12,9 @@ class VenuesCallbacks {
   late final void Function(Destination) onVenueSelect;
   late final void Function() onLegendToggle;
   late final void Function() onFindSelect;
-
+  late final void Function(int) onDayOfWeekSelect;
+  late final void Function(TimeOfDay) onStartTimeSelect;
+  late final void Function(TimeOfDay) onEndTimeSelect;
   VenuesCallbacks(VenuesVM vm) {
     onSearchBarButtonSelect = () {
       vm.searchDestination();
@@ -32,6 +35,15 @@ class VenuesCallbacks {
     };
     onFindSelect = () {
       vm.findVenues();
+    };
+    onDayOfWeekSelect = (dow) {
+      vm.setDayOfWeek(dow);
+    };
+    onStartTimeSelect = (time) {
+      vm.setVacantStart(time);
+    };
+    onEndTimeSelect = (time) {
+      vm.setVacantEnd(time);
     };
   }
 }

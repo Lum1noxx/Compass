@@ -68,7 +68,7 @@ class VenuesVM extends DirectionsBaseVM {
   }
 
   void setDayOfWeek(int dayOfWeek) {
-    dayOfWeek = dayOfWeek;
+    vacantDayOfWeek = dayOfWeek;
     notifyListeners();
   }
 

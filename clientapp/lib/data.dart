@@ -772,14 +772,14 @@ class Period {
   }
 
   Period truncated(Duration unit) {
-    return Period(_truncateTime(start, unit), _truncateTime(end, unit));
+    return Period(_truncateTime(start, unit, false), _truncateTime(end, unit, true));
   }
 
-  TimeOfDay _truncateTime(TimeOfDay time, Duration unit) {
-    int units =
+  TimeOfDay _truncateTime(TimeOfDay time, Duration unit, bool ceil) {
+    double unitsRaw =
         (Duration(hours: time.hour, minutes: time.minute).inMilliseconds /
-                unit.inMilliseconds)
-            .round();
+                unit.inMilliseconds);
+    int units = ceil ? unitsRaw.ceil() : unitsRaw.floor();
     return TimeOfDay.fromDateTime(
       DateTime(
         2000,
