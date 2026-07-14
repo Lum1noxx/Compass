@@ -152,9 +152,37 @@ def use_current_location(request):
         current_node.delete()
         for edge in temp_edges:
             edge.delete()
-        
 
 
+@api_view(['GET'])  
+def heartbeat(request):
+    Destination.objects.count()
+    return Response({'status': 'ok'})
 
+@api_view(['GET'])
+def get_near_rooms(request):
+    lat = float(request.GET.get('lat'))
+    lng = float(request.GET.get('lng'))
+    count = int(request.GET.get('count'))
+    day = request.GET.get('day')
+    start_time = request.GET.get('start')
+    end_time = request.GET.get('end')
 
+    current_location = Classroom(name='current_location', lat=lat, lng=lng, floor=1)
+    current_location.save()
     
+    try:
+        # find nearby classrooms using Classroom model
+        nearby_classrooms = [] 
+        for classroom in Classroom.objects.all():
+            current_location_db = Classroom.objects.get(name=classroom.name)
+            distance = haversine(classroom, current_location_db)
+            nearby_classrooms.append((classroom, distance))
+        nearby_classrooms.sort(key=lambda x: x[1])
+        nearby_classrooms = [classroom[0] for classroom in nearby_classrooms]
+
+        # get occupancy info using RoomOccupancy model
+        available_classrooms = get_occupancy_info(nearby_classrooms, count, day, start_time, end_time)
+        return Response({'rooms': available_classrooms})
+    finally:
+        current_location.delete()

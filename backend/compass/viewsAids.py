@@ -116,11 +116,6 @@ def bus_wait_time(edge):
             return entry.waitAve * 60 # convert to seconds
     return 10000 # placeholder for when bus is not running, should be a large number to discourage bus edges
 
-# # check if edge is bus edge and if so, check if it is valid, ie no bus hopping
-# def isValidBus (edge):
-#     start = edge.start.name.split('_')
-#     end = edge.end.name.split('_')
-#     return start[-1] == end[-1]
 
 
 # return k=count nearest nodes to current location
@@ -135,3 +130,42 @@ def nearby_nodes(current, count):
     nearby_nodes.sort(key=lambda x: x[1])
     nearby_nodes = [node[0] for node in nearby_nodes[:count]]
     return nearby_nodes
+
+def get_occupancy_info(nearby_classrooms, count, day, start_time, end_time):
+    available_classrooms = []
+    for classroom in nearby_classrooms:
+        if len(available_classrooms) >= count:
+            break
+        
+        occupancy = RoomOccupancy.objects.filter(name=classroom.name, day=day)
+        if occupancy.exists():
+            for occ in occupancy:
+                latest_start = max(datetime.strptime(start_time, "%H%M").time(), occ.from_time)
+                earliest_end = min(datetime.strptime(end_time, "%H%M").time(), occ.to_time)
+                if latest_start < earliest_end:  # there is an overlap
+                    break
+            else:
+                available_classrooms.append(classroom)
+        elif RoomOccupancy.objects.filter(name=classroom.name).exists(): # we have data for this classroom but not occupied on this day
+            available_classrooms.append(classroom)
+    
+    res = []
+    for classroom in available_classrooms:
+        if RoomOccupancy.objects.filter(name=classroom.name, day=day).exists():
+            res.append({
+                'name': classroom.name,
+                'lat': classroom.lat,
+                'lng': classroom.lng,
+                'floor': classroom.floor,
+                'occupied': [{'from': occ.from_time, 'to': occ.to_time} for occ in 
+                            RoomOccupancy.objects.filter(name=classroom.name, day=day)]
+            })
+        else:
+            res.append({
+                'name': classroom.name,
+                'lat': classroom.lat,
+                'lng': classroom.lng,
+                'floor': classroom.floor,
+                'occupied': []
+            })
+    return res

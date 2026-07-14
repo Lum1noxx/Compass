@@ -65,3 +65,21 @@ class BusSchedule(models.Model):
 
     def __str__ (self):
         return f"Bus {self.bus} on {self.day} from {self.from_time} to {self.to_time}"
+
+class Classroom(models.Model):
+    name = models.CharField(max_length=100)
+    lat = models.DecimalField(max_digits=17, decimal_places=10, default=0.0)
+    lng = models.DecimalField(max_digits=17, decimal_places=10, default=0.0)
+    floor = models.IntegerField(default=0)
+
+    def __str__ (self):
+        return self.name
+    
+class RoomOccupancy(models.Model):
+    name = models.CharField(max_length=100)
+    day = models.CharField(max_length=10, choices=[('Monday', 'Monday'), ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'), ('Thursday', 'Thursday'), ('Friday', 'Friday'), ('Saturday', 'Saturday'), ('Sunday', 'Sunday')])
+    from_time = models.TimeField()
+    to_time = models.TimeField()
+
+    def __str__ (self):
+        return f"{self.name} on {self.day} from {self.from_time} to {self.to_time}"

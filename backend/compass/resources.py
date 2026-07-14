@@ -63,3 +63,15 @@ class BusScheduleResource(resources.ModelResource):
         model = BusSchedule
         import_id_fields = ('bus', 'day', 'from_time')
         fields = ('bus', 'day', 'from_time', 'to_time', 'waitAve')
+
+class ClassroomResource(resources.ModelResource):
+    class Meta:
+        model = Classroom
+        import_id_fields = ('name',)
+        fields = ('name', 'lat', 'lng', 'floor')
+
+class RoomOccupancyResource(resources.ModelResource):
+    class Meta:
+        model = RoomOccupancy
+        import_id_fields = ('name', 'day', 'from_time')
+        fields = ('name', 'day', 'from_time', 'to_time')

@@ -23,3 +23,12 @@ class AdjacencyListAdmin(ImportExportModelAdmin):
 @admin.register(BusSchedule)
 class BusScheduleAdmin(ImportExportModelAdmin):
     resource_class = BusScheduleResource
+
+@admin.register(Classroom)
+class ClassroomAdmin(ImportExportModelAdmin):
+    resource_class = ClassroomResource
+
+@admin.register(RoomOccupancy)
+class RoomOccupancyAdmin(ImportExportModelAdmin):
+    resource_class = RoomOccupancyResource
+
