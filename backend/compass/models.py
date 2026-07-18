@@ -28,6 +28,7 @@ class Edge(models.Model):
     weight = models.FloatField(default=1.0)
     unit = models.CharField(max_length=20, default='metres', choices=[('metres', 'metres'), ('steps', 'steps'), ('seconds', 'seconds')])
     duration = models.FloatField(default=0.0)
+    bus = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__ (self):
         return f"From {self.start} to {self.end} by {self.type}"
@@ -46,6 +47,9 @@ class Edge(models.Model):
     
     def save(self, *args, **kwargs):
         self.duration = self.calculate_duration()
+        if self.type == 'bus':
+            bus = self.start.name.split('_')[-1]
+            self.bus = bus[1:-1]
         super().save(*args, **kwargs)
 
 class AdjacencyList(models.Model):

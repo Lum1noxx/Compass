@@ -27,7 +27,7 @@ class EdgeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Edge
-        fields = ['type', 'start', 'end', 'sheltered', 'stairs', 'duration']
+        fields = ['type', 'start', 'end', 'sheltered', 'stairs', 'duration', 'bus']
 
 class DestSerializer(serializers.ModelSerializer):
 
