@@ -59,7 +59,7 @@ class VenuesVM extends DirectionsBaseVM {
       return;
     }
     nearbyDestinations = await model.getVacantVenues(
-      nodeInFocus as Destination,
+      nodeInFocus!,
       vacantDayOfWeek,
       Period(vacantStart, vacantEnd),
     );

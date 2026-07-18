@@ -236,6 +236,14 @@ class ApiCalls {
       {
         "type": "bus",
         "start": "COM3 bus stop (D1)",
+        "end": "CLB bus stop (D1)",
+        "sheltered": true,
+        "stairs": false,
+        "duration": 180,
+      },
+            {
+        "type": "bus",
+        "start": "CLB bus stop (D1)",
         "end": "Utown bus stop",
         "sheltered": true,
         "stairs": false,

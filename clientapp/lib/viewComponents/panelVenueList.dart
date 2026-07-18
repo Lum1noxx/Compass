@@ -61,18 +61,21 @@ class VenueListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => onSelect(venue),
-      icon: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: AppTheme.colors.secondary,
-          border: Border.all(
-            color: selected ? AppTheme.colors.accent : Colors.transparent,
-            width: selected ? 5 : 0,
-          ),
+    return Container(
+      padding: EdgeInsets.all(2),
+      margin: EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: AppTheme.colors.secondary,
+        border: Border.all(
+          color: selected ? AppTheme.colors.accent : Colors.transparent,
+          width: selected ? 5 : 0,
         ),
-        child: AutoSizeText(
+      ),
+      child: IconButton(
+        onPressed: () => onSelect(venue),
+        padding: EdgeInsets.all(0),
+        icon: AutoSizeText(
           venue.name,
           maxLines: 1,
           textAlign: TextAlign.center,

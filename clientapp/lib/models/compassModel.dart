@@ -116,17 +116,35 @@ class CompassModel {
         for (Map edgeInfo in edgesJson) edgeInfo["start"],
         if (edgesJson.isNotEmpty) edgesJson.last['end'],
       ]);
-      List<Edge> edges = [
-        for (Map edgeInfo in edgesJson)
-          Edge(
-            EdgeType.get(edgeInfo["type"]),
-            await Globals.nodes.get(edgeInfo["start"]),
-            await Globals.nodes.get(edgeInfo["end"]),
-            edgeInfo["sheltered"],
-            edgeInfo["stairs"],
-            edgeInfo["duration"].toDouble(),
-          ),
-      ];
+      List<Edge> edges = [];
+      for (Map edgeInfo in edgesJson) {
+        EdgeType type = EdgeType.get(edgeInfo["type"]);
+        if (type == EdgeType.waitForBus) {
+          edges.add(
+            WaitForBusEdge(
+              type,
+              await Globals.nodes.get(edgeInfo["start"]),
+              await Globals.nodes.get(edgeInfo["end"]),
+              edgeInfo["sheltered"],
+              edgeInfo["stairs"],
+              edgeInfo["duration"].toDouble(),
+              // edgeInfo["services"] /// ADD BEFORE FLIGHT
+              ["D1", "A2", "P"] /// REMOVE BEFORE FLIGHT
+            ),
+          );
+        } else {
+          edges.add(
+            Edge(
+              type,
+              await Globals.nodes.get(edgeInfo["start"]),
+              await Globals.nodes.get(edgeInfo["end"]),
+              edgeInfo["sheltered"],
+              edgeInfo["stairs"],
+              edgeInfo["duration"].toDouble(),
+            ),
+          );
+        }
+      }
       return Path.autoJoin(
         edges,
         startDest,
@@ -157,22 +175,22 @@ class CompassModel {
     );
   }
 
-  /// retrieve vacant [Venue]s nearest to selected [TempDestination]
+  /// retrieve vacant [Venue]s nearest to selected [Node]
   ///
   /// Args:
-  /// - currentSelection: [TempDestination] wrapping a [Coordinate]
+  /// - currentSelection: [Node] wrapping a [Coordinate]
   ///
   /// Returns:
   /// - [List] of [Venue]s
   Future<List<Venue>> getVacantVenues(
-    Destination dest,
+    Node node,
     int dayOfWeek,
     Period period,
   ) async {
     period = period.truncated(Defaults.venueBookingUnit);
     List venues = await ApiCalls.near_rooms(
-      dest.coordinate.lat,
-      dest.coordinate.lng,
+      node.coordinate.lat,
+      node.coordinate.lng,
       Defaults.nearbyVenuesCount,
       Constants.daysOfWeek[dayOfWeek],
       period.startHHMM(),

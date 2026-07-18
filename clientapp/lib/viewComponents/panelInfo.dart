@@ -2,6 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/util.dart';
+import 'package:clientapp/viewComponents/parts/busServicesIcon.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,7 +57,7 @@ class _PanelInfoState extends State<PanelInfo> {
             selectedNode: node,
           );
         } else if (node is Venue) {
-          panel = VenueInfo(node as Venue);
+          panel = VenueInfo(node);
         } else if (node != null) {
           panel = NodeInfo(node, widget.onVenueSelect);
         } else {
@@ -95,7 +97,30 @@ class SegmentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget topButton;
+    Widget topNode;
     Widget bottomButton;
+    if (segment.previous != null) {
+      topButton = TextButton(
+        onPressed: () => onNeighbourSelect(segment.previous!),
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          "previous: ${segment.previous!.edgeType().name}",
+          style: TextStyle(color: AppTheme.colors.neutralAccent),
+        ),
+      );
+    } else {
+      topButton = AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        "this is the start",
+        style: TextStyle(color: AppTheme.colors.neutralAccent),
+      );
+    }
     if (segment.next != null) {
       bottomButton = TextButton(
         onPressed: () => onNeighbourSelect(segment.next!),
@@ -128,7 +153,7 @@ class SegmentInfo extends StatelessWidget {
     //   );
     // }
     if (segment.edgeType() == EdgeType.lift) {
-      topButton = TextButton(
+      topNode = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
         child: AutoSizeText(
           minFontSize: Defaults.autoTextMin,
@@ -140,7 +165,7 @@ class SegmentInfo extends StatelessWidget {
         ),
       );
     } else {
-      topButton = TextButton(
+      topNode = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
         child: AutoSizeText(
           minFontSize: Defaults.autoTextMin,
@@ -155,6 +180,19 @@ class SegmentInfo extends StatelessWidget {
     List<Widget> children = [
       Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppTheme.colors.secondary,
+                ),
+                margin: EdgeInsets.all(5),
+                child: topButton,
+              ),
+            ],
+          ),
           Container(
             decoration: BoxDecoration(
               color: AppTheme.colors.primary,
@@ -163,7 +201,7 @@ class SegmentInfo extends StatelessWidget {
                   ? Border.all(color: Defaults.edgeHighlight, width: 3)
                   : null,
             ),
-            child: topButton,
+            child: topNode,
           ),
         ],
       ),
@@ -179,7 +217,7 @@ class SegmentInfo extends StatelessWidget {
         );
       }
     } else if (segment.edgeType() == EdgeType.bus) {
-      for (Edge edge in segment.edges.getRange(1, segment.edges.length - 1)) {
+      for (Edge edge in segment.edges.getRange(0, segment.edges.length)) {
         // exclude waiting edges
         children.add(
           SegmentPanelRowWrapped(
@@ -242,15 +280,24 @@ class SegmentPanelRowWrapped extends StatelessWidget {
             color: selected ? Defaults.edgeHighlight : AppTheme.colors.neutral,
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppTheme.colors.primary,
-            borderRadius: BorderRadius.circular(10),
-            border: selected
-                ? Border.all(color: Defaults.edgeHighlight, width: 3)
-                : null,
-          ),
-          child: child,
+        Row(
+          children: [
+            Spacer(),
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.colors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                  border: selected
+                      ? Border.all(color: Defaults.edgeHighlight, width: 3)
+                      : null,
+                ),
+                child: child,
+              ),
+            ),
+            Spacer(),
+          ],
         ),
       ],
     );
@@ -287,17 +334,56 @@ class BusEdgeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => onSelect(edge.end),
-      child: AutoSizeText(
+    Widget icon;
+    if (edge is WaitForBusEdge) {
+      icon = Column(
+        children: [
+          SizedBox(
+            height: Defaults.iconSize,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentGeometry.center,
+                    child: AutoSizeText(
+                      minFontSize: Defaults.autoTextMin,
+                      maxFontSize: Defaults.autoTextMax,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      "wait for busses:",
+                      style: TextStyle(color: AppTheme.colors.neutral),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: BusServicesIcon((edge as WaitForBusEdge).services),
+                ),
+              ],
+            ),
+          ),
+          AutoSizeText(
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            "estimated: ~${Util.formatDuration(edge.duration)}",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+        ],
+      );
+    } else {
+      icon = AutoSizeText(
         minFontSize: Defaults.autoTextMin,
         maxFontSize: Defaults.autoTextMax,
         textAlign: TextAlign.center,
         maxLines: 1,
         "${edge.end.name}",
         style: TextStyle(color: AppTheme.colors.neutral),
-      ),
-    );
+      );
+    }
+    return IconButton(onPressed: () => onSelect(edge.end), icon: icon);
   }
 }
 
@@ -391,16 +477,37 @@ class VenueInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.colors.primary,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Expanded(
+    TimeOfDay start = venue.start();
+    TimeOfDay end = venue.end();
+    List<TimeSlotItem> timeSlots = [
+      for (
+        int hr = start.hour;
+        TimeOfDay(hour: hr, minute: 0).isBefore(end);
+        hr++
+      )
+        TimeSlotItem(
+          TimeOfDay(hour: hr, minute: 0),
+          !venue.isVacantAt(TimeOfDay(hour: hr, minute: 15)),
+          !venue.isVacantAt(TimeOfDay(hour: hr, minute: 45)),
+        ),
+    ];
+
+    return Column(
+      spacing: 5,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              color: AppTheme.colors.secondary,
+            ),
+            alignment: AlignmentGeometry.center,
             child: AutoSizeText(
-              venue.name,
+              '${venue.name} availability:',
               maxLines: 1,
               textAlign: TextAlign.center,
               minFontSize: Defaults.autoTextMin,
@@ -408,7 +515,112 @@ class VenueInfo extends StatelessWidget {
               style: TextStyle(color: AppTheme.colors.neutral),
             ),
           ),
-          Expanded(child: ListView(padding: EdgeInsets.all(0), children: [Container()],)),
+        ),
+        Expanded(
+          flex: 10,
+          child: ListView(padding: EdgeInsets.all(0), children: timeSlots),
+        ),
+      ],
+    );
+  }
+}
+
+/// 1h time slot
+class TimeSlotItem extends StatelessWidget {
+  final bool firstHalfOccupied;
+  final bool secondHalfOccupied;
+  final TimeOfDay start;
+  const TimeSlotItem(
+    this.start,
+    this.firstHalfOccupied,
+    this.secondHalfOccupied,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: Defaults.iconSize,
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(color: AppTheme.colors.neutral),
+            height: 1,
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    spacing: 0,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: firstHalfOccupied
+                                ? Defaults.occupiedTimeSlotColor
+                                : Defaults.vacantTimeSlotColor,
+                          ),
+                          alignment: AlignmentGeometry.center,
+                          child: AutoSizeText(
+                            firstHalfOccupied ? "occupied" : "vacant",
+                            minFontSize: Defaults.autoTextMin,
+                            maxFontSize: Defaults.autoTextMax,
+                            maxLines: 1,
+                            style: TextStyle(color: AppTheme.colors.neutral),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.colors.neutral,
+                        ),
+                        height: 0.5,
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: secondHalfOccupied
+                                ? Defaults.occupiedTimeSlotColor
+                                : Defaults.vacantTimeSlotColor,
+                          ),
+                          alignment: AlignmentGeometry.center,
+                          child: AutoSizeText(
+                            secondHalfOccupied ? "occupied" : "vacant",
+                            minFontSize: Defaults.autoTextMin,
+                            maxFontSize: Defaults.autoTextMax,
+                            maxLines: 1,
+                            style: TextStyle(color: AppTheme.colors.neutral),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentGeometry.centerLeft,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 0,
+                      children: [
+                        AutoSizeText(
+                          start.format(context),
+                          maxLines: 1,
+                          maxFontSize: Defaults.autoTextMax,
+                          minFontSize: Defaults.autoTextMin,
+                          style: TextStyle(color: AppTheme.colors.neutral),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

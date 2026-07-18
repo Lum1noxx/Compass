@@ -9,8 +9,9 @@ class Defaults {
   static const double walkingSpeedMetresPerSec = 4 / 3;
   static const double iconSize = 35;
   static const double autoTextMin = 6;
-  static const double autoTextMax = 24;
+  static const double autoTextMax = 48;
   static const Duration venueBookingUnit = Duration(minutes: 30);
+  static const double segmentIgnoreThreshold = 0.5;
 
   static const LatLng mapPosition = LatLng(1.2966, 103.7764);
   static const int gpsUpdateThreshold =
@@ -28,4 +29,6 @@ class Defaults {
   static const Color RouteStartColor = Colors.orange;
   static const Color RouteEndColor = Colors.greenAccent;
   static const Color edgeHighlight = Colors.purpleAccent;
+  static const Color occupiedTimeSlotColor = Colors.redAccent;
+  static const Color vacantTimeSlotColor = Colors.greenAccent;
 }
