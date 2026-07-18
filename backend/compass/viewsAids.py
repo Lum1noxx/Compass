@@ -18,7 +18,7 @@ def haversine(node1, node2):
     
     return R * c * 1000
 
-def a_star_search(start_nodes, end_nodes, sheltered, stairs):
+def a_star_search(start_nodes, end_nodes, shelterPref, stairsPref):
     if not start_nodes or not end_nodes:
         return None
 
@@ -66,9 +66,9 @@ def a_star_search(start_nodes, end_nodes, sheltered, stairs):
             neighbors = AdjacencyList.objects.filter(node=current)
             for neighbor in neighbors:
                 # check stair and sheltered requirements
-                if sheltered == True and neighbor.edge.sheltered == False:
+                if shelterPref == 2 and neighbor.edge.sheltered == False:
                     continue
-                if stairs == False and neighbor.edge.stairs == True:
+                if stairsPref == 2 and neighbor.edge.stairs == True:
                     continue
 
                 # check if the edge is to wait for bus and if so, get the wait time
@@ -78,8 +78,15 @@ def a_star_search(start_nodes, end_nodes, sheltered, stairs):
                         neighbor.edge.duration = wait_time
                     else:
                         continue
+                
+                #apply preference multipliers additively to the edge duration
+                multiplier = 1
+                if shelterPref == 1 and neighbor.edge.sheltered == False:
+                    multiplier += 2     # *3 for non-sheltered edges
+                if stairsPref == 1 and neighbor.edge.stairs == True:
+                    multiplier += 9     # *10 for stairs edges
 
-                tentative_g_score = g_score[current] + neighbor.edge.duration
+                tentative_g_score = g_score[current] + (neighbor.edge.duration * multiplier)
                 if neighbor.adjacent_node not in g_score or tentative_g_score < g_score[neighbor.adjacent_node]:
                     came_from[neighbor.adjacent_node] = (current, neighbor.edge)
                     g_score[neighbor.adjacent_node] = tentative_g_score

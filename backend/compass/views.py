@@ -59,17 +59,27 @@ def calculate_shortest_path(request):
     # get all nodes connected to start and end dests
     start_nodes = start_dest.nodes.all()
     end_nodes = end_dest.nodes.all()
-    sheltered = request.GET.get('sheltered') == 'true'
-    stairs = request.GET.get('stairs') == 'true'
+    shelterPref = int(request.GET.get('shelterPref')) 
+    stairsPref = int(request.GET.get('stairsPref')) 
 
-    path = a_star_search(list(start_nodes), list(end_nodes), sheltered, stairs)
+    path = a_star_search(list(start_nodes), list(end_nodes), shelterPref, stairsPref)
+
+    # if path is none, check if the preferences are too strict and try again with less strict preferences
+    if path is None and (shelterPref == 2 or stairsPref == 2):
+        if shelterPref == 2:
+            shelterPref = 1
+        if stairsPref == 2:
+            stairsPref = 1
+        path = a_star_search(list(start_nodes), list(end_nodes), shelterPref, stairsPref)
     if path is None:
         return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
     if len(path) == 0:
         return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
 
     edgeSerializer = EdgeSerializer(path, many=True)
-    return Response({'edges': edgeSerializer.data})
+    return Response({'edges': edgeSerializer.data,
+                     'shelterPref': shelterPref,
+                     'stairsPref': stairsPref})
 
 
 @api_view(['GET'])
