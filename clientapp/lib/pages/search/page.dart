@@ -1,5 +1,6 @@
 import 'package:clientapp/pages/search/callbacks.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/viewComponents/pickOnMapButton.dart';
 import 'package:clientapp/viewComponents/searchBar.dart';
 import 'package:clientapp/viewComponents/suggestionsList.dart';
 import 'package:clientapp/viewmodels/searchVM.dart';
@@ -49,17 +50,11 @@ class _DestinationSearchWidgetState extends State<DestinationSearchWidget> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // {{SearchBar}}
-              Container(
-                width: 100,
-                height: 50,
-                decoration: BoxDecoration(),
-                child: SearchBar(
-                  widget.vm,
-                  callbacks.onSearchBarEdit,
-                  callbacks.onSearchBarComplete,
-                ),
+              SearchBar(
+                widget.vm,
+                callbacks.onSearchBarEdit,
+                callbacks.onSearchBarComplete,
               ),
-
               // {{SuggestionsList}}
               Expanded(
                 child: Align(
@@ -75,6 +70,8 @@ class _DestinationSearchWidgetState extends State<DestinationSearchWidget> {
                   ),
                 ),
               ),
+              PickOnMapButton(callbacks.onMapPickSelect),
+
             ],
           ),
         ),

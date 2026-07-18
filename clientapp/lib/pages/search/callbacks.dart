@@ -8,6 +8,7 @@ class DestinationSearchCallbacks {
   late final void Function(String) onSearchBarEdit;
   late final void Function() onSearchBarComplete;
   late final void Function(String) onDestNameSelect;
+  late final void Function() onMapPickSelect;
 
   DestinationSearchCallbacks(SearchVM vm) {
     onSearchBarEdit = (txt) {
@@ -17,7 +18,7 @@ class DestinationSearchCallbacks {
       vm.focusNode.unfocus();
     };
     onDestNameSelect = (dest) => vm.setDestByName(dest);
-
+    onMapPickSelect =() => vm.navBack();
   }
 
 }
