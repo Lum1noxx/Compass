@@ -21,6 +21,7 @@ from compass import views
 # adding url paths for api calls
 
 urlpatterns = [
+    path('heartbeat/', views.heartbeat),
     path('admin/', admin.site.urls),
     path('nodes/', views.get_nodes),
     path('dest_coordinates/', views.get_dest_coordinates),
@@ -29,4 +30,5 @@ urlpatterns = [
     path('shortest_path/', views.calculate_shortest_path),
     path('near_destinations/', views.get_near_destinations),
     path('use_location/', views.use_current_location),
+    path('near_rooms/', views.get_near_rooms),
 ]

@@ -18,7 +18,7 @@ def haversine(node1, node2):
     
     return R * c * 1000
 
-def a_star_search(start_nodes, end_nodes, sheltered, stairs):
+def a_star_search(start_nodes, end_nodes, shelterPref, stairsPref):
     if not start_nodes or not end_nodes:
         return None
 
@@ -66,9 +66,9 @@ def a_star_search(start_nodes, end_nodes, sheltered, stairs):
             neighbors = AdjacencyList.objects.filter(node=current)
             for neighbor in neighbors:
                 # check stair and sheltered requirements
-                if sheltered == True and neighbor.edge.sheltered == False:
+                if shelterPref == 2 and neighbor.edge.sheltered == False:
                     continue
-                if stairs == False and neighbor.edge.stairs == True:
+                if stairsPref == 2 and neighbor.edge.stairs == True:
                     continue
 
                 # check if the edge is to wait for bus and if so, get the wait time
@@ -78,8 +78,15 @@ def a_star_search(start_nodes, end_nodes, sheltered, stairs):
                         neighbor.edge.duration = wait_time
                     else:
                         continue
+                
+                #apply preference multipliers additively to the edge duration
+                multiplier = 1
+                if shelterPref == 1 and neighbor.edge.sheltered == False:
+                    multiplier += 2     # *3 for non-sheltered edges
+                if stairsPref == 1 and neighbor.edge.stairs == True:
+                    multiplier += 9     # *10 for stairs edges
 
-                tentative_g_score = g_score[current] + neighbor.edge.duration
+                tentative_g_score = g_score[current] + (neighbor.edge.duration * multiplier)
                 if neighbor.adjacent_node not in g_score or tentative_g_score < g_score[neighbor.adjacent_node]:
                     came_from[neighbor.adjacent_node] = (current, neighbor.edge)
                     g_score[neighbor.adjacent_node] = tentative_g_score
@@ -116,11 +123,6 @@ def bus_wait_time(edge):
             return entry.waitAve * 60 # convert to seconds
     return 10000 # placeholder for when bus is not running, should be a large number to discourage bus edges
 
-# # check if edge is bus edge and if so, check if it is valid, ie no bus hopping
-# def isValidBus (edge):
-#     start = edge.start.name.split('_')
-#     end = edge.end.name.split('_')
-#     return start[-1] == end[-1]
 
 
 # return k=count nearest nodes to current location
@@ -135,3 +137,42 @@ def nearby_nodes(current, count):
     nearby_nodes.sort(key=lambda x: x[1])
     nearby_nodes = [node[0] for node in nearby_nodes[:count]]
     return nearby_nodes
+
+def get_occupancy_info(nearby_classrooms, count, day, start_time, end_time):
+    available_classrooms = []
+    for classroom in nearby_classrooms:
+        if len(available_classrooms) >= count:
+            break
+        
+        occupancy = RoomOccupancy.objects.filter(name=classroom.name, day=day)
+        if occupancy.exists():
+            for occ in occupancy:
+                latest_start = max(datetime.strptime(start_time, "%H%M").time(), occ.from_time)
+                earliest_end = min(datetime.strptime(end_time, "%H%M").time(), occ.to_time)
+                if latest_start < earliest_end:  # there is an overlap
+                    break
+            else:
+                available_classrooms.append(classroom)
+        elif RoomOccupancy.objects.filter(name=classroom.name).exists(): # we have data for this classroom but not occupied on this day
+            available_classrooms.append(classroom)
+    
+    res = []
+    for classroom in available_classrooms:
+        if RoomOccupancy.objects.filter(name=classroom.name, day=day).exists():
+            res.append({
+                'name': classroom.name,
+                'lat': classroom.lat,
+                'lng': classroom.lng,
+                'floor': classroom.floor,
+                'occupied': [{'from': occ.from_time, 'to': occ.to_time} for occ in 
+                            RoomOccupancy.objects.filter(name=classroom.name, day=day)]
+            })
+        else:
+            res.append({
+                'name': classroom.name,
+                'lat': classroom.lat,
+                'lng': classroom.lng,
+                'floor': classroom.floor,
+                'occupied': []
+            })
+    return res

@@ -59,17 +59,27 @@ def calculate_shortest_path(request):
     # get all nodes connected to start and end dests
     start_nodes = start_dest.nodes.all()
     end_nodes = end_dest.nodes.all()
-    sheltered = request.GET.get('sheltered') == 'true'
-    stairs = request.GET.get('stairs') == 'true'
+    shelterPref = int(request.GET.get('shelterPref')) 
+    stairsPref = int(request.GET.get('stairsPref')) 
 
-    path = a_star_search(list(start_nodes), list(end_nodes), sheltered, stairs)
+    path = a_star_search(list(start_nodes), list(end_nodes), shelterPref, stairsPref)
+
+    # if path is none, check if the preferences are too strict and try again with less strict preferences
+    if path is None and (shelterPref == 2 or stairsPref == 2):
+        if shelterPref == 2:
+            shelterPref = 1
+        if stairsPref == 2:
+            stairsPref = 1
+        path = a_star_search(list(start_nodes), list(end_nodes), shelterPref, stairsPref)
     if path is None:
         return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
     if len(path) == 0:
         return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
 
     edgeSerializer = EdgeSerializer(path, many=True)
-    return Response({'edges': edgeSerializer.data})
+    return Response({'edges': edgeSerializer.data,
+                     'shelterPref': shelterPref,
+                     'stairsPref': stairsPref})
 
 
 @api_view(['GET'])
@@ -152,9 +162,37 @@ def use_current_location(request):
         current_node.delete()
         for edge in temp_edges:
             edge.delete()
-        
 
 
+@api_view(['GET'])  
+def heartbeat(request):
+    Destination.objects.count()
+    return Response({'status': 'ok'})
 
+@api_view(['GET'])
+def get_near_rooms(request):
+    lat = float(request.GET.get('lat'))
+    lng = float(request.GET.get('lng'))
+    count = int(request.GET.get('count'))
+    day = request.GET.get('day')
+    start_time = request.GET.get('start')
+    end_time = request.GET.get('end')
 
+    current_location = Classroom(name='current_location', lat=lat, lng=lng, floor=1)
+    current_location.save()
     
+    try:
+        # find nearby classrooms using Classroom model
+        nearby_classrooms = [] 
+        for classroom in Classroom.objects.all():
+            current_location_db = Classroom.objects.get(name=classroom.name)
+            distance = haversine(classroom, current_location_db)
+            nearby_classrooms.append((classroom, distance))
+        nearby_classrooms.sort(key=lambda x: x[1])
+        nearby_classrooms = [classroom[0] for classroom in nearby_classrooms]
+
+        # get occupancy info using RoomOccupancy model
+        available_classrooms = get_occupancy_info(nearby_classrooms, count, day, start_time, end_time)
+        return Response({'rooms': available_classrooms})
+    finally:
+        current_location.delete()
