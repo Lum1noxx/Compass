@@ -2,13 +2,15 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/util.dart';
+import 'package:clientapp/viewComponents/parts/busServicesIcon.dart';
 import 'package:clientapp/viewComponents/parts/edgeLines.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PanelRouteList extends StatefulWidget {
-  final DirectionsDualVM vm;
+  final NavigationVM vm;
   final void Function(Node) onNodeSelect;
   final void Function(Segment) onSegmentSelect;
 
@@ -52,7 +54,7 @@ class _PanelRouteListState extends State<PanelRouteList> {
                     maxFontSize: Defaults.autoTextMax,
                     textAlign: TextAlign.center,
                     maxLines: 2,
-                    "Route: ${lastRoute.duration.round()}s",
+                    "Route: ${Util.formatDuration(lastRoute.duration)}",
                     style: TextStyle(color: AppTheme.colors.neutralAccent),
                   ),
                 ),
@@ -178,12 +180,62 @@ class SegmentPanelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color color = EdgeLine.of(segment.edges.first).color;
+    Widget info;
+    if (segment.edgeType() == EdgeType.bus) {
+      info = Column(
+        mainAxisSize: MainAxisSize.min,
+
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BusServicesIcon((segment as BusSegment).services()),
+          AutoSizeText(
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            "${Util.formatDuration(segment.duration)} (${segment.edges.length - 1} stops)",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+        ],
+      );
+    } else if (segment.edgeType() == EdgeType.lift) {
+      info = Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AutoSizeText(
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            "${Util.formatDuration(segment.duration)} (${Floors.getName(segment.start().coordinate.floor)} - ${Floors.getName(segment.end().coordinate.floor)})",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+        ],
+      );
+    } else {
+      info = Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AutoSizeText(
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            "${Util.formatDuration(segment.duration)} (${(segment.duration * Defaults.walkingSpeedMetresPerSec).round()}m)",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+        ],
+      );
+    }
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Spacer(),
+        Spacer(flex: 3),
         IconButton(
           onPressed: () => onSelect(segment),
+          padding: EdgeInsets.all(0),
           icon: Column(
             children: [
               Container(
@@ -237,16 +289,18 @@ class SegmentPanelItem extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: SizedBox(
-            height: 40,
-            child: AutoSizeText(
-              minFontSize: Defaults.autoTextMin,
-              maxFontSize: Defaults.autoTextMax,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              "${segment.duration.round()}s",
-              style: TextStyle(color: AppTheme.colors.neutral),
+          child: Container(height: 3, decoration: BoxDecoration(color: color)),
+        ),
+        Expanded(
+          flex: 5,
+          child: Container(
+            margin: EdgeInsets.only(right: 3),
+            padding: EdgeInsets.all(1),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(width: 3, color: color),
             ),
+            child: info,
           ),
         ),
       ],
@@ -267,7 +321,7 @@ class InvalidPathPanel extends StatelessWidget {
       message = "start location coincides with end location";
     } else {
       // path is ImpossiblePath
-      message = "unable to find a route - try again with fewer filters";
+      message = "unable to find a route";
     }
     return Container(
       alignment: Alignment.center,

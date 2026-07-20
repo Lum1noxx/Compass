@@ -3,7 +3,7 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,10 +38,10 @@ class _PanelHeaderState extends State<PanelHeader> {
             builder: (child, ctx) {
               if (widget.vm.nodeInFocus != null) {
                 return NodeHeader(widget.vm.nodeInFocus!);
-              } else if (widget.vm is DirectionsDualVM &&
-                  (widget.vm as DirectionsDualVM).segmentInFocus != null) {
+              } else if (widget.vm is NavigationVM &&
+                  (widget.vm as NavigationVM).segmentInFocus != null) {
                 return SegmentHeader(
-                  (widget.vm as DirectionsDualVM).segmentInFocus!,
+                  (widget.vm as NavigationVM).segmentInFocus!,
                 );
               } else {
                 return SizedBox.shrink();

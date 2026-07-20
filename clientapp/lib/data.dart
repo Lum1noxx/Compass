@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:clientapp/apiCalls.dart';
+import 'package:clientapp/constants.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:woozy_search/woozy_results.dart';
@@ -31,7 +33,7 @@ class Coordinate {
 
   @override
   String toString() {
-    return 'Floor ${Floors.getName(floor)} at ($lat, $lng)';
+    return 'Floor ${Floors.getName(floor)} at (${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
   }
 }
 
@@ -170,10 +172,43 @@ class Edge {
   }
 }
 
+class WaitForBusEdge extends Edge {
+  final List<String> services;
+  const WaitForBusEdge(
+    super.edgeType,
+    super.start,
+    super.end,
+    super.sheltered,
+    super.stairs,
+    super.duration,
+    this.services,
+  );
+}
+
 /// in-memory repository of [Node]s
 ///
 /// Does not store any subtype instances. Intially empty. [Node]s are cached when created on first access, ensuring safe sharing of references.
 class Nodes {
+  /// strip bus service name from intermediate bus station nodes
+  /// Args:
+  /// - name
+  /// Returns:
+  /// - name
+  static String stripServiceName(String name) {
+    name = name.trimRight();
+    String key = name.toLowerCase();
+    if (Constants.busServices.contains(
+      key.substring(key.length - 3, key.length),
+    )) {
+      name = name.substring(0, name.length-3);
+    } else if (Constants.busServices.contains(
+      key.substring(key.length - 4, key.length),
+    )) {
+      name = name.substring(0, name.length-4);
+    }
+    return name;
+  }
+
   final Map<String, Node> map = {};
 
   /// create [Node]s with the given names by requesting data from backend
@@ -185,12 +220,13 @@ class Nodes {
   Future<void> fetch(List<String> names) async {
     names = [
       for (String name in names)
-        if (!map.containsKey(name)) name,
+        if (!map.containsKey(stripServiceName(name))) name,
     ];
     List<Map> json = await ApiCalls.node_coordinates(names);
     for (Map nodeObj in json) {
-      map[nodeObj['name']] = Node(
-        nodeObj['name'],
+      String name = stripServiceName(nodeObj['name']);
+      map[name] = Node(
+        name,
         Coordinate(nodeObj['lat'], nodeObj['lng'], nodeObj['floor']),
       );
     }
@@ -206,10 +242,11 @@ class Nodes {
   /// Returns:
   /// - requested [Node]
   Future<Node> get(String name) async {
-    if (!map.containsKey(name)) {
+    String key = stripServiceName(name);
+    if (!map.containsKey(key)) {
       await fetch([name]);
     }
-    return map[name]!;
+    return map[key]!;
   }
 }
 
@@ -346,12 +383,33 @@ class Segment {
     route[route.length - 1].previous = route[route.length - 2];
   }
 
+  static Segment of(List<Edge> edges) {
+    if (edges.first is WaitForBusEdge) {
+      return BusSegment(edges);
+    } else {
+      return Segment(edges);
+    }
+  }
+
   Segment? previous;
   Segment? next;
-  late final List<Edge> edges;
+  late List<Edge> edges;
   late double duration;
 
   Segment(this.edges) {
+    if (edges.last.duration == 0) {
+      if (edges.length > 1) {
+        Edge prev = edges[edges.length - 2];
+        edges[edges.length - 2] = Edge(
+          prev.edgeType,
+          prev.start,
+          edges.last.end,
+          prev.sheltered,
+          prev.stairs,
+          prev.duration,
+        );
+      }
+    }
     duration = 0;
     for (Edge edge in edges) {
       duration += edge.duration;
@@ -410,12 +468,21 @@ class Segment {
   }
 }
 
+class BusSegment extends Segment {
+  BusSegment(super.edges);
+  List<String> services() {
+    return (edges.first as WaitForBusEdge).services;
+  }
+}
+
 /// Adjacent [Segment]s which form a path between start and end [Node]s
 ///
 /// public members:
 /// - edges: constituent [Edge]s
 /// - segments: constituent [Segment]s
 /// - duration: total duration of [segments]
+/// - stairFilterMet: this satisfies stairs filter of request
+/// - shelterFilterMet: this satisfies shelter filter of request
 class Path {
   /// classify adjacent [Edge]s into linked [Segment]s
   ///
@@ -429,16 +496,22 @@ class Path {
       return [];
     }
     List<Segment> segments = [];
-    List<Edge> nextSegment = [];
+    List<Edge> nextSegmentEdges = [];
     for (Edge edge in edges) {
-      if (nextSegment.isEmpty || nextSegment.last.isRelatedTo(edge)) {
-        nextSegment.add(edge);
+      if (nextSegmentEdges.isEmpty || nextSegmentEdges.last.isRelatedTo(edge)) {
+        nextSegmentEdges.add(edge);
       } else {
-        segments.add(Segment(nextSegment));
-        nextSegment = [edge];
+        Segment segment = Segment.of(nextSegmentEdges);
+        if (segment.duration > Defaults.segmentIgnoreThreshold) {
+          segments.add(segment);
+        }
+        nextSegmentEdges = [edge];
       }
     }
-    segments.add(Segment(nextSegment));
+    Segment segment = Segment.of(nextSegmentEdges);
+    if (segment.duration > Defaults.segmentIgnoreThreshold) {
+      segments.add(segment);
+    }
     Segment.link(segments);
     return segments;
   }
@@ -447,9 +520,13 @@ class Path {
   late final List<Segment> segments;
   final Map<Edge, Segment> _edgesIndex = {};
   final Map<Node, Segment> _nodesIndex = {};
+  late bool stairFilterMet;
+  late bool shelterFilterMet;
   double duration = 0;
 
   Path(this.edges) {
+    stairFilterMet = true;
+    shelterFilterMet = true;
     if (edges.isEmpty) {
       segments = [];
       return;
@@ -472,7 +549,13 @@ class Path {
   /// - edges: partial [List] of adjacent [Edge]s, exclusing [start] and [end]
   /// - start: start [Destination] of this
   /// - end: final [Destination] of this
-  Path.autoJoin(this.edges, Destination start, Destination end) {
+  Path.autoJoin(
+    this.edges,
+    Destination start,
+    Destination end,
+    this.stairFilterMet,
+    this.shelterFilterMet,
+  ) {
     if (edges.isEmpty) {
       edges = [
         Edge(
@@ -603,7 +686,7 @@ class EmptyPath extends Path {
 /// this means that either [start] == [end] or one contains the other
 class EdgelessPath extends Path {
   EdgelessPath(Destination start, Destination end)
-    : super.autoJoin([], start, end);
+    : super.autoJoin([], start, end, true, true);
 
   @override
   int length() {
@@ -689,7 +772,7 @@ class TempDestination extends Destination {
   /// Args:
   /// - coordinate: [Coordinate]
   TempDestination(Coordinate coordinate)
-    : super(coordinate.toString(), coordinate);
+    : super("dropped pin", coordinate);
 
   /// use a [LatLng] position without specifying a floor
   ///
@@ -697,7 +780,137 @@ class TempDestination extends Destination {
   /// - position: [LatLng] position
   TempDestination.plane(LatLng position)
     : super(
-        "(${position.latitude}, ${position.longitude})",
+        "dropped pin",
         Coordinate(position.latitude, position.longitude, 0),
       );
+}
+
+enum FilterLevel {
+  none("none", 0),
+  prefer("prefer", 1),
+  strict("strict", 2);
+
+  static FilterLevel get(int level) {
+    if (level == 0) {
+      return FilterLevel.none;
+    }
+    if (level == 1) {
+      return FilterLevel.prefer;
+    }
+    return FilterLevel.strict;
+  }
+
+  final String name;
+  final int level;
+  const FilterLevel(this.name, this.level);
+}
+
+class Period {
+  static Period fromHHMM(String start, String end) {
+    return Period(
+      TimeOfDay(
+        hour: int.parse(start.substring(0, 2)),
+        minute: int.parse(start.substring(2, 4)),
+      ),
+      TimeOfDay(
+        minute: int.parse(end.substring(2, 4)),
+        hour: int.parse(end.substring(0, 2)),
+      ),
+    );
+  }
+
+  final TimeOfDay start;
+  final TimeOfDay end;
+  const Period(this.start, this.end);
+
+  Duration duration() {
+    return DateTime(
+      2000,
+      1,
+      1,
+      end.hour,
+      end.minute,
+    ).difference(DateTime(2000, 1, 1, start.hour, start.minute));
+  }
+
+  String startHHMM() {
+    return '${start.hour.toString().padLeft(2, '0')}${start.minute.toString().padLeft(2, '0')}';
+  }
+
+  String endHHMM() {
+    return '${end.hour.toString().padLeft(2, '0')}${end.minute.toString().padLeft(2, '0')}';
+  }
+
+  Period truncated(Duration unit) {
+    return Period(
+      _truncateTime(start, unit, false),
+      _truncateTime(end, unit, true),
+    );
+  }
+
+  static TimeOfDay _truncateTime(TimeOfDay time, Duration unit, bool ceil) {
+    double unitsRaw =
+        (Duration(hours: time.hour, minutes: time.minute).inMilliseconds /
+        unit.inMilliseconds);
+    int units = ceil ? unitsRaw.ceil() : unitsRaw.floor();
+    return TimeOfDay.fromDateTime(
+      DateTime(
+        2000,
+        1,
+        1,
+        0,
+        0,
+      ).add(Duration(milliseconds: unit.inMilliseconds * units)),
+    );
+  }
+}
+
+///
+/// public members
+/// - occupied: list of [Period]s where this is occupied
+///   - sorted chronologically and non-overlapping
+class Venue extends Destination {
+  final List<Period> occupied;
+  final List<bool> _availableSlots = List.filled(
+    (Duration(hours: Duration.hoursPerDay).inMilliseconds /
+            Defaults.venueBookingUnit.inMilliseconds)
+        .ceil(),
+    true,
+  );
+  Venue(super.name, super.coordinate, this.occupied) {
+    for (Period period in occupied) {
+      _availableSlots.fillRange(
+        (Duration(
+                  hours: period.start.hour,
+                  minutes: period.start.minute,
+                ).inMilliseconds /
+                Defaults.venueBookingUnit.inMilliseconds)
+            .floor(),
+        (Duration(
+                  hours: period.end.hour,
+                  minutes: period.end.minute,
+                ).inMilliseconds /
+                Defaults.venueBookingUnit.inMilliseconds)
+            .ceil(),
+        false,
+      );
+    }
+  }
+
+  TimeOfDay start() {
+    return occupied.firstOrNull?.start ?? TimeOfDay(hour: 6, minute: 0);
+  }
+
+  TimeOfDay end() {
+    return occupied.lastOrNull?.end ?? TimeOfDay(hour: 10, minute: 0);
+  }
+
+  bool isVacantAt(TimeOfDay time) {
+    return _availableSlots[(Duration(
+              hours: time.hour,
+              minutes: time.minute,
+            ).inMilliseconds /
+            Defaults.venueBookingUnit.inMilliseconds)
+        .floor()];
+  }
 }

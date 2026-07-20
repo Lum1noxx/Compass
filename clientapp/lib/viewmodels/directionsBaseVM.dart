@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/floorplans.dart';
-import 'package:clientapp/models/directionsModel.dart';
+import 'package:clientapp/models/compassModel.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:clientapp/viewmodels/pageVM.dart';
+import 'package:clientapp/viewmodels/searchVM.dart';
+import 'package:clientapp/viewmodels/venuesVM.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -27,7 +30,7 @@ abstract class DirectionsBaseVM extends PageVM {
   List<Destination> nearbyDestinations = [];
   Node? nodeInFocus; // Node or Dest
 
-  DirectionsModel model;
+  CompassModel model;
   MapController mapController = MapController();
   ExpandableController panelController = ExpandableController();
   StreamSubscription? gpsStream;
@@ -51,6 +54,18 @@ abstract class DirectionsBaseVM extends PageVM {
     panelController.dispose();
     if (gpsStream != null) {
       gpsStream!.cancel();
+    }
+  }
+
+  /// when navigating to [NavigationVM], set the end [Destination] to this [nodeInFocus], if any
+  /// when navigation to [VenuesVM], set the dropped pin at this [nodeInFocus]
+  @override
+  void callTo(PageVM child) {
+    if (child is VenuesVM) {
+      child.nodeInFocus = nodeInFocus;
+    } else if (child is NavigationVM) {
+      child.newStartDest = null;
+      child.newEndDest = nodeInFocus as Destination?;
     }
   }
 
@@ -158,5 +173,9 @@ abstract class DirectionsBaseVM extends PageVM {
     } else {
       throw UnsupportedError("bad item type");
     }
+  }
+
+  void findVenues() {
+    navTo("venues");
   }
 }

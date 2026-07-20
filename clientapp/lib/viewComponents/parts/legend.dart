@@ -5,7 +5,7 @@ import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewComponents/parts/edgeLines.dart';
 import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/material.dart';
 
 class MapLegend extends StatefulWidget {
@@ -35,8 +35,8 @@ class _MapLegendState extends State<MapLegend> {
           if (widget.vm.nearbyDestinations.isNotEmpty)
             LegendItem(NearbyMarker.icon(), "nearby places"),
         ];
-        if (widget.vm is DirectionsDualVM) {
-          if ((widget.vm as DirectionsDualVM).lastRoute.isValid()) {
+        if (widget.vm is NavigationVM) {
+          if ((widget.vm as NavigationVM).lastRoute.isValid()) {
             nodes.addAll([
               LegendItem(RouteStartMarker.icon(), "start"),
               LegendItem(RouteEndMarker.icon(), "end"),
@@ -72,8 +72,8 @@ class _MapLegendState extends State<MapLegend> {
                     ),
                 ],
               ),
-              if (widget.vm is DirectionsDualVM)
-                if ((widget.vm as DirectionsDualVM).lastRoute.isValid())
+              if (widget.vm is NavigationVM)
+                if ((widget.vm as NavigationVM).lastRoute.isValid())
                   Wrap(
                     // polylines
                     spacing: 10,

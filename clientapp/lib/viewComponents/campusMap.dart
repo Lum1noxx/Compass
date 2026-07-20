@@ -5,14 +5,15 @@ import 'package:clientapp/viewComponents/parts/gpsButton.dart';
 import 'package:clientapp/viewComponents/parts/legend.dart';
 import 'package:clientapp/viewComponents/parts/legendButton.dart';
 import 'package:clientapp/viewComponents/parts/nodeMarkers.dart';
-import 'package:clientapp/viewmodels/directionsSingleVM.dart';
+import 'package:clientapp/viewmodels/directionsBaseVM.dart';
+import 'package:clientapp/viewmodels/homeVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CampusMap extends StatefulWidget {
-  final DirectionsSingleVM vm;
+  final DirectionsBaseVM vm;
   final void Function(LatLng) pinDropCallback;
   final void Function(Destination) onDestSelect;
   final void Function(String) onFloorNameSelect;

@@ -1,13 +1,15 @@
 import 'dart:io';
 
-import 'package:clientapp/models/directionsModel.dart';
-import 'package:clientapp/pages/destinationSearch/page.dart';
-import 'package:clientapp/pages/directionsDualDestination/page.dart';
-import 'package:clientapp/pages/directionsSingleDestination/page.dart';
-import 'package:clientapp/viewmodels/destinationSearchVM.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
-import 'package:clientapp/viewmodels/directionsSingleVM.dart';
+import 'package:clientapp/models/compassModel.dart';
+import 'package:clientapp/pages/search/page.dart';
+import 'package:clientapp/pages/navigation/page.dart';
+import 'package:clientapp/pages/home/page.dart';
+import 'package:clientapp/pages/venues/page.dart';
+import 'package:clientapp/viewmodels/searchVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
+import 'package:clientapp/viewmodels/homeVM.dart';
 import 'package:clientapp/viewmodels/pageVM.dart';
+import 'package:clientapp/viewmodels/venuesVM.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -26,6 +28,7 @@ class PageChangeVM extends ChangeNotifier {
   late Map<PageVM, String> vmIndex;
 
   late Widget currentPage;
+  late String currentPageName;
   List<PageVM> navStack = [];
 
   /// register pages (viewmodels + views) and set home page
@@ -33,24 +36,28 @@ class PageChangeVM extends ChangeNotifier {
   /// Args:
   /// - homePage: name of initial page. It is also the permanent bottom of navigation stack
   PageChangeVM(String homePage) {
-    DirectionsModel model = DirectionsModel();
+    CompassModel model = CompassModel();
     vms = {
-      'destinationSearch': DestinationSearchVM(this, model),
-      'directionsDual': DirectionsDualVM(this, model),
-      'directionsSingle': DirectionsSingleVM(this, model),
+      'search': SearchVM(this, model),
+      'navigation': NavigationVM(this, model),
+      'home': HomeVM(this, model),
+      'venues': VenuesVM(this, model)
     };
     pages = {
-      'destinationSearch': (vm) =>
-          DestinationSearchWidget(vm as DestinationSearchVM),
-      'directionsDual': (vm) =>
-          DirectionsDualDestinationsWidget(vm as DirectionsDualVM),
-      'directionsSingle': (vm) =>
-          DirectionsSingleDestinationWidget(vm as DirectionsSingleVM),
+      'search': (vm) =>
+          DestinationSearchWidget(vm as SearchVM),
+      'navigation': (vm) =>
+          DirectionsDualDestinationsWidget(vm as NavigationVM),
+      'home': (vm) =>
+          DirectionsSingleDestinationWidget(vm as HomeVM),
+      'venues': (vm) => 
+          VenuesWidget(vm as VenuesVM)
     };
     vmIndex = {for (String name in vms.keys) vms[name]!: name};
     PageVM first = vms[homePage]!;
     navStack.add(first);
     first.onEnter();
+    currentPageName = homePage;
     currentPage = pages[homePage]!(first);
     first.onResume();
   }
@@ -69,6 +76,7 @@ class PageChangeVM extends ChangeNotifier {
     child.onEnter();
     from.callTo(child);
     from.onPause();
+    currentPageName = page;
     currentPage = pages[page]!(child);
     notifyListeners();
     child.onResume();
@@ -88,7 +96,8 @@ class PageChangeVM extends ChangeNotifier {
     to.onEnter();
     to.returnFrom(from);
     from.onPause();
-    currentPage = pages[vmIndex[to]]!(to);
+    currentPageName = vmIndex[to]!;
+    currentPage = pages[currentPageName]!(to);
     notifyListeners();
     to.onResume();
     from.onExit();

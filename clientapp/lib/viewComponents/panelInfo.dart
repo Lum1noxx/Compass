@@ -2,19 +2,24 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/util.dart';
+import 'package:clientapp/viewComponents/parts/busServicesIcon.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
-import 'package:clientapp/viewmodels/directionsDualVM.dart';
+import 'package:clientapp/viewmodels/navigationVM.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PanelInfo extends StatefulWidget {
   final DirectionsBaseVM vm;
   final void Function(Segment) onSegmentNeighbourSelect;
   final void Function(Node) onNodeSelect;
+  final void Function() onVenueSelect;
 
   const PanelInfo(
     this.vm,
     this.onSegmentNeighbourSelect,
-    this.onNodeSelect, {
+    this.onNodeSelect,
+    this.onVenueSelect, {
     super.key,
   });
 
@@ -32,13 +37,13 @@ class _PanelInfoState extends State<PanelInfo> {
         Widget panel;
         Segment? segment;
         Node? node;
-        if (widget.vm is DirectionsDualVM) {
-          route = (widget.vm as DirectionsDualVM).lastRoute;
+        if (widget.vm is NavigationVM) {
+          route = (widget.vm as NavigationVM).lastRoute;
         } else {
           route = EmptyPath();
         }
-        if (widget.vm is DirectionsDualVM) {
-          segment = (widget.vm as DirectionsDualVM).segmentInFocus;
+        if (widget.vm is NavigationVM) {
+          segment = (widget.vm as NavigationVM).segmentInFocus;
         }
         if (widget.vm.nodeInFocus != null) {
           segment ??= route.locate(widget.vm.nodeInFocus);
@@ -51,8 +56,10 @@ class _PanelInfoState extends State<PanelInfo> {
             widget.onNodeSelect,
             selectedNode: node,
           );
+        } else if (node is Venue) {
+          panel = VenueInfo(node);
         } else if (node != null) {
-          panel = NodeInfo(node);
+          panel = NodeInfo(node, widget.onVenueSelect);
         } else {
           panel = Container(
             decoration: BoxDecoration(color: AppTheme.colors.background),
@@ -90,7 +97,30 @@ class SegmentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget topButton;
+    Widget topNode;
     Widget bottomButton;
+    if (segment.previous != null) {
+      topButton = TextButton(
+        onPressed: () => onNeighbourSelect(segment.previous!),
+        child: AutoSizeText(
+          minFontSize: Defaults.autoTextMin,
+          maxFontSize: Defaults.autoTextMax,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          "previous: ${segment.previous!.edgeType().name}",
+          style: TextStyle(color: AppTheme.colors.neutralAccent),
+        ),
+      );
+    } else {
+      topButton = AutoSizeText(
+        minFontSize: Defaults.autoTextMin,
+        maxFontSize: Defaults.autoTextMax,
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        "this is the start",
+        style: TextStyle(color: AppTheme.colors.neutralAccent),
+      );
+    }
     if (segment.next != null) {
       bottomButton = TextButton(
         onPressed: () => onNeighbourSelect(segment.next!),
@@ -123,7 +153,7 @@ class SegmentInfo extends StatelessWidget {
     //   );
     // }
     if (segment.edgeType() == EdgeType.lift) {
-      topButton = TextButton(
+      topNode = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
         child: AutoSizeText(
           minFontSize: Defaults.autoTextMin,
@@ -135,7 +165,7 @@ class SegmentInfo extends StatelessWidget {
         ),
       );
     } else {
-      topButton = TextButton(
+      topNode = TextButton(
         onPressed: () => onNodeSelect(segment.start()),
         child: AutoSizeText(
           minFontSize: Defaults.autoTextMin,
@@ -150,6 +180,19 @@ class SegmentInfo extends StatelessWidget {
     List<Widget> children = [
       Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppTheme.colors.secondary,
+                ),
+                margin: EdgeInsets.all(5),
+                child: topButton,
+              ),
+            ],
+          ),
           Container(
             decoration: BoxDecoration(
               color: AppTheme.colors.primary,
@@ -158,7 +201,7 @@ class SegmentInfo extends StatelessWidget {
                   ? Border.all(color: Defaults.edgeHighlight, width: 3)
                   : null,
             ),
-            child: topButton,
+            child: topNode,
           ),
         ],
       ),
@@ -174,7 +217,7 @@ class SegmentInfo extends StatelessWidget {
         );
       }
     } else if (segment.edgeType() == EdgeType.bus) {
-      for (Edge edge in segment.edges.getRange(1, segment.edges.length - 1)) {
+      for (Edge edge in segment.edges.getRange(0, segment.edges.length)) {
         // exclude waiting edges
         children.add(
           SegmentPanelRowWrapped(
@@ -237,15 +280,24 @@ class SegmentPanelRowWrapped extends StatelessWidget {
             color: selected ? Defaults.edgeHighlight : AppTheme.colors.neutral,
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppTheme.colors.primary,
-            borderRadius: BorderRadius.circular(10),
-            border: selected
-                ? Border.all(color: Defaults.edgeHighlight, width: 3)
-                : null,
-          ),
-          child: child,
+        Row(
+          children: [
+            Spacer(),
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.colors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                  border: selected
+                      ? Border.all(color: Defaults.edgeHighlight, width: 3)
+                      : null,
+                ),
+                child: child,
+              ),
+            ),
+            Spacer(),
+          ],
         ),
       ],
     );
@@ -282,17 +334,56 @@ class BusEdgeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => onSelect(edge.end),
-      child: AutoSizeText(
+    Widget icon;
+    if (edge is WaitForBusEdge) {
+      icon = Column(
+        children: [
+          SizedBox(
+            height: Defaults.iconSize,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentGeometry.center,
+                    child: AutoSizeText(
+                      minFontSize: Defaults.autoTextMin,
+                      maxFontSize: Defaults.autoTextMax,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      "wait for busses:",
+                      style: TextStyle(color: AppTheme.colors.neutral),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: BusServicesIcon((edge as WaitForBusEdge).services),
+                ),
+              ],
+            ),
+          ),
+          AutoSizeText(
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            "estimated: ~${Util.formatDuration(edge.duration)}",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+        ],
+      );
+    } else {
+      icon = AutoSizeText(
         minFontSize: Defaults.autoTextMin,
         maxFontSize: Defaults.autoTextMax,
         textAlign: TextAlign.center,
         maxLines: 1,
         "${edge.end.name}",
         style: TextStyle(color: AppTheme.colors.neutral),
-      ),
-    );
+      );
+    }
+    return IconButton(onPressed: () => onSelect(edge.end), icon: icon);
   }
 }
 
@@ -320,21 +411,217 @@ class LiftSegmentRow extends StatelessWidget {
 
 class NodeInfo extends StatelessWidget {
   final Node node;
+  final void Function() onVenueSelect;
 
-  const NodeInfo(this.node, {super.key});
+  const NodeInfo(this.node, this.onVenueSelect, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: AppTheme.colors.background),
       alignment: Alignment.center,
-      child: AutoSizeText(
-        node.toString(),
-        maxLines: 2,
-        textAlign: TextAlign.center,
-        minFontSize: Defaults.autoTextMin,
-        maxFontSize: Defaults.autoTextMax,
-        style: TextStyle(color: AppTheme.colors.neutral),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          AutoSizeText(
+            node.toString(),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            minFontSize: Defaults.autoTextMin,
+            maxFontSize: Defaults.autoTextMax,
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
+          Row(
+            children: [
+              Spacer(),
+              IconButton(
+                onPressed: onVenueSelect,
+                icon: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: AppTheme.colors.primary,
+                  ),
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.building_2_fill,
+                        size: Defaults.iconSize,
+                        color: AppTheme.colors.neutral,
+                      ),
+                      AutoSizeText(
+                        minFontSize: Defaults.autoTextMin,
+                        maxFontSize: Defaults.autoTextMax,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        "find vacant venues nearby",
+                        style: TextStyle(color: AppTheme.colors.neutral),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Spacer(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VenueInfo extends StatelessWidget {
+  final Venue venue;
+  const VenueInfo(this.venue, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    TimeOfDay start = venue.start();
+    TimeOfDay end = venue.end();
+    List<TimeSlotItem> timeSlots = [
+      for (
+        int hr = start.hour;
+        TimeOfDay(hour: hr, minute: 0).isBefore(end);
+        hr++
+      )
+        TimeSlotItem(
+          TimeOfDay(hour: hr, minute: 0),
+          !venue.isVacantAt(TimeOfDay(hour: hr, minute: 15)),
+          !venue.isVacantAt(TimeOfDay(hour: hr, minute: 45)),
+        ),
+    ];
+
+    return Column(
+      spacing: 5,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              color: AppTheme.colors.secondary,
+            ),
+            alignment: AlignmentGeometry.center,
+            child: AutoSizeText(
+              '${venue.name} availability:',
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              minFontSize: Defaults.autoTextMin,
+              maxFontSize: Defaults.autoTextMax,
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 10,
+          child: ListView(padding: EdgeInsets.all(0), children: timeSlots),
+        ),
+      ],
+    );
+  }
+}
+
+/// 1h time slot
+class TimeSlotItem extends StatelessWidget {
+  final bool firstHalfOccupied;
+  final bool secondHalfOccupied;
+  final TimeOfDay start;
+  const TimeSlotItem(
+    this.start,
+    this.firstHalfOccupied,
+    this.secondHalfOccupied,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: Defaults.iconSize,
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(color: AppTheme.colors.neutral),
+            height: 1,
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    spacing: 0,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: firstHalfOccupied
+                                ? Defaults.occupiedTimeSlotColor
+                                : Defaults.vacantTimeSlotColor,
+                          ),
+                          alignment: AlignmentGeometry.center,
+                          child: AutoSizeText(
+                            firstHalfOccupied ? "occupied" : "vacant",
+                            minFontSize: Defaults.autoTextMin,
+                            maxFontSize: Defaults.autoTextMax,
+                            maxLines: 1,
+                            style: TextStyle(color: AppTheme.colors.neutral),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.colors.neutral,
+                        ),
+                        height: 0.5,
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: secondHalfOccupied
+                                ? Defaults.occupiedTimeSlotColor
+                                : Defaults.vacantTimeSlotColor,
+                          ),
+                          alignment: AlignmentGeometry.center,
+                          child: AutoSizeText(
+                            secondHalfOccupied ? "occupied" : "vacant",
+                            minFontSize: Defaults.autoTextMin,
+                            maxFontSize: Defaults.autoTextMax,
+                            maxLines: 1,
+                            style: TextStyle(color: AppTheme.colors.neutral),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentGeometry.centerLeft,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 0,
+                      children: [
+                        AutoSizeText(
+                          start.format(context),
+                          maxLines: 1,
+                          maxFontSize: Defaults.autoTextMax,
+                          minFontSize: Defaults.autoTextMin,
+                          style: TextStyle(color: AppTheme.colors.neutral),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

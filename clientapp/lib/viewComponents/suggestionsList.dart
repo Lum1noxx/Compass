@@ -1,9 +1,9 @@
 import 'package:clientapp/themes.dart';
-import 'package:clientapp/viewmodels/destinationSearchVM.dart';
+import 'package:clientapp/viewmodels/searchVM.dart';
 import 'package:flutter/material.dart';
 
 class SuggestionsList extends StatefulWidget {
-  final DestinationSearchVM vm;
+  final SearchVM vm;
   final void Function(String) onDestNameSelect;
 
   const SuggestionsList(this.vm, this.onDestNameSelect, {super.key});

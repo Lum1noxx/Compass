@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/mainActivity.dart';
 import 'package:clientapp/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toastification/toastification.dart';
 
 void main() {
+  ApiCalls.heartbeat();
   runApp(const MainApp());
 }
 
@@ -53,12 +56,14 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     AppTheme.init(context);
-    return MaterialApp(
-      themeMode: ThemeMode.system,
-      scrollBehavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
+    return ToastificationWrapper(
+      child: MaterialApp(
+        themeMode: ThemeMode.system,
+        scrollBehavior: const MaterialScrollBehavior().copyWith(
+          dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
+        ),
+        home: MainActivity()
       ),
-      home: Scaffold(body: MainActivity()),
     );
   }
 }
