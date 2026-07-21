@@ -130,8 +130,9 @@ class _CampusMapState extends State<CampusMap> {
             top: true,
             minimum: EdgeInsets.all(10),
             child: Align(
-              alignment: Alignment.topRight,
+              alignment: Alignment.centerRight,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FloorPicker(widget.vm, widget.onFloorNameSelect),
                   GpsButton(widget.onGpsSelect),

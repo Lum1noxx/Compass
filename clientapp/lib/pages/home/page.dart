@@ -108,17 +108,8 @@ class _DirectionsSingleDestinationWidgetState
                           ),
 
                           // {{directionsButton}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              width: 100,
-                              height: 60,
-                              decoration: BoxDecoration(),
-                              child: DirectionsButton(
-                                callbacks.onDirectionSelect,
-                              ),
-                            ),
-                          ),
+                          DirectionsButton(callbacks.onDirectionSelect),
+                          SizedBox(width: Defaults.iconSize/2,)
                         ],
                       ),
                     ),
@@ -167,7 +158,6 @@ class _DirectionsSingleDestinationWidgetState
                       callbacks.onSearchBarButtonSelect,
                     ),
                   ),
-                  SizedBox(width: Defaults.iconSize + 20),
                 ],
               ),
             ),

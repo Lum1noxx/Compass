@@ -43,11 +43,11 @@ class _PanelHeaderState extends State<PanelHeader> {
     List<Widget> children = [];
     if (widget.vm is NavigationVM) {
       children.add(
-        Expanded(flex: 3, child: ExpandBar(widget.controller.expanded)),
+        Expanded(flex: 5, child: ExpandBar(widget.controller.expanded)),
       );
       children.add(
         Expanded(
-          flex: 2,
+          flex: 3,
           child: ListenableBuilder(
             listenable: widget.vm,
             builder: (context, child) {
@@ -61,6 +61,7 @@ class _PanelHeaderState extends State<PanelHeader> {
           ),
         ),
       );
+      children.add(Spacer());
     } else {
       children.add(
         Expanded(

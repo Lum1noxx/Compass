@@ -9,12 +9,14 @@ class LabeledIcon extends StatelessWidget {
   final void Function()? onSelect;
   final double? iconSizeOverride;
   final double? labelHeightOverride;
+  final Color? colorOverride;
   const LabeledIcon(
     this.icon,
     this.label, {
     this.onSelect,
     this.iconSizeOverride,
     this.labelHeightOverride,
+    this.colorOverride,
     super.key,
   });
   LabeledIcon.icon(
@@ -33,6 +35,9 @@ class LabeledIcon extends StatelessWidget {
          ),
          label,
          onSelect: onSelect,
+         iconSizeOverride: iconSizeOverride,
+         labelHeightOverride: labelHeightOverride,
+         colorOverride: colorOverride,
          key: key,
        );
   @override
@@ -40,9 +45,10 @@ class LabeledIcon extends StatelessWidget {
     double iconSize = iconSizeOverride ?? Defaults.iconSize;
     double labelHeight = labelHeightOverride ?? Defaults.labelHeight;
     Widget combined = SizedBox(
-      width: iconSize,
+      width: iconSize + labelHeight,
       height: iconSize + labelHeight,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
             width: iconSize,
@@ -50,11 +56,11 @@ class LabeledIcon extends StatelessWidget {
             child: FittedBox(alignment: AlignmentGeometry.center, child: icon),
           ),
           SizedBox(
-            width: iconSize,
+            width: iconSize+labelHeight,
             height: labelHeight,
             child: Align(
               alignment: AlignmentGeometry.topCenter,
-              child: AutoText(label, maxLines: 1),
+              child: AutoText(label, maxLines: 1, colorOverride: colorOverride,),
             ),
           ),
         ],
@@ -91,6 +97,7 @@ class AutoText extends StatelessWidget {
       style: TextStyle(
         leadingDistribution: TextLeadingDistribution.even,
         height: 1.0,
+        fontWeight: FontWeight.bold,
         color: colorOverride ?? AppTheme.colors.neutral,
       ),
       textAlign: TextAlign.center,
