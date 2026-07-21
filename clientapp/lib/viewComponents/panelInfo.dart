@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
+import 'package:clientapp/pages/navigation/callbacks.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/util.dart';
 import 'package:clientapp/viewComponents/parts/busServicesIcon.dart';
+import 'package:clientapp/viewComponents/trackingControls.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,12 +16,18 @@ class PanelInfo extends StatefulWidget {
   final void Function(Segment) onSegmentNeighbourSelect;
   final void Function(Node) onNodeSelect;
   final void Function() onVenueSelect;
+  final void Function() onTrackingStart;
+  final void Function() onTrackingCancel;
+  final void Function() onTrackingSubmit;
 
   const PanelInfo(
     this.vm,
     this.onSegmentNeighbourSelect,
     this.onNodeSelect,
-    this.onVenueSelect, {
+    this.onVenueSelect,
+    this.onTrackingStart,
+    this.onTrackingCancel,
+    this.onTrackingSubmit, {
     super.key,
   });
 
@@ -52,8 +60,12 @@ class _PanelInfoState extends State<PanelInfo> {
         if (segment != null) {
           panel = SegmentInfo(
             segment,
+            (widget.vm as NavigationVM).tracking,
             widget.onSegmentNeighbourSelect,
             widget.onNodeSelect,
+            widget.onTrackingStart,
+            widget.onTrackingCancel,
+            widget.onTrackingSubmit,
             selectedNode: node,
           );
         } else if (node is Venue) {
@@ -83,13 +95,21 @@ class _PanelInfoState extends State<PanelInfo> {
 class SegmentInfo extends StatelessWidget {
   final Segment segment;
   final Node? selectedNode;
+  final bool tracking;
   final void Function(Segment) onNeighbourSelect;
   final void Function(Node) onNodeSelect;
+  final void Function() onTrackingStart;
+  final void Function() onTrackingCancel;
+  final void Function() onTrackingSubmit;
 
   const SegmentInfo(
     this.segment,
+    this.tracking,
     this.onNeighbourSelect,
-    this.onNodeSelect, {
+    this.onNodeSelect,
+    this.onTrackingStart,
+    this.onTrackingCancel,
+    this.onTrackingSubmit, {
     super.key,
     this.selectedNode,
   });
@@ -99,6 +119,7 @@ class SegmentInfo extends StatelessWidget {
     Widget topButton;
     Widget topNode;
     Widget bottomButton;
+
     if (segment.previous != null) {
       topButton = TextButton(
         onPressed: () => onNeighbourSelect(segment.previous!),
@@ -180,19 +201,7 @@ class SegmentInfo extends StatelessWidget {
     List<Widget> children = [
       Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppTheme.colors.secondary,
-                ),
-                margin: EdgeInsets.all(5),
-                child: topButton,
-              ),
-            ],
-          ),
+          
           Container(
             decoration: BoxDecoration(
               color: AppTheme.colors.primary,
@@ -251,7 +260,35 @@ class SegmentInfo extends StatelessWidget {
       ),
     );
 
-    return ListView(padding: EdgeInsets.all(0), children: children);
+    return Column(
+      children: [
+        SizedBox(
+            height: Defaults.iconSize,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.colors.secondary,
+                  ),
+                  margin: EdgeInsets.all(5),
+                  child: topButton,
+                ),
+                // Expanded(
+                //   child: TrackingControls(
+                //     tracking,
+                //     onTrackingStart,
+                //     onTrackingCancel,
+                //     onTrackingSubmit,
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+        Expanded(child: ListView(padding: EdgeInsets.all(0), children: children)),
+      ],
+    );
   }
 }
 

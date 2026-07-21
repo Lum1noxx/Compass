@@ -17,6 +17,9 @@ class DirectionsDualDestinationsCallbacks {
   late final void Function(int) onFilterUnshelteredChange;
   late final void Function() onLegendToggle;
   late final void Function() onVenueSelect;
+  late final void Function() onTrackingStart;
+  late final void Function() onTrackingCancel;
+  late final void Function() onTrackingSubmit;
 
   DirectionsDualDestinationsCallbacks(NavigationVM vm) {
     onPinDrop = (LatLng position) {
@@ -56,5 +59,14 @@ class DirectionsDualDestinationsCallbacks {
     onVenueSelect = () {
       vm.findVenues();
     };
+    onTrackingStart = () {
+      vm.startTracking();
+    };
+    onTrackingCancel = () {
+      vm.cancelTracking();
+    };
+    onTrackingSubmit = () {
+      vm.submitTracking();
+    };      
   }
 }

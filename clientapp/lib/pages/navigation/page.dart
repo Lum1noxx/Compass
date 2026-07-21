@@ -13,7 +13,6 @@ import 'package:clientapp/viewComponents/routeMap.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 
 class DirectionsDualDestinationsWidget extends StatefulWidget {
   final NavigationVM vm;
@@ -103,6 +102,9 @@ class _DirectionsDualDestinationsWidgetState
                                 child: PanelHeader(
                                   widget.vm,
                                   widget.vm.panelController,
+                                  callbacks.onTrackingStart,
+                                  callbacks.onTrackingCancel,
+                                  callbacks.onTrackingSubmit
                                 ),
                               ),
                             ),
@@ -151,6 +153,9 @@ class _DirectionsDualDestinationsWidgetState
                                 callbacks.onRoutePanelSegmentSelect,
                                 callbacks.onRoutePanelNodeSelect,
                                 callbacks.onVenueSelect,
+                                callbacks.onTrackingStart,
+                                callbacks.onTrackingCancel,
+                                callbacks.onTrackingSubmit
                               ),
                             ),
                           ),

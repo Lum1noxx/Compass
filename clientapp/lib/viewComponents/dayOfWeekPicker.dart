@@ -26,27 +26,25 @@ class _DayOfWeekPickerState extends State<DayOfWeekPicker> {
       builder: (ctx, child) {
         return DecoratedBox(
           decoration: BoxDecoration(color: AppTheme.colors.primary),
-          child: Expanded(
-            child: DropdownMenu<int>(
-              showTrailingIcon: false,
-              initialSelection: widget.vm.vacantDayOfWeek,
-              expandedInsets: EdgeInsets.zero,
-              dropdownMenuEntries: [
-                for (int dow = 0; dow < Constants.daysOfWeek.length; dow++)
-                  DropdownMenuEntry(
-                    value: dow,
-                    label: Constants.daysOfWeek[dow],
-                    labelWidget: Container(
-                      decoration: BoxDecoration(color: Colors.transparent),
-                      child: Text(
-                        Constants.daysOfWeek[dow],
-                        style: TextStyle(color: AppTheme.colors.neutral),
-                      ),
+          child: DropdownMenu<int>(
+            showTrailingIcon: false,
+            initialSelection: widget.vm.vacantDayOfWeek,
+            expandedInsets: EdgeInsets.zero,
+            dropdownMenuEntries: [
+              for (int dow = 0; dow < Constants.daysOfWeek.length; dow++)
+                DropdownMenuEntry(
+                  value: dow,
+                  label: Constants.daysOfWeek[dow],
+                  labelWidget: Container(
+                    decoration: BoxDecoration(color: Colors.transparent),
+                    child: Text(
+                      Constants.daysOfWeek[dow],
+                      style: TextStyle(color: AppTheme.colors.neutral),
                     ),
                   ),
-              ],
-              onSelected: (dow) => widget.onDayOfWeekSelect(dow!),
-            ),
+                ),
+            ],
+            onSelected: (dow) => widget.onDayOfWeekSelect(dow!),
           ),
         );
       },

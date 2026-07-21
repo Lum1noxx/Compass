@@ -39,7 +39,8 @@ class DroppedMarker extends NodeMarker {
   static Widget icon() {
     return Transform.translate(
       offset: const Offset(0, -10),
-      child: Icon(CupertinoIcons.location_solid, color: Colors.red,size: 25,), );
+      child: Icon(CupertinoIcons.location_solid, color: Colors.red, size: 25),
+    );
   }
 
   const DroppedMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -69,7 +70,12 @@ class WaypointMarker extends NodeMarker {
   // nodes between segments
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Colors.blue.shade600, 3, Colors.transparent, 0);
+    return NodeMarker.circleIcon(
+      Colors.blue.shade600,
+      3,
+      Colors.transparent,
+      0,
+    );
   }
 
   const WaypointMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -84,7 +90,12 @@ class RouteStartMarker extends NodeMarker {
   // start destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Defaults.RouteStartColor, 3, Colors.transparent, 0);
+    return Icon(
+      CupertinoIcons.smallcircle_fill_circle,
+      color: Defaults.RouteStartColor,
+      size: 25,
+    );
+    // return NodeMarker.circleIcon(Defaults.RouteStartColor, 3, Colors.transparent, 0);
   }
 
   const RouteStartMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -99,7 +110,14 @@ class RouteEndMarker extends NodeMarker {
   // end destination of route
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Defaults.RouteEndColor, 3, Colors.transparent, 0);
+    return Transform.translate(
+      offset: const Offset(0, -10),
+      child: Icon(
+        CupertinoIcons.location_solid,
+        color: Defaults.RouteEndColor,
+        size: 25,
+      ),
+    );
   }
 
   const RouteEndMarker(super.onCurrentFloor, super.onTap, {super.key});
@@ -114,7 +132,12 @@ class SelectingMarker extends NodeMarker {
   // selected node/ dest
 
   static Widget icon() {
-    return NodeMarker.circleIcon(Defaults.edgeHighlight, 0, Colors.transparent, 0);
+    return NodeMarker.circleIcon(
+      Defaults.edgeHighlight,
+      0,
+      Colors.transparent,
+      0,
+    );
   }
 
   const SelectingMarker(super.onCurrentFloor, super.onTap, {super.key});

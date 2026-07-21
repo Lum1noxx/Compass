@@ -3,6 +3,7 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
 import 'package:clientapp/util.dart';
+import 'package:clientapp/viewComponents/parts/atomic.dart';
 import 'package:clientapp/viewComponents/parts/busServicesIcon.dart';
 import 'package:clientapp/viewComponents/parts/edgeLines.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
@@ -137,22 +138,21 @@ class NodePanelItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () => onSelect(node),
+      padding: EdgeInsets.all(0),
       icon: Container(
+        padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           color: colorOverride ?? AppTheme.colors.secondary,
           border: Border.all(
             color: selected ? AppTheme.colors.accent : Colors.transparent,
             width: selected ? 5 : 0,
           ),
         ),
-        child: AutoSizeText(
-          minFontSize: Defaults.autoTextMin,
-          maxFontSize: Defaults.autoTextMax,
-          textAlign: TextAlign.center,
-          maxLines: 2,
+        child: AutoText(
           node.name,
-          style: TextStyle(color: AppTheme.colors.neutral),
+          maxLines: 1,
+          colorOverride: colorOverride == null ? null : AppTheme.colors.primary,
         ),
       ),
     );

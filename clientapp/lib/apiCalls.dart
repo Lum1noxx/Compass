@@ -241,7 +241,7 @@ class ApiCalls {
         "stairs": false,
         "duration": 180,
       },
-            {
+      {
         "type": "bus",
         "start": "CLB bus stop (D1)",
         "end": "Utown bus stop",
@@ -534,5 +534,26 @@ class ApiCalls {
           'occupied': obj['occupied'],
         },
     ];
+  }
+
+  static Future<void> contribute_route(
+    List<String> nodes,
+    List<double> timestamps,
+  ) async {
+    print(
+      "api call::contribute_route:: ${nodes.length} nodes, ${timestamps.length} positions",
+    );
+    Uri request = Uri.https(Constants.baseUrl, "/contribute_route");
+    await post(
+      request,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+      },
+      body: json.encode([
+        for (int i = 0; i < nodes.length; i++)
+          {'name': nodes[i], 'timestamp': timestamps[i]},
+      ]),
+    );
   }
 }
