@@ -36,12 +36,12 @@ class _MapLegendState extends State<MapLegend> {
             LegendItem(NearbyMarker.icon(), "nearby places"),
         ];
         if (widget.vm is NavigationVM) {
+          nodes.addAll([
+            LegendItem(RouteStartMarker.icon(), "start"),
+            LegendItem(RouteEndMarker.icon(), "end"),
+          ]);
           if ((widget.vm as NavigationVM).lastRoute.isValid()) {
-            nodes.addAll([
-              LegendItem(RouteStartMarker.icon(), "start"),
-              LegendItem(RouteEndMarker.icon(), "end"),
-              LegendItem(WaypointMarker.icon(), "waypoint"),
-            ]);
+            nodes.addAll([LegendItem(WaypointMarker.icon(), "waypoint")]);
           }
         }
         return Container(

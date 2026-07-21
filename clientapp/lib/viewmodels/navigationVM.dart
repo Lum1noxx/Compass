@@ -1,6 +1,7 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
+import 'package:clientapp/themes.dart';
 import 'package:clientapp/viewmodels/searchVM.dart';
 import 'package:clientapp/viewmodels/directionsBaseVM.dart';
 import 'package:clientapp/viewmodels/pageVM.dart';
@@ -23,6 +24,7 @@ import 'package:toastification/toastification.dart';
 ///   - else, user is selecting [newStartDest]
 /// - filterStairs: whether to only consider accessible paths for the next [Path]
 /// - filterUnsheltered: whether to only consider sheltered paths for the next [Path]
+/// - tracking: whether tracking user movements
 class NavigationVM extends DirectionsBaseVM {
   Path lastRoute = EmptyPath();
   Segment? segmentInFocus;
@@ -31,6 +33,7 @@ class NavigationVM extends DirectionsBaseVM {
   bool settingEnd = false; // else, setting start
   FilterLevel filterStairs = FilterLevel.none;
   FilterLevel filterUnsheltered = FilterLevel.none;
+  bool tracking = false;
 
   NavigationVM(super.navigator, super.model);
 
@@ -130,6 +133,7 @@ class NavigationVM extends DirectionsBaseVM {
       return;
     }
     model.findPath(start, end, filterStairs, filterUnsheltered).then((path) {
+      model.cancelTracking();
       lastRoute = path;
       segmentInFocus = path.isValid() ? path.segments.first : null;
       nodeInFocus = start;
@@ -155,6 +159,7 @@ class NavigationVM extends DirectionsBaseVM {
           autoCloseDuration: Duration(seconds: 5),
         );
       }
+
       notifyListeners();
       openPanel();
     });
@@ -177,6 +182,44 @@ class NavigationVM extends DirectionsBaseVM {
     Destination? temp = newStartDest;
     newStartDest = newEndDest;
     newEndDest = temp;
+    notifyListeners();
+  }
+
+  void cancelTracking() {
+    tracking = false;
+    model.cancelTracking();
+    notifyListeners();
+  }
+
+  void startTracking() {
+    tracking = true;
+    model.startTracking();
+    toastification.show(
+      title: Text("Tracking started"),
+      description: Text(
+        style: TextStyle(color: AppTheme.colors.neutral),
+        "Select \"Submit\" once you arrive at your destination to submit tracking data.\nSelect \"Cancel\" to delete tracking data.",
+      ),
+      backgroundColor: AppTheme.colors.background,
+      type: ToastificationType.info,
+      autoCloseDuration: Duration(seconds: 10),
+    );
+    notifyListeners();
+  }
+
+  void submitTracking() {
+    tracking = false;
+    model.submitTracking(lastRoute);
+     toastification.show(
+      title: Text("Tracking data submitted"),
+      description: Text(
+        style: TextStyle(color: AppTheme.colors.neutral),
+        "Thank you for your contribution!",
+      ),
+      type: ToastificationType.success,
+      backgroundColor: AppTheme.colors.background,
+      autoCloseDuration: Duration(seconds: 5),
+    );
     notifyListeners();
   }
 }

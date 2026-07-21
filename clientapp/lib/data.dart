@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:clientapp/apiCalls.dart';
@@ -200,11 +201,11 @@ class Nodes {
     if (Constants.busServices.contains(
       key.substring(key.length - 3, key.length),
     )) {
-      name = name.substring(0, name.length-3);
+      name = name.substring(0, name.length - 3);
     } else if (Constants.busServices.contains(
       key.substring(key.length - 4, key.length),
     )) {
-      name = name.substring(0, name.length-4);
+      name = name.substring(0, name.length - 4);
     }
     return name;
   }
@@ -662,6 +663,21 @@ class Path {
   bool isValid() {
     return true;
   }
+
+  /// excludes start and end Destinations
+  List<Node> intermediateNodes() {
+    List<Node> nodes = [];
+    if (edges.first.start is! Destination) {
+      nodes.add(edges.first.start);
+    }
+    nodes.addAll([
+      for (Edge edge in edges.getRange(0, edges.length - 1)) edge.end,
+    ]);
+    if (edges.first.end is! Destination) {
+      nodes.add(edges.first.end);
+    }
+    return nodes;
+  }
 }
 
 /// represents the lack of a [Path]
@@ -771,8 +787,7 @@ class TempDestination extends Destination {
   ///
   /// Args:
   /// - coordinate: [Coordinate]
-  TempDestination(Coordinate coordinate)
-    : super("dropped pin", coordinate);
+  TempDestination(Coordinate coordinate) : super("dropped pin", coordinate);
 
   /// use a [LatLng] position without specifying a floor
   ///
@@ -912,5 +927,17 @@ class Venue extends Destination {
             ).inMilliseconds /
             Defaults.venueBookingUnit.inMilliseconds)
         .floor()];
+  }
+}
+
+class TimedPosition extends TempDestination {
+
+
+  final DateTime time;
+
+  TimedPosition(super.coordinate, this.time);
+
+  double getTimeStamp() {
+    return time.millisecondsSinceEpoch / 1000;
   }
 }

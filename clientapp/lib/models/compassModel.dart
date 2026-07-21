@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/constants.dart';
@@ -17,6 +18,9 @@ import 'package:latlong2/latlong.dart' hide Path;
 /// 3. search for destinations using autocomplete
 /// 4. find best route between destinations and/or coordinates
 class CompassModel {
+  List<TimedPosition> trackedPositions = [];
+  StreamSubscription? trackingStream;
+
   /// initialise a live GPS position stream with a callback
   ///
   /// Args:
@@ -129,7 +133,9 @@ class CompassModel {
               edgeInfo["stairs"],
               edgeInfo["duration"].toDouble(),
               // edgeInfo["services"] /// ADD BEFORE FLIGHT
-              ["D1", "A2", "P"] /// REMOVE BEFORE FLIGHT
+              ["D1", "A2", "P"],
+
+              /// REMOVE BEFORE FLIGHT
             ),
           );
         } else {
@@ -207,5 +213,105 @@ class CompassModel {
           ],
         ),
     ];
+  }
+
+  void startTracking() async {
+    cancelTracking();
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: Defaults.gpsUpdateThreshold,
+    );
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    trackingStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+          (Position? position) {
+            if (position != null) {
+              trackedPositions.add(
+                TimedPosition(
+                  Coordinate(
+                    position.latitude,
+                    position.longitude,
+                    position.floor ?? 0,
+                  ),
+                  position.timestamp,
+                ),
+              );
+            }
+          },
+        );
+  }
+
+  void cancelTracking() {
+    if (trackingStream != null) {
+      trackingStream!.cancel();
+      trackedPositions = [];
+    }
+  }
+
+  void submitTracking(Path path) async{
+    print(trackedPositions);
+    List<TimedPosition> positions = trackedPositions;
+    cancelTracking();
+    List<Node> nodes = path.intermediateNodes();
+    // if (positions.length < nodes.length) {
+    //   return;
+    // } // ADD BEFORE FLIGHT
+    await ApiCalls.contribute_route(
+      [for (Node node in nodes) node.name],
+      [
+        for (TimedPosition position in _fit(path, positions))
+          position.getTimeStamp(),
+      ],
+    );
+  }
+
+  /// find the matching of intermediate [Node]s of a [Path] to [TimedPosition]s, such
+  /// that the timestamps of successive [Node]s are ascending, and MSE of MSE is minimised
+  /// Args:
+  /// - positions: sorted by time
+  List<TimedPosition> _fit(Path path, List<TimedPosition> positions) {
+    positions = [
+      for (int i = 0; i< 100; i++) 
+      TimedPosition(
+        Coordinate(1.403+Random().nextDouble()/100, 103.908+Random().nextDouble()/100, 0),
+        DateTime.now().subtract(Duration(seconds: 100-i)),
+      ),
+    ]; // STUB: REMOVE BEFORE FLIGHT
+    List<Node> nodes = path.intermediateNodes();
+    List<List<double>> dp = [List.filled(positions.length + 1, 0)];
+    Haversine haversine = Haversine();
+    double errorFn(LatLng pt1, LatLng pt2) {
+      return haversine.distance(pt1, pt2);
+    }
+
+    for (int numNodes = 1; numNodes < nodes.length + 1; numNodes++) {
+      dp.add(List.filled(positions.length + 1, double.infinity));
+      for (int numPos = 1; numPos < positions.length + 1; numPos++) {
+        dp[numNodes][numPos] = min(
+          dp[numNodes][numPos - 1],
+          dp[numNodes - 1][numPos - 1] +
+              errorFn(
+                nodes[numNodes - 1].getLatLng(),
+                positions[numPos - 1].getLatLng(),
+              ),
+        );
+      }
+    }
+    List<TimedPosition> res = List.filled(positions.length, positions.first);
+    int numPos = positions.length;
+    int numNodes = nodes.length;
+    while (numNodes > 0) {
+      if (dp[numNodes][numPos - 1] <= dp[numNodes][numPos]) {
+        numPos--;
+      } else {
+        res[numNodes - 1] = positions[numPos - 1];
+        numNodes--;
+        numPos--;
+      }
+    }
+    return res;
   }
 }

@@ -99,6 +99,9 @@ class _DirectionsSingleDestinationWidgetState
                                 child: PanelHeader(
                                   widget.vm,
                                   widget.vm.panelController,
+                                  () {},
+                                  () {},
+                                  () {},
                                 ),
                               ),
                             ),
@@ -119,10 +122,7 @@ class _DirectionsSingleDestinationWidgetState
                         ],
                       ),
                     ),
-                    collapsed: Container(
-                      width: double.infinity,
-                      height: 0,
-                    ),
+                    collapsed: Container(width: double.infinity, height: 0),
                     expanded:
                         // {{PanelInfo}}
                         Container(
@@ -131,7 +131,15 @@ class _DirectionsSingleDestinationWidgetState
                           decoration: BoxDecoration(
                             color: AppTheme.colors.background,
                           ),
-                          child: PanelInfo(widget.vm,(_){}, (_){}, callbacks.onVenueSelect),
+                          child: PanelInfo(
+                            widget.vm,
+                            (_) {},
+                            (_) {},
+                            callbacks.onVenueSelect,
+                            () {},
+                            () {},
+                            () {},
+                          ),
                         ),
                     theme: ExpandableThemeData(
                       tapHeaderToExpand: true,
@@ -154,10 +162,10 @@ class _DirectionsSingleDestinationWidgetState
                   Expanded(
                     flex: 6,
                     // {{SearchBarButton}}
-                      child: SearchBarButton(
-                        widget.vm.nodeInFocus?.name ?? "search:",
-                        callbacks.onSearchBarButtonSelect,
-                      ),
+                    child: SearchBarButton(
+                      widget.vm.nodeInFocus?.name ?? "search:",
+                      callbacks.onSearchBarButtonSelect,
+                    ),
                   ),
                   SizedBox(width: Defaults.iconSize + 20),
                 ],
