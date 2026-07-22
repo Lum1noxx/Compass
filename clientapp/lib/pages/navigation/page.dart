@@ -8,6 +8,7 @@ import 'package:clientapp/viewComponents/findRouteButton.dart';
 import 'package:clientapp/viewComponents/panelHeader.dart';
 import 'package:clientapp/viewComponents/panelInfo.dart';
 import 'package:clientapp/viewComponents/panelRouteList.dart';
+import 'package:clientapp/viewComponents/parts/atomic.dart';
 import 'package:clientapp/viewComponents/routeFilters.dart';
 import 'package:clientapp/viewComponents/routeMap.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
@@ -104,21 +105,14 @@ class _DirectionsDualDestinationsWidgetState
                                   widget.vm.panelController,
                                   callbacks.onTrackingStart,
                                   callbacks.onTrackingCancel,
-                                  callbacks.onTrackingSubmit
+                                  callbacks.onTrackingSubmit,
                                 ),
                               ),
                             ),
                           ),
                           // {{FindButton}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              width: 100,
-                              height: 60,
-                              decoration: BoxDecoration(),
-                              child: FindRouteButton(callbacks.onFindSelect),
-                            ),
-                          ),
+                          FindRouteButton(callbacks.onFindSelect),
+                          SizedBox(width: Defaults.iconSize/2,)
                         ],
                       ),
                     ),
@@ -155,7 +149,7 @@ class _DirectionsDualDestinationsWidgetState
                                 callbacks.onVenueSelect,
                                 callbacks.onTrackingStart,
                                 callbacks.onTrackingCancel,
-                                callbacks.onTrackingSubmit
+                                callbacks.onTrackingSubmit,
                               ),
                             ),
                           ),
@@ -212,10 +206,11 @@ class _DirectionsDualDestinationsWidgetState
                                     ExpandableNotifier(
                                       controller: filterExpandController,
                                       child: ExpandablePanel(
-                                        header: Icon(
+                                        header: LabeledIcon.icon(
                                           Icons.filter_alt,
-                                          size: Defaults.iconSize,
-                                          color: AppTheme.colors.tertiary,
+                                          "filters",
+                                          colorOverride:
+                                              AppTheme.colors.tertiary,
                                         ),
                                         collapsed: Container(
                                           width: 100,
@@ -252,7 +247,6 @@ class _DirectionsDualDestinationsWidgetState
                           ),
                         ),
                       ),
-                      SizedBox(width: Defaults.iconSize + 20),
                     ],
                   ),
                 ],

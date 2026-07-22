@@ -1,6 +1,7 @@
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/viewComponents/parts/atomic.dart';
 import 'package:clientapp/viewmodels/navigationVM.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,11 +49,16 @@ class ShelterFilter extends SingleFilter {
     final void Function(int) onFilterChange, {
     super.key,
   }) : super(
-         Icon(
+         LabeledIcon.icon(
            CupertinoIcons.umbrella_fill,
-           size: Defaults.iconSize,
-           color: AppTheme.colors.tertiary,
+           "shelter",
+           colorOverride: AppTheme.colors.tertiary,
          ),
+         //    Icon(
+         //      CupertinoIcons.umbrella_fill,
+         //      size: Defaults.iconSize,
+         //      color: AppTheme.colors.tertiary,
+         //    ),
          level,
          onFilterChange,
        );
@@ -64,10 +70,10 @@ class StairsFilter extends SingleFilter {
     final void Function(int) onFilterChange, {
     super.key,
   }) : super(
-         Icon(
+         LabeledIcon.icon(
            Icons.accessible_forward,
-           size: Defaults.iconSize,
-           color: AppTheme.colors.tertiary,
+           "access",
+           colorOverride: AppTheme.colors.tertiary,
          ),
          level,
          onFilterChange,

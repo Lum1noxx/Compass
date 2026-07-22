@@ -1,5 +1,7 @@
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/viewComponents/parts/atomic.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FindRouteButton extends StatelessWidget {
@@ -9,12 +11,11 @@ class FindRouteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onSelect,
-      alignment: Alignment.center,
-      iconSize: Defaults.iconSize,
-      icon: Icon(Icons.assistant_navigation),
-      color: AppTheme.colors.neutral,
+    return LabeledIcon.icon(
+      CupertinoIcons.location_circle_fill,
+      "find",
+      onSelect: onSelect,
+      iconSizeOverride: 40,
     );
   }
 }

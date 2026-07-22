@@ -96,24 +96,17 @@ class _VenuesWidgetState extends State<VenuesWidget> {
                                 child: PanelHeader(
                                   widget.vm,
                                   widget.vm.panelController,
-                                  (){},
-                                  (){},
-                                  (){},
+                                  () {},
+                                  () {},
+                                  () {},
                                 ),
                               ),
                             ),
                           ),
 
                           // {{FindVenuesButton}}
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              width: 100,
-                              height: 60,
-                              decoration: BoxDecoration(),
-                              child: FindVenuesButton(callbacks.onFindSelect),
-                            ),
-                          ),
+                          FindVenuesButton(callbacks.onFindSelect),
+                          SizedBox(width: Defaults.iconSize/2,)
                         ],
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/themes.dart';
+import 'package:clientapp/viewComponents/parts/atomic.dart';
 import 'package:clientapp/viewmodels/venuesVM.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,13 +44,15 @@ class _TimeOfDayPickerState extends State<_TimeOfDayPicker> {
           icon: Row(
             children: [
               widget.icon,
-              AutoSizeText(
-                widget.timeStateAccessor(widget.vm).format(ctx),
-                minFontSize: Defaults.autoTextMin,
-                maxFontSize: Defaults.autoTextMax,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.colors.neutralAccent),
+              Expanded(
+                child: AutoSizeText(
+                  widget.timeStateAccessor(widget.vm).format(ctx),
+                  minFontSize: Defaults.autoTextMin,
+                  maxFontSize: Defaults.autoTextMax,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppTheme.colors.neutralAccent),
+                ),
               ),
             ],
           ),
@@ -64,18 +67,11 @@ class StartTimePicker extends _TimeOfDayPicker {
     : super(
         onSelect: onSelect,
         vm: vm,
-        icon: Row(
-          children: [
-            Icon(CupertinoIcons.clock),
-            AutoSizeText(
-              "start:",
-              minFontSize: Defaults.autoTextMin,
-              maxFontSize: Defaults.autoTextMax,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.colors.neutralAccent),
-            ),
-          ],
+        icon: LabeledIcon.icon(
+          CupertinoIcons.clock,
+          "start",
+          iconSizeOverride: 24,
+          labelHeightOverride: 10,
         ),
         timeStateAccessor: (vm) => vm.vacantStart,
       );
@@ -86,18 +82,11 @@ class EndTimePicker extends _TimeOfDayPicker {
     : super(
         onSelect: onSelect,
         vm: vm,
-        icon: Row(
-          children: [
-            Icon(CupertinoIcons.clock),
-            AutoSizeText(
-              "end:",
-              minFontSize: Defaults.autoTextMin,
-              maxFontSize: Defaults.autoTextMax,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.colors.neutralAccent),
-            ),
-          ],
+        icon: LabeledIcon.icon(
+          CupertinoIcons.clock,
+          "end",
+          iconSizeOverride: 24,
+          labelHeightOverride: 10,
         ),
         timeStateAccessor: (vm) => vm.vacantEnd,
       );
