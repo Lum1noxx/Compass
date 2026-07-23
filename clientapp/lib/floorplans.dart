@@ -46,8 +46,8 @@ Floorplans floorplans = Floorplans({
     2: OverlayImage(
       imageProvider: AssetImage("assets/floorplans/com3_2.png"),
       bounds: LatLngBounds(
-        LatLng( 1.295664301, 103.773382061,),
-        LatLng( 1.293637396, 103.775665604,)
+        LatLng(1.295664301, 103.773382061),
+        LatLng(1.293637396, 103.775665604),
       ),
     ),
   },
@@ -64,6 +64,68 @@ Floorplans floorplans = Floorplans({
       bounds: LatLngBounds(
         LatLng(1.295494831, 103.775042363),
         LatLng(1.294802821, 103.775861552),
+      ),
+    ),
+  },
+  'create': {
+    1: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/create_1.png"),
+      bounds: LatLngBounds(
+        LatLng(1.302804121, 103.77271064047),
+        LatLng(1.304653261, 103.7742427316),
+      ),
+    ),
+    2: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/create_2.png"),
+      bounds: LatLngBounds(
+        LatLng(1.303111646, 103.7730296473256),
+        LatLng(1.3045268169, 103.77416540538769),
+      ),
+    ),
+  },
+  'erc': {
+    1: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/erc_1.png"),
+      bounds: LatLngBounds(
+        LatLng(1.30499735, 103.772175855),
+        LatLng(1.30680563, 103.773478255),
+      ),
+    ),
+    2: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/erc_2.png"),
+      bounds: LatLngBounds(
+        LatLng(1.3053729339, 103.7725695366),
+        LatLng(1.306543219, 103.7732970498),
+      ),
+    ),
+    3: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/erc_3.png"),
+      bounds: LatLngBounds(
+        LatLng(1.30536138979, 103.77251053887),
+        LatLng(1.3065801315, 103.77332927698),
+      ),
+    ),
+  },
+  'src': {
+    1: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/src_1.png"),
+      bounds: LatLngBounds(
+        LatLng(1.303682785, 103.7714392997879),
+        LatLng(1.3056537715, 103.773428849936),
+      ),
+    ),
+    2: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/src_2.png"),
+      bounds: LatLngBounds(
+        LatLng(1.3029705683, 103.770671505089),
+        LatLng(1.3063399876, 103.77423441628),
+      ),
+    ),
+    3: OverlayImage(
+      imageProvider: AssetImage("assets/floorplans/src_3.png"),
+      bounds: LatLngBounds(
+        LatLng(1.3030955659, 103.7711210265),
+        LatLng(1.3061049806, 103.77378529128),
       ),
     ),
   },
