@@ -131,6 +131,8 @@ def nearby_nodes(current, count):
     for node in Node.objects.filter(floor=current.floor):
         if node.name == 'current_location':
             continue
+        if node.name.split('_')[-1] in ['(D1)', '(D2)', '(A1)', '(A2)']:
+            continue
         current_node_db = Node.objects.get(name='current_location')
         distance = haversine(current_node_db, node)
         nearby_nodes.append((node, distance))

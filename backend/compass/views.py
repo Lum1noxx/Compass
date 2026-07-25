@@ -1,3 +1,5 @@
+from os import name
+
 from .serializers import *
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -144,18 +146,26 @@ def use_current_location(request):
             AdjacencyList.objects.create(node=current_node, adjacent_node=node, edge=edge)
 
         end_nodes = end_dest.nodes.all()
-        sheltered = request.GET.get('sheltered') == 'true'
-        stairs = request.GET.get('stairs') == 'true'
+        shelterPref = int(request.GET.get('shelterPref')) 
+        stairsPref = int(request.GET.get('stairsPref')) 
 
         # run a star algorithm
-        path = a_star_search([current_node], list(end_nodes), sheltered, stairs)
+        path = a_star_search([current_node], list(end_nodes), shelterPref, stairsPref)
+        if path is None and (shelterPref == 2 or stairsPref == 2):
+            if shelterPref == 2:
+                shelterPref = 1
+            if stairsPref == 2:
+                stairsPref = 1
+            path = a_star_search([current_node], list(end_nodes), shelterPref, stairsPref)
         if path is None:
             return Response({'error': 'No path found'}, status=status.HTTP_404_NOT_FOUND)
         if len(path) == 0:
             return Response({'error': 'You are in the building'}, status=status.HTTP_404_NOT_FOUND)
         
         edgeSerializer = EdgeSerializer(path, many=True)
-        return Response({'edges': edgeSerializer.data})
+        return Response({'edges': edgeSerializer.data,
+                        'shelterPref': shelterPref,
+                        'stairsPref': stairsPref})
     
     finally:
         #delete current location node and temp edges
@@ -196,3 +206,51 @@ def get_near_rooms(request):
         return Response({'rooms': available_classrooms})
     finally:
         current_location.delete()
+
+@api_view(['POST'])
+def update_edge_aggregate(request):
+    data = request.data
+    # Body: [
+    #   {
+    # 	name: String (name of node/ start)
+    # 	timestamp: double (seconds from 1 jan 1970)
+    #   }
+    # ]
+    for i in range(len(data) - 1):
+        start_node = Node.objects.get(name=data[i]['name'])
+        end_node = Node.objects.get(name=data[i + 1]['name'])
+        edge = Edge.objects.get(start=start_node, end=end_node)
+        agg = EdgeAggregate.objects.get(edge=edge)
+        
+        if agg.count >=200:
+            continue # don't update if we have enough data
+
+        agg.count += 1
+        duration = data[i + 1]['timestamp'] - data[i]['timestamp']
+        agg.values.append(duration)
+        delta = duration - agg.mean 
+        agg.mean += delta / agg.count
+        delta2 = duration - agg.mean
+        agg.M2 += delta * delta2
+        agg.save()
+        
+        if agg.count >= 30: #checking for outliers only after we minimum number of data points have been collected
+            dataset = agg.values
+            variance = agg.M2 / (agg.count - 1)
+            stddev = variance ** 0.5
+            clean_data = []
+            outliers = []
+            for value in dataset:
+                if abs(value - agg.mean) <= 3 * stddev:
+                    clean_data.append(value)
+                else:
+                    outliers.append(value)
+            if outliers: #recalculate mean and M2 without outliers
+                agg.mean = sum(clean_data) / len(clean_data)
+                agg.M2 = sum((x - agg.mean) ** 2 for x in clean_data)
+            agg.values = clean_data
+            agg.count = len(clean_data)
+            agg.save()
+            #update the duration of the edge in the Edge model
+            edge.duration = agg.mean
+            edge.save()
