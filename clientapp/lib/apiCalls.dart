@@ -15,10 +15,8 @@ class ApiCalls {
   /// heartbeat request to wake up backend server
   static void heartbeat() {
     print("api call::heartbeat");
-
-    // ADD BEFORE FLIGHT
-    // Uri request = Uri.https(Constants.baseUrl, "/heartbeat");
-    // get(request);
+    Uri request = Uri.https(Constants.baseUrl, "/heartbeat");
+    get(request);
   }
 
   /// request for shortest path between start and end [Destination]s, subject to accessibility and shelter constraints
@@ -73,65 +71,65 @@ class ApiCalls {
     });
 
     /// REMOVE BEFORE FLIGHT
-    request = Uri.https(Constants.baseUrl, "/shortest_path", {
-      "start": start.replaceAll(' ', "_"),
-      "end": end.replaceAll(' ', "_"),
-      "sheltered": (filterUnsheltered.level == 2).toString(),
-      "stairs": (filterStairs.level < 2).toString(),
-    });
+    // request = Uri.https(Constants.baseUrl, "/shortest_path", {
+    //   "start": start.replaceAll(' ', "_"),
+    //   "end": end.replaceAll(' ', "_"),
+    //   "sheltered": (filterUnsheltered.level == 2).toString(),
+    //   "stairs": (filterStairs.level < 2).toString(),
+    // });
 
     /// ADD BEFORE FLIGHT
-    // final response = await get(request);
-    // if (response.statusCode == 200) {
-    //   return jsonDecode(response.body);
-    // } else {
-    //   String errorMessage = jsonDecode(response.body)['error'];
-    //   if (errorMessage.toLowerCase() == "you are in the building") {
-    //     // already there
-    //     throw EdgelessPathException();
-    //   } else {
-    //     // impossible
-    //     throw ImpossiblePathException();
-    //   }
-    // }
+    final response = await get(request);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      String errorMessage = jsonDecode(response.body)['error'];
+      if (errorMessage.toLowerCase() == "you are in the building") {
+        // already there
+        throw EdgelessPathException();
+      } else {
+        // impossible
+        throw ImpossiblePathException();
+      }
+    }
 
     /// REMOVE BEFORE FLIGHT
-    List<Map> edges = [
-      // STUB
-      {
-        "type": "walk",
-        "start": "terrace",
-        "end": "com3 bus stop",
-        "sheltered": true,
-        "stairs": true,
-        "duration": 60,
-      },
-      {
-        "type": "waitForBus",
-        "start": "com3 bus stop",
-        "end": "COM3 bus stop (D1)",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 300,
-      },
-      {
-        "type": "bus",
-        "start": "COM3 bus stop (D1)",
-        "end": "Utown bus stop",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 180,
-      },
-      {
-        "type": "walk",
-        "start": "Utown bus stop",
-        "end": "Utown SRC Flavours",
-        "sheltered": false,
-        "stairs": false,
-        "duration": 90,
-      },
-    ];
-    return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
+    // List<Map> edges = [
+    //   // STUB
+    //   {
+    //     "type": "walk",
+    //     "start": "terrace",
+    //     "end": "com3 bus stop",
+    //     "sheltered": true,
+    //     "stairs": true,
+    //     "duration": 60,
+    //   },
+    //   {
+    //     "type": "waitForBus",
+    //     "start": "com3 bus stop",
+    //     "end": "COM3 bus stop (D1)",
+    //     "sheltered": true,
+    //     "stairs": false,
+    //     "duration": 300,
+    //   },
+    //   {
+    //     "type": "bus",
+    //     "start": "COM3 bus stop (D1)",
+    //     "end": "Utown bus stop",
+    //     "sheltered": true,
+    //     "stairs": false,
+    //     "duration": 180,
+    //   },
+    //   {
+    //     "type": "walk",
+    //     "start": "Utown bus stop",
+    //     "end": "Utown SRC Flavours",
+    //     "sheltered": false,
+    //     "stairs": false,
+    //     "duration": 90,
+    //   },
+    // ];
+    // return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for shortest path between start [Coordinate] and end [Destination], subject to accessibility and shelter constraints
@@ -190,75 +188,75 @@ class ApiCalls {
     });
 
     /// REMOVE BEFORE FLIGHT
-    request = Uri.https(Constants.baseUrl, "/use_location", {
-      'lat': lat.toString(),
-      'lng': lng.toString(),
-      'floor': floor.toString(),
-      "end": end.replaceAll(' ', "_"),
-      "sheltered": (filterUnsheltered.level == 2).toString(),
-      "stairs": (filterStairs.level < 2).toString(),
-    });
+    // request = Uri.https(Constants.baseUrl, "/use_location", {
+    //   'lat': lat.toString(),
+    //   'lng': lng.toString(),
+    //   'floor': floor.toString(),
+    //   "end": end.replaceAll(' ', "_"),
+    //   "sheltered": (filterUnsheltered.level == 2).toString(),
+    //   "stairs": (filterStairs.level < 2).toString(),
+    // });
 
     /// ADD BEFORE FLIGHT
-    // final response = await get(request);
-    // if (response.statusCode == 200) {
-    //   return jsonDecode(response.body);
-    // } else {
-    //   String errorMessage = jsonDecode(response.body)['error'];
-    //   if (errorMessage.toLowerCase() == "you are in the building") {
-    //     // already there
-    //     throw EdgelessPathException();
-    //   } else {
-    //     // impossible
-    //     throw ImpossiblePathException();
-    //   }
-    // }
+    final response = await get(request);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      String errorMessage = jsonDecode(response.body)['error'];
+      if (errorMessage.toLowerCase() == "you are in the building") {
+        // already there
+        throw EdgelessPathException();
+      } else {
+        // impossible
+        throw ImpossiblePathException();
+      }
+    }
 
     /// REMOVE BEFORE FLIGHT
-    List<Map> edges = [
-      // STUB
-      {
-        "type": "walk",
-        "start": "terrace",
-        "end": "com3 bus stop",
-        "sheltered": true,
-        "stairs": true,
-        "duration": 60,
-      },
-      {
-        "type": "waitForBus",
-        "start": "com3 bus stop",
-        "end": "COM3 bus stop (D1)",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 300,
-      },
-      {
-        "type": "bus",
-        "start": "COM3 bus stop (D1)",
-        "end": "CLB bus stop (D1)",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 180,
-      },
-      {
-        "type": "bus",
-        "start": "CLB bus stop (D1)",
-        "end": "Utown bus stop",
-        "sheltered": true,
-        "stairs": false,
-        "duration": 180,
-      },
-      {
-        "type": "walk",
-        "start": "Utown bus stop",
-        "end": "Utown SRC Flavours",
-        "sheltered": false,
-        "stairs": false,
-        "duration": 90,
-      },
-    ];
-    return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
+    // List<Map> edges = [
+    //   // STUB
+    //   {
+    //     "type": "walk",
+    //     "start": "terrace",
+    //     "end": "com3 bus stop",
+    //     "sheltered": true,
+    //     "stairs": true,
+    //     "duration": 60,
+    //   },
+    //   {
+    //     "type": "waitForBus",
+    //     "start": "com3 bus stop",
+    //     "end": "COM3 bus stop (D1)",
+    //     "sheltered": true,
+    //     "stairs": false,
+    //     "duration": 300,
+    //   },
+    //   {
+    //     "type": "bus",
+    //     "start": "COM3 bus stop (D1)",
+    //     "end": "CLB bus stop (D1)",
+    //     "sheltered": true,
+    //     "stairs": false,
+    //     "duration": 180,
+    //   },
+    //   {
+    //     "type": "bus",
+    //     "start": "CLB bus stop (D1)",
+    //     "end": "Utown bus stop",
+    //     "sheltered": true,
+    //     "stairs": false,
+    //     "duration": 180,
+    //   },
+    //   {
+    //     "type": "walk",
+    //     "start": "Utown bus stop",
+    //     "end": "Utown SRC Flavours",
+    //     "sheltered": false,
+    //     "stairs": false,
+    //     "duration": 90,
+    //   },
+    // ];
+    // return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for nodes with the given names
@@ -489,47 +487,48 @@ class ApiCalls {
     final response = await get(request);
 
     /// ADD BEFORE FLIGHT
-    // List<dynamic> json = jsonDecode(response.body)['rooms'];
+    List<dynamic> json = jsonDecode(response.body)['rooms'];
 
     /// REMOVE BEFORE FLIGHT
-    List<dynamic> json = [
-      {
-        "name": "room1",
-        "lat": "1.2941846706",
-        "lng": "103.7716737202",
-        "floor": 1,
-        "occupied": [
-          {"from": '0800', "to": '1200'},
-          {"from": '1600', "to": '1800'},
-        ],
-      },
-      {
-        "name": "room2",
-        "lat": "1.2942846706",
-        "lng": "103.7726737202",
-        "floor": 2,
-        "occupied": [
-          {"from": '1030', "to": '1230'},
-          {"from": '1400', "to": '1800'},
-        ],
-      },
-      {
-        "name": "room3",
-        "lat": "1.2943846706",
-        "lng": "103.7736737202",
-        "floor": -1,
-        "occupied": [
-          {"from": '0800', "to": '1000'},
-          {"from": '1230', "to": '1400'},
-        ],
-      },
-    ];
+    // List<dynamic> json = [
+    //   {
+    //     "name": "room1",
+    //     "lat": "1.2941846706",
+    //     "lng": "103.7716737202",
+    //     "floor": 1,
+    //     "occupied": [
+    //       {"from": '0800', "to": '1200'},
+    //       {"from": '1600', "to": '1800'},
+    //     ],
+    //   },
+    //   {
+    //     "name": "room2",
+    //     "lat": "1.2942846706",
+    //     "lng": "103.7726737202",
+    //     "floor": 2,
+    //     "occupied": [
+    //       {"from": '1030', "to": '1230'},
+    //       {"from": '1400', "to": '1800'},
+    //     ],
+    //   },
+    //   {
+    //     "name": "room3",
+    //     "lat": "1.2943846706",
+    //     "lng": "103.7736737202",
+    //     "floor": -1,
+    //     "occupied": [
+    //       {"from": '0800', "to": '1000'},
+    //       {"from": '1230', "to": '1400'},
+    //     ],
+    //   },
+    // ];
+
     return [
       for (dynamic obj in json)
         {
           'name': obj['name'],
-          'lat': double.parse(obj['lat']),
-          'lng': double.parse(obj['lng']),
+          'lat': obj['lat'],
+          'lng': obj['lng'],
           'floor': obj['floor'],
           'occupied': obj['occupied'],
         },

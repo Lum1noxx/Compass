@@ -26,6 +26,9 @@ class Defaults {
   static const double legendHeight = 200;
   static const double legendWidth = 300;
 
+  static const TimeOfDay vacantDayStart = TimeOfDay(hour: 6, minute: 0);
+  static const TimeOfDay vacantDayEnd = TimeOfDay(hour: 22, minute: 0);
+
   // universal colors: must work with all themes
   static const Color RouteStartColor = Color.fromARGB(255, 228, 112, 18);
   static const Color RouteEndColor = Color.fromRGBO(1, 105, 36, 1);
