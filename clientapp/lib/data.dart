@@ -833,6 +833,19 @@ class Period {
     );
   }
 
+  static Period fromISO8601(String start, String end) {
+    return Period(
+      TimeOfDay(
+        hour: int.parse(start.substring(0, 2)),
+        minute: int.parse(start.substring(3, 5)),
+      ),
+      TimeOfDay(
+        minute: int.parse(end.substring(3, 5)),
+        hour: int.parse(end.substring(0, 2)),
+      ),
+    );
+  }
+
   final TimeOfDay start;
   final TimeOfDay end;
   const Period(this.start, this.end);
@@ -912,11 +925,11 @@ class Venue extends Destination {
   }
 
   TimeOfDay start() {
-    return occupied.firstOrNull?.start ?? TimeOfDay(hour: 6, minute: 0);
+    return occupied.firstOrNull?.start ?? Defaults.vacantDayStart;
   }
 
   TimeOfDay end() {
-    return occupied.lastOrNull?.end ?? TimeOfDay(hour: 10, minute: 0);
+    return occupied.lastOrNull?.end ?? Defaults.vacantDayEnd;
   }
 
   bool isVacantAt(TimeOfDay time) {
@@ -930,13 +943,11 @@ class Venue extends Destination {
 }
 
 class TimedPosition extends TempDestination {
-
-
   final DateTime time;
 
   TimedPosition(super.coordinate, this.time);
 
-  double getTimeStamp() {
-    return time.millisecondsSinceEpoch / 1000;
+  int getTimeStamp() {
+    return (time.millisecondsSinceEpoch / 1000).round();
   }
 }

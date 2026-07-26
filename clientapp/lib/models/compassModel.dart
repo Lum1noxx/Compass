@@ -43,7 +43,6 @@ class CompassModel {
         ).listen((Position? position) {
           if (position != null) {
             callback.call(LatLng(position.latitude, position.longitude));
-
             /// ADD BEFORE FLIGHT
             // callback.call(LatLng(1.29445088, 103.7744729)); /// REMOVE BEFORE FLIGHT
           }
@@ -90,7 +89,7 @@ class CompassModel {
     FilterLevel filterUnsheltered,
   ) async {
     try {
-      List<Map> edgesJson;
+      List edgesJson;
       int stairsLevelMet;
       int shelterLevelMet;
       if (startDest is TempDestination) {
@@ -103,8 +102,14 @@ class CompassModel {
           filterUnsheltered,
         ));
         edgesJson = jsonObj['edges'].sublist(1);
-        stairsLevelMet = jsonObj['stairsPref'];
-        shelterLevelMet = jsonObj['shelterPref'];
+
+        ///ADD BEFORE FLIGHT
+        // stairsLevelMet = jsonObj['stairsPref'];
+        // shelterLevelMet = jsonObj['shelterPref'];
+
+        ///REMOVE BEFORE FLIGHT
+        stairsLevelMet = 2;
+        shelterLevelMet = 2;
       } else {
         Map jsonObj = await ApiCalls.shortest_path(
           startDest.name,
@@ -132,10 +137,8 @@ class CompassModel {
               edgeInfo["sheltered"],
               edgeInfo["stairs"],
               edgeInfo["duration"].toDouble(),
-              // edgeInfo["services"] /// ADD BEFORE FLIGHT
-              ["D1", "A2", "P"],
-
-              /// REMOVE BEFORE FLIGHT
+              // edgeInfo["services"], /// ADD BEFORE FLIGHT
+              ["D1", "A2", "P"], /// REMOVE BEFORE FLIGHT
             ),
           );
         } else {
@@ -209,7 +212,7 @@ class CompassModel {
           Coordinate(venue['lat'], venue['lng'], venue['floor']),
           [
             for (Map period in venue['occupied'])
-              Period.fromHHMM(period['from'], period['to']),
+              Period.fromISO8601(period['from'], period['to']),
           ],
         ),
     ];
@@ -251,14 +254,14 @@ class CompassModel {
     }
   }
 
-  void submitTracking(Path path) async{
+  void submitTracking(Path path) async {
     print(trackedPositions);
     List<TimedPosition> positions = trackedPositions;
     cancelTracking();
     List<Node> nodes = path.intermediateNodes();
-    // if (positions.length < nodes.length) {
-    //   return;
-    // } // ADD BEFORE FLIGHT
+    if (positions.length < nodes.length) {
+      return;
+    } // ADD BEFORE FLIGHT
     await ApiCalls.contribute_route(
       [for (Node node in nodes) node.name],
       [
@@ -273,13 +276,13 @@ class CompassModel {
   /// Args:
   /// - positions: sorted by time
   List<TimedPosition> _fit(Path path, List<TimedPosition> positions) {
-    positions = [
-      for (int i = 0; i< 100; i++) 
-      TimedPosition(
-        Coordinate(1.403+Random().nextDouble()/100, 103.908+Random().nextDouble()/100, 0),
-        DateTime.now().subtract(Duration(seconds: 100-i)),
-      ),
-    ]; // STUB: REMOVE BEFORE FLIGHT
+    // positions = [
+    //   for (int i = 0; i< 100; i++)
+    //   TimedPosition(
+    //     Coordinate(1.403+Random().nextDouble()/100, 103.908+Random().nextDouble()/100, 0),
+    //     DateTime.now().subtract(Duration(seconds: 100-i)),
+    //   ),
+    // ]; // STUB: REMOVE BEFORE FLIGHT
     List<Node> nodes = path.intermediateNodes();
     List<List<double>> dp = [List.filled(positions.length + 1, 0)];
     Haversine haversine = Haversine();

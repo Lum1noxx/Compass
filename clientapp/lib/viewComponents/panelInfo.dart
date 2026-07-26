@@ -544,7 +544,7 @@ class VenueInfo extends StatelessWidget {
             ),
             alignment: AlignmentGeometry.center,
             child: AutoSizeText(
-              '${venue.name} availability:',
+              '${venue.name} (floor ${Floors.getName(venue.coordinate.floor)}) availability:',
               maxLines: 1,
               textAlign: TextAlign.center,
               minFontSize: Defaults.autoTextMin,

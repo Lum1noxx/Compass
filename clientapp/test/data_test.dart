@@ -173,6 +173,8 @@ void main() {
       ],
       start,
       end,
+      true,
+      true,
     );
     expect(path.length(), 11);
     expect(

@@ -8,91 +8,104 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group("shortest_path", () {
     test("valid, no filters", () async {
-      List<Map> res = await ApiCalls.shortest_path(
+      Map res = await ApiCalls.shortest_path(
         'COM3',
         'COM4',
-        false,
-        false,
+        FilterLevel.none,
+        FilterLevel.none,
       );
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
+      List edges = res['edges'];
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
         expect(edge['start'], prev);
         prev = edge['end'];
       }
     });
     test("valid and same, both filters", () async {
-      List<Map> res = await ApiCalls.shortest_path('COM3', 'COM4', true, true);
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
-        expect(edge['start'], prev);
-        expect(edge['stairs'], false);
-        expect(edge['sheltered'], true);
-        prev = edge['end'];
-      }
-      List<Map> res2 = await ApiCalls.shortest_path(
+      Map raw = await ApiCalls.shortest_path(
         'COM3',
         'COM4',
-        false,
-        false,
+        FilterLevel.strict,
+        FilterLevel.strict,
       );
-      expect(res, res2);
-    });
-    test("valid but longer, both filters", () async {
-      List<Map> res = await ApiCalls.shortest_path(
-        'Makers@SoC',
-        'COM3_seminar_room_21',
-        true,
-        true,
-      );
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
+      List edges = raw['edges'];
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
         expect(edge['start'], prev);
         expect(edge['stairs'], false);
         expect(edge['sheltered'], true);
         prev = edge['end'];
       }
-      List<Map> res2 = await ApiCalls.shortest_path(
+      Map res2 = await ApiCalls.shortest_path(
+        'COM3',
+        'COM4',
+        FilterLevel.none,
+        FilterLevel.none,
+      );
+      expect(edges, res2['edges']);
+      expect(FilterLevel.get(raw['stairsPref']), FilterLevel.strict);
+      expect(FilterLevel.get(raw['shelterPref']), FilterLevel.strict);
+    });
+    test("valid but longer, both filters", () async {
+      Map res = await ApiCalls.shortest_path(
         'Makers@SoC',
         'COM3_seminar_room_21',
-        false,
-        false,
+        FilterLevel.strict,
+        FilterLevel.strict,
       );
+      List edges = res['edges'];
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
+        expect(edge['start'], prev);
+        expect(edge['stairs'], false);
+        expect(edge['sheltered'], true);
+        prev = edge['end'];
+      }
+      Map res2 = await ApiCalls.shortest_path(
+        'Makers@SoC',
+        'COM3_seminar_room_21',
+        FilterLevel.none,
+        FilterLevel.none,
+      );
+      List edges2 = res2['edges'];
       num filterSum = 0;
       num noFilterSum = 0;
-      for (Map edge in res) {
+      for (Map edge in edges) {
         filterSum += edge['duration'];
       }
-      for (Map edge in res2) {
+      for (Map edge in edges2) {
         noFilterSum += edge['duration'];
       }
       expect(filterSum > noFilterSum, true);
+      expect(FilterLevel.get(res['stairsPref']), FilterLevel.strict);
+      expect(FilterLevel.get(res['shelterPref']), FilterLevel.strict);
     });
     test("invalid, one destination contains the other", () async {
       bool err = false;
       try {
-        List<Map> res = await ApiCalls.shortest_path(
+        Map res = await ApiCalls.shortest_path(
           'COM4',
           'COM4 L2',
-          false,
-          false,
+          FilterLevel.none,
+          FilterLevel.none,
         );
       } on EdgelessPathException {
         err = true;
@@ -102,11 +115,11 @@ void main() {
     test("invalid, destination does not exist", () async {
       bool err = false;
       try {
-        List<Map> res = await ApiCalls.shortest_path(
+        Map res = await ApiCalls.shortest_path(
           'COM3',
           'COM5',
-          false,
-          false,
+          FilterLevel.none,
+          FilterLevel.none,
         );
       } on ImpossiblePathException {
         err = true;
@@ -114,35 +127,28 @@ void main() {
       expect(err, true);
     });
     test("impossible due to filters", () async {
-      bool err = false;
-      try {
-        List<Map> res = await ApiCalls.shortest_path(
-          'Makers@SoC',
-          'PitStop@SoC',
-          true,
-          true,
-        );
-      } on ImpossiblePathException {
-        err = true;
-      }
-      expect(err, true);
-      List<Map> res = await ApiCalls.shortest_path(
+      Map res = await ApiCalls.shortest_path(
         'Makers@SoC',
         'PitStop@SoC',
-        false,
-        false,
+        FilterLevel.strict,
+        FilterLevel.strict,
       );
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
+      List edges = res['edges'];
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
         expect(edge['start'], prev);
         prev = edge['end'];
       }
+
+      /// NOT MY FAULT
+      expect(FilterLevel.get(res['stairsPref']), FilterLevel.prefer);
+      expect(FilterLevel.get(res['shelterPref']), FilterLevel.strict);
     });
   });
 
@@ -183,56 +189,60 @@ void main() {
 
   group("use_location", () {
     test("valid but longer, both filters", () async {
-      List<Map> res = (await ApiCalls.use_location(
+      Map res = (await ApiCalls.use_location(
         1.2948950536,
         103.7743995103,
         1,
         'COM3_seminar_room_21',
-        true,
-        true,
-      )).sublist(1);
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
+        FilterLevel.strict,
+        FilterLevel.strict,
+      ));
+      List edges = res['edges'].sublist(1);
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
         expect(edge['start'], prev);
         expect(edge['stairs'], false);
         expect(edge['sheltered'], true);
         prev = edge['end'];
       }
-      List<Map> res2 = (await ApiCalls.use_location(
+      Map res2 = (await ApiCalls.use_location(
         1.2948950536,
         103.7743995103,
         1,
         'COM3_seminar_room_21',
-        false,
-        false,
-      )).sublist(1);
+        FilterLevel.none,
+        FilterLevel.none,
+      ));
+      List edges2 = res2['edges'].sublist(1);
       num filterSum = 0;
       num noFilterSum = 0;
-      for (Map edge in res) {
+      for (Map edge in edges) {
         filterSum += edge['duration'];
       }
-      for (Map edge in res2) {
+      for (Map edge in edges2) {
         noFilterSum += edge['duration'];
       }
       expect(filterSum > noFilterSum, true);
+      expect(FilterLevel.get(res['stairsPref']), FilterLevel.strict);
+      expect(FilterLevel.get(res['shelterPref']), FilterLevel.strict);
     });
     test("invalid, destination does not exist", () async {
       bool err = false;
       try {
-        List<Map> res = (await ApiCalls.use_location(
+        Map res = (await ApiCalls.use_location(
           1.2948950536,
           103.7743995103,
           1,
           'COM5',
-          false,
-          false,
-        )).sublist(1);
+          FilterLevel.none,
+          FilterLevel.none,
+        ));
       } on ImpossiblePathException {
         err = true;
       }
@@ -240,55 +250,67 @@ void main() {
     });
     test("impossible due to filter", () async {
       bool err = false;
-      try {
-        List<Map> res = (await ApiCalls.use_location(
-          1.2948950536,
-          103.7743995103,
-          1,
-          'PitStop@SoC',
-          true,
-          true,
-        )).sublist(1);
-      } on ImpossiblePathException {
-        err = true;
-      }
-      expect(err, true);
-      List<Map> res = await ApiCalls.use_location(
+      Map res = (await ApiCalls.use_location(
         1.2948950536,
         103.7743995103,
         1,
         'PitStop@SoC',
-        false,
-        false,
-      );
-      expect(res.first.containsKey('type'), true);
-      expect(res.first.containsKey('start'), true);
-      expect(res.first.containsKey('end'), true);
-      expect(res.first['sheltered'] is bool, true);
-      expect(res.first['stairs'] is bool, true);
-      expect(res.first['duration'] is num, true);
-      String prev = res.first['end'];
-      for (Map edge in res.sublist(1, res.length)) {
+        FilterLevel.strict,
+        FilterLevel.strict,
+      ));
+      List edges = res['edges'].sublist(1);
+      expect(edges.first.containsKey('type'), true);
+      expect(edges.first.containsKey('start'), true);
+      expect(edges.first.containsKey('end'), true);
+      expect(edges.first['sheltered'] is bool, true);
+      expect(edges.first['stairs'] is bool, true);
+      expect(edges.first['duration'] is num, true);
+      String prev = edges.first['end'];
+      for (Map edge in edges.sublist(1, edges.length)) {
         expect(edge['start'], prev);
         prev = edge['end'];
       }
+
+      /// NOT MY FAULT
+      expect(FilterLevel.get(res['stairsPref']), FilterLevel.prefer);
+      expect(FilterLevel.get(res['shelterPref']), FilterLevel.strict);
     });
-  
+
     test("invalid, destination does not exist", () async {
       bool err = false;
       try {
-        List<Map> res = await ApiCalls.use_location(
+        Map res = await ApiCalls.use_location(
           1.2948950536,
           103.7743995103,
           1,
           'COM5',
-          false,
-          false,
+          FilterLevel.none,
+          FilterLevel.none,
         );
       } on ImpossiblePathException {
         err = true;
       }
       expect(err, true);
+    });
+  });
+
+  group("contribute_route", () {
+    test("data submitted without exception", () async {
+      bool err = false;
+      try {
+        ApiCalls.contribute_route(
+          [
+            'com1 b1 north stairwell',
+            'com1 b1 main corridor north end',
+            'com1 b1 main corridor south branch',
+          ],
+          [111, 222, 333],
+        );
+      } catch (e) {
+        err = true;
+      }
+      ;
+      expect(err, false);
     });
   });
 
