@@ -96,4 +96,4 @@ class EdgeAggregate(models.Model):
     count = models.IntegerField(default=0)
     mean = models.FloatField(default=0.0)
     M2 = models.FloatField(default=0.0)
-    values = models.JSONField(default=list)
+    values = models.JSONField(default=list, blank=True)

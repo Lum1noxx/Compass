@@ -254,3 +254,4 @@ def update_edge_aggregate(request):
             #update the duration of the edge in the Edge model
             edge.duration = agg.mean
             edge.save()
+    return Response({'status': 'ok'}, status=status.HTTP_200_OK)
