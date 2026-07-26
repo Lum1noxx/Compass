@@ -537,7 +537,7 @@ class ApiCalls {
 
   static Future<void> contribute_route(
     List<String> nodes,
-    List<double> timestamps,
+    List<int> timestamps,
   ) async {
     print(
       "api call::contribute_route:: ${nodes.length} nodes, ${timestamps.length} positions",
@@ -551,7 +551,7 @@ class ApiCalls {
       },
       body: json.encode([
         for (int i = 0; i < nodes.length; i++)
-          {'name': nodes[i], 'timestamp': timestamps[i]},
+          {'name': nodes[i].replaceAll(" ", "_ "), 'timestamp': timestamps[i]},
       ]),
     );
   }

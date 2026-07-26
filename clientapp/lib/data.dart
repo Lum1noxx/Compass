@@ -947,7 +947,7 @@ class TimedPosition extends TempDestination {
 
   TimedPosition(super.coordinate, this.time);
 
-  double getTimeStamp() {
-    return time.millisecondsSinceEpoch / 1000;
+  int getTimeStamp() {
+    return (time.millisecondsSinceEpoch / 1000).round();
   }
 }

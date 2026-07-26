@@ -30,17 +30,26 @@ class _DayOfWeekPickerState extends State<DayOfWeekPicker> {
             showTrailingIcon: false,
             initialSelection: widget.vm.vacantDayOfWeek,
             expandedInsets: EdgeInsets.zero,
+            textStyle: TextStyle(color: AppTheme.colors.neutral),
+            menuStyle: MenuStyle(
+              backgroundColor: WidgetStatePropertyAll(AppTheme.colors.primary),
+            ),
             dropdownMenuEntries: [
               for (int dow = 0; dow < Constants.daysOfWeek.length; dow++)
                 DropdownMenuEntry(
                   value: dow,
                   label: Constants.daysOfWeek[dow],
-                  labelWidget: Container(
-                    decoration: BoxDecoration(color: Colors.transparent),
-                    child: Text(
-                      Constants.daysOfWeek[dow],
-                      style: TextStyle(color: AppTheme.colors.neutral),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                      AppTheme.colors.primary,
                     ),
+                    textStyle: WidgetStatePropertyAll(
+                      TextStyle(color: AppTheme.colors.neutral),
+                    ),
+                  ),
+                  labelWidget: Text(
+                    Constants.daysOfWeek[dow],
+                    style: TextStyle(color: AppTheme.colors.neutral),
                   ),
                 ),
             ],

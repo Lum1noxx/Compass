@@ -139,20 +139,26 @@ class NavigationVM extends DirectionsBaseVM {
       nodeInFocus = start;
       if (path is EdgelessPath) {
         toastification.show(
-          title: Text("start location coincides with end location"),
+          title: Text(
+            "start location coincides with end location",
+            style: TextStyle(color: AppTheme.colors.neutral),
+          ),
           type: ToastificationType.error,
+          backgroundColor: AppTheme.colors.primary,
           autoCloseDuration: Duration(seconds: 5),
         );
       } else if (path is ImpossiblePath) {
         toastification.show(
           title: Text("unable to find a route"),
           type: ToastificationType.error,
+          backgroundColor: AppTheme.colors.primary,
           autoCloseDuration: Duration(seconds: 5),
         );
       } else if (!path.shelterFilterMet || !path.stairFilterMet) {
         toastification.show(
           title: Text(
             "unable to find routes for filters: ${path.stairFilterMet ? "" : "handicap accessibility, "}${path.shelterFilterMet ? "" : "shelter"}",
+            style: TextStyle(color: AppTheme.colors.neutral),
           ),
           type: ToastificationType.warning,
           description: Text("showing next-best route!"),
@@ -195,12 +201,15 @@ class NavigationVM extends DirectionsBaseVM {
     tracking = true;
     model.startTracking();
     toastification.show(
-      title: Text("Tracking started"),
+      title: Text(
+        "Tracking started",
+        style: TextStyle(color: AppTheme.colors.neutral),
+      ),
       description: Text(
         style: TextStyle(color: AppTheme.colors.neutral),
         "Select \"Submit\" once you arrive at your destination to submit tracking data.\nSelect \"Cancel\" to delete tracking data.",
       ),
-      backgroundColor: AppTheme.colors.background,
+      backgroundColor: AppTheme.colors.primary,
       type: ToastificationType.info,
       autoCloseDuration: Duration(seconds: 10),
     );
@@ -210,14 +219,16 @@ class NavigationVM extends DirectionsBaseVM {
   void submitTracking() {
     tracking = false;
     model.submitTracking(lastRoute);
-     toastification.show(
-      title: Text("Tracking data submitted"),
+    toastification.show(
+      title: Text("Tracking data submitted",
+        style: TextStyle(color: AppTheme.colors.neutral),
+      ),
       description: Text(
         style: TextStyle(color: AppTheme.colors.neutral),
         "Thank you for your contribution!",
       ),
       type: ToastificationType.success,
-      backgroundColor: AppTheme.colors.background,
+      backgroundColor: AppTheme.colors.primary,
       autoCloseDuration: Duration(seconds: 5),
     );
     notifyListeners();
