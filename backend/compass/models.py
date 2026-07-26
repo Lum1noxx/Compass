@@ -50,6 +50,9 @@ class Edge(models.Model):
         if self.type == 'bus':
             bus = self.start.name.split('_')[-1]
             self.bus = bus[1:-1]
+        if self.type == 'waitForBus' and self.duration != 0.0:
+            bus = self.end.name.split('_')[-1]
+            self.bus = bus[1:-1]
         super().save(*args, **kwargs)
 
 class AdjacencyList(models.Model):
@@ -87,3 +90,10 @@ class RoomOccupancy(models.Model):
 
     def __str__ (self):
         return f"{self.name} on {self.day} from {self.from_time} to {self.to_time}"
+
+class EdgeAggregate(models.Model):
+    edge = models.OneToOneField(Edge, on_delete=models.CASCADE, related_name='aggregate')
+    count = models.IntegerField(default=0)
+    mean = models.FloatField(default=0.0)
+    M2 = models.FloatField(default=0.0)
+    values = models.JSONField(default=list, blank=True)

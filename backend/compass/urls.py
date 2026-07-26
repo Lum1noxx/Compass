@@ -31,4 +31,5 @@ urlpatterns = [
     path('near_destinations/', views.get_near_destinations),
     path('use_location/', views.use_current_location),
     path('near_rooms/', views.get_near_rooms),
+    path('contribute_route/', views.update_edge_aggregate),
 ]

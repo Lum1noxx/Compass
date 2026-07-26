@@ -32,3 +32,5 @@ class ClassroomAdmin(ImportExportModelAdmin):
 class RoomOccupancyAdmin(ImportExportModelAdmin):
     resource_class = RoomOccupancyResource
 
+admin.site.register(EdgeAggregate)
+
