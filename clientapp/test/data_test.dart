@@ -1,5 +1,7 @@
 import 'package:clientapp/data.dart';
+import 'package:clientapp/defaults.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:test/test.dart';
 
@@ -210,5 +212,157 @@ void main() {
     expect(path.locate(end), path.segments[4]);
     expect(path.locate(path.edges[8]), path.segments[3]);
     expect(path.locate(path.edges[6]), path.segments[3]);
+  });
+  group("Venue", () {
+    test("start and end wraps occupied slots correctly", () {
+      List<Period> occupied = [
+        Period(
+          TimeOfDay(hour: 10, minute: 15),
+          TimeOfDay(hour: 11, minute: 55),
+        ), // 1000-1200
+        Period(
+          TimeOfDay(hour: 13, minute: 55),
+          TimeOfDay(hour: 14, minute: 5),
+        ), // 1330-1430
+        Period(
+          TimeOfDay(hour: 15, minute: 0),
+          TimeOfDay(hour: 16, minute: 10),
+        ), // 1500-1630
+      ];
+      Venue venue = Venue("test", Coordinate(1, 2, 3), occupied);
+      expect(venue.start(), TimeOfDay(hour: 10, minute: 15));
+      expect(venue.end(), TimeOfDay(hour: 16, minute: 10));
+      Venue empty = Venue("empty", Coordinate(1, 2, 3), []);
+      expect(empty.start(), Defaults.vacantDayStart);
+      expect(empty.end(), Defaults.vacantDayEnd);
+    });
+    test("detects vacant correctly", () {
+      List<Period> occupied = [
+        Period(
+          TimeOfDay(hour: 10, minute: 15),
+          TimeOfDay(hour: 11, minute: 55),
+        ), // 1000-1200
+        Period(
+          TimeOfDay(hour: 13, minute: 55),
+          TimeOfDay(hour: 14, minute: 5),
+        ), // 1330-1430
+        Period(
+          TimeOfDay(hour: 15, minute: 0),
+          TimeOfDay(hour: 16, minute: 10),
+        ), // 1500-1630
+      ];
+      Venue venue = Venue("test", Coordinate(1, 2, 3), occupied);
+      expect(venue.isVacantAt(TimeOfDay(hour: 7, minute: 55)), true);
+      expect(venue.isVacantAt(TimeOfDay(hour: 9, minute: 55)), true);
+      expect(venue.isVacantAt(TimeOfDay(hour: 12, minute: 5)), true);
+      expect(venue.isVacantAt(TimeOfDay(hour: 14, minute: 40)), true);
+      expect(venue.isVacantAt(TimeOfDay(hour: 16, minute: 35)), true);
+      expect(venue.isVacantAt(TimeOfDay(hour: 18, minute: 35)), true);
+    });
+    test("detects occupied correctly", () {
+      List<Period> occupied = [
+        Period(
+          TimeOfDay(hour: 10, minute: 15),
+          TimeOfDay(hour: 11, minute: 55),
+        ), // 1000-1200
+        Period(
+          TimeOfDay(hour: 13, minute: 55),
+          TimeOfDay(hour: 14, minute: 5),
+        ), // 1330-1430
+        Period(
+          TimeOfDay(hour: 15, minute: 0),
+          TimeOfDay(hour: 16, minute: 10),
+        ), // 1500-1630
+      ];
+      Venue venue = Venue("test", Coordinate(1, 2, 3), occupied);
+      expect(venue.isVacantAt(TimeOfDay(hour: 10, minute: 1)), false);
+      expect(venue.isVacantAt(TimeOfDay(hour: 11, minute: 57)), false);
+      expect(venue.isVacantAt(TimeOfDay(hour: 14, minute: 0)), false);
+      expect(venue.isVacantAt(TimeOfDay(hour: 16, minute: 20)), false);
+    });
+  });
+  group("bus services", () {
+    test("waitForBusEdge", () {
+      Node w2 = Node("w2", Coordinate(0.1, 0.1, 0));
+      Node wb1 = Node("wb1", Coordinate(0.1, 0.1, 0));
+      Edge e = WaitForBusEdge(EdgeType.waitForBus, w2, wb1, true, false, 1, [
+        "D1",
+        "D2",
+        "D3",
+      ]);
+      expect(e.edgeType, EdgeType.waitForBus);
+      expect((e as WaitForBusEdge).services, ['D1', 'D2', 'D3']);
+    });
+    test("BusSegment detected correctly", () {
+      Node w2 = Node("w2", Coordinate(0.1, 0.1, 0));
+      Node wb1 = Node("wb1", Coordinate(0.1, 0.1, 0));
+      Node b1 = Node("b1", Coordinate(0.2, 0.1, 0));
+      Node b2 = Node("b2", Coordinate(0.2, 0.2, 0));
+      Segment segment = Segment.of([
+        WaitForBusEdge(EdgeType.waitForBus, w2, wb1, true, false, 1, [
+          "D1",
+          "D2",
+          "D3",
+        ]),
+        Edge(EdgeType.bus, wb1, b1, true, false, 1),
+        Edge(EdgeType.bus, b1, b2, true, false, 1),
+      ]);
+      expect(segment is BusSegment, true);
+      expect(segment.edgeType(), EdgeType.bus);
+      expect((segment as BusSegment).services(), ['D1', 'D2', 'D3']);
+    });
+    test("Path with bus", () {
+      Destination start = Destination("start", Coordinate(0, 0, 0));
+      Destination end = Destination("end", Coordinate(1, 1, 2));
+      Node w1 = Node("w1", Coordinate(0, 0.1, 0));
+      Node w2 = Node("w2", Coordinate(0.1, 0.1, 0));
+      Node wb1 = Node("wb1", Coordinate(0.1, 0.1, 0));
+      Node b1 = Node("b1", Coordinate(0.2, 0.1, 0));
+      Node b2 = Node("b2", Coordinate(0.2, 0.2, 0));
+      Node w3 = Node("w3", Coordinate(0.2, 0.3, 0));
+      Node wl1 = Node("wl1", Coordinate(0.2, 0.3, 0));
+      Node l1 = Node("l1", Coordinate(0.3, 0.3, 1));
+      Node l2 = Node("l1", Coordinate(0.3, 0.3, 2));
+      Node w4 = Node("w4", Coordinate(0.4, 0.3, 2));
+      Path path = Path.autoJoin(
+        [
+          Edge(EdgeType.walk, w1, w2, true, false, 1),
+          WaitForBusEdge(EdgeType.waitForBus, w2, wb1, true, false, 1, [
+            "D1",
+            "D2",
+            "D3",
+          ]),
+          Edge(EdgeType.bus, wb1, b1, true, false, 1),
+          Edge(EdgeType.bus, b1, b2, true, false, 1),
+          Edge(EdgeType.walk, b2, w3, true, false, 1),
+          Edge(EdgeType.waitForLift, w3, wl1, true, false, 1),
+          Edge(EdgeType.lift, wl1, l1, true, false, 1),
+          Edge(EdgeType.lift, l1, l2, true, false, 1),
+          Edge(EdgeType.walk, l2, w4, true, false, 1),
+        ],
+        start,
+        end,
+        true,
+        true,
+      );
+      Segment busSegment = path.segments[1];
+      expect(busSegment is BusSegment, true);
+      expect(busSegment.edgeType(), EdgeType.bus);
+      expect((busSegment as BusSegment).services(), ['D1', 'D2', 'D3']);
+    });
+  });
+  group("TimedPosition", () {
+    test("timestamp conversion is accurate", () {
+      TimedPosition timedPosition = TimedPosition(
+        Coordinate(1, 2, 3),
+        DateTime.utc(2020, 1, 2, 3, 4, 5),
+      );
+      expect(timedPosition.getTimeStamp(), 1577934245);
+      timedPosition = TimedPosition(
+        Coordinate(1, 2, 3),
+        DateTime.utc(2025, 4, 3, 2, 1, 0),
+      );
+      expect(timedPosition.getTimeStamp(), 1743645660);
+    });
   });
 }

@@ -102,14 +102,8 @@ class CompassModel {
           filterUnsheltered,
         ));
         edgesJson = jsonObj['edges'].sublist(1);
-
-        ///ADD BEFORE FLIGHT
-        // stairsLevelMet = jsonObj['stairsPref'];
-        // shelterLevelMet = jsonObj['shelterPref'];
-
-        ///REMOVE BEFORE FLIGHT
-        stairsLevelMet = 2;
-        shelterLevelMet = 2;
+        stairsLevelMet = jsonObj['stairsPref'];
+        shelterLevelMet = jsonObj['shelterPref'];
       } else {
         Map jsonObj = await ApiCalls.shortest_path(
           startDest.name,
@@ -137,8 +131,8 @@ class CompassModel {
               edgeInfo["sheltered"],
               edgeInfo["stairs"],
               edgeInfo["duration"].toDouble(),
-              // edgeInfo["services"], /// ADD BEFORE FLIGHT
-              ["D1", "A2", "P"], /// REMOVE BEFORE FLIGHT
+              // edgeInfo["services"], /// REFACTOR-NEW
+              [edgeInfo['bus']] /// DEPRECATE
             ),
           );
         } else {
@@ -265,7 +259,7 @@ class CompassModel {
     await ApiCalls.contribute_route(
       [for (Node node in nodes) node.name],
       [
-        for (TimedPosition position in _fit(path, positions))
+        for (TimedPosition position in fitTrackingData(path, positions))
           position.getTimeStamp(),
       ],
     );
@@ -275,7 +269,8 @@ class CompassModel {
   /// that the timestamps of successive [Node]s are ascending, and MSE of MSE is minimised
   /// Args:
   /// - positions: sorted by time
-  List<TimedPosition> _fit(Path path, List<TimedPosition> positions) {
+  @visibleForTesting
+  List<TimedPosition> fitTrackingData(Path path, List<TimedPosition> positions) {
     // positions = [
     //   for (int i = 0; i< 100; i++)
     //   TimedPosition(
@@ -303,7 +298,7 @@ class CompassModel {
         );
       }
     }
-    List<TimedPosition> res = List.filled(positions.length, positions.first);
+    List<TimedPosition> res = List.filled(nodes.length, positions.first);
     int numPos = positions.length;
     int numNodes = nodes.length;
     while (numNodes > 0) {
