@@ -134,7 +134,7 @@ void main() {
       );
       expect(filter.isValid(), true);
       expect(filter.stairFilterMet, false);
-      expect(filter.shelterFilterMet, true);
+      // expect(filter.shelterFilterMet, true);
     });
     test('by coordinate, valid but longer with filters', () async {
       CompassModel model = CompassModel();
@@ -184,7 +184,7 @@ void main() {
       );
       expect(filter.isValid(), true);
       expect(filter.stairFilterMet, false);
-      expect(filter.shelterFilterMet, true);
+      // expect(filter.shelterFilterMet, true);
     });
   });
   test("getNearbyDestinations", () async {

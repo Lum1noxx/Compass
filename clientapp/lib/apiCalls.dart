@@ -183,8 +183,8 @@ class ApiCalls {
       'lng': lng.toString(),
       'floor': floor.toString(),
       "end": end.replaceAll(' ', "_"),
-      "sheltered": filterUnsheltered.level.toString(),
-      "stairs": filterStairs.level.toString(),
+      "shelterPref": filterUnsheltered.level.toString(),
+      "stairsPref": filterStairs.level.toString(),
     });
 
     /// REMOVE BEFORE FLIGHT

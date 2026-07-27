@@ -131,8 +131,8 @@ class CompassModel {
               edgeInfo["sheltered"],
               edgeInfo["stairs"],
               edgeInfo["duration"].toDouble(),
-              // edgeInfo["services"], /// ADD BEFORE FLIGHT
-              ["D1", "A2", "P"], /// REMOVE BEFORE FLIGHT
+              // edgeInfo["services"], /// REFACTOR-NEW
+              [edgeInfo['bus']] /// DEPRECATE
             ),
           );
         } else {
