@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:clientapp/UserExceptions.dart';
 import 'package:clientapp/apiCalls.dart';
 import 'package:clientapp/data.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 void main() {
   group("shortest_path", () {
@@ -311,6 +310,37 @@ void main() {
       }
       ;
       expect(err, false);
+    });
+    group("near_rooms", () {
+      LatLng com4 = LatLng(1.2951646095, 103.7753551262);
+      test("correct return schema", () async {
+        List<Map> res = await ApiCalls.near_rooms(
+          com4.latitude,
+          com4.longitude,
+          3,
+          "Monday",
+          '1005',
+          '1410',
+        );
+        expect(res.isNotEmpty, true);
+        Map item = res.first;
+        expect(item['name'] is String, true);
+        expect(item['lat'] is double, true);
+        expect(item['lng'] is double, true);
+        expect(item['floor'] is int, true);
+        expect(item["occupied"] is List, true);
+      });
+      test("correct number of venues", () async {
+        List<Map> res = await ApiCalls.near_rooms(
+          com4.latitude,
+          com4.longitude,
+          4,
+          "Monday",
+          '1005',
+          '1410',
+        );
+        expect(res.length, 4);
+      });
     });
   });
 

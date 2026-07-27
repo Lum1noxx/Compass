@@ -61,6 +61,17 @@ class Node {
   LatLng getLatLng() {
     return coordinate.getLatLng();
   }
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Node) {
+      return false;
+    }
+    return name == other.name;
+  }
 }
 
 /// special [Node] representing a notable place
@@ -672,8 +683,8 @@ class Path {
     nodes.addAll([
       for (Edge edge in edges.getRange(0, edges.length - 1)) edge.end,
     ]);
-    if (edges.first.end is! Destination) {
-      nodes.add(edges.first.end);
+    if (edges.last.end is! Destination) {
+      nodes.add(edges.last.end);
     }
     return nodes;
   }

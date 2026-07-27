@@ -1,18 +1,18 @@
-import 'dart:async';
-import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+import 'dart:math';
 
 import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
 import 'package:clientapp/models/compassModel.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 void main() {
   Globals.destinations = Destinations([
     "COM3",
-    "COM3 seminar room 21"
-        'Makers@SoC',
+    "COM3 seminar room 21",
+    'Makers@SoC',
     'PitStop@SoC',
   ], 2);
   Globals.nodes = Nodes();
@@ -241,6 +241,184 @@ void main() {
         err = true;
       }
       expect(err, false);
+    });
+    test("fits tracking data optimally", () {
+      CompassModel model = CompassModel();
+      Destination start = Destination("start", Coordinate(0, 0, 0));
+      Destination end = Destination("end", Coordinate(1, 1, 2));
+      Node w1 = Node("w1", Coordinate(0, 0.1, 0));
+      Node w2 = Node("w2", Coordinate(0.1, 0.1, 0));
+      Node wb1 = Node("wb1", Coordinate(0.1, 0.1, 0));
+      Node b1 = Node("b1", Coordinate(0.2, 0.1, 0));
+      Node b2 = Node("b2", Coordinate(0.2, 0.2, 0));
+      Node w3 = Node("w3", Coordinate(0.2, 0.3, 0));
+      Path path = Path.autoJoin(
+        [
+          Edge(EdgeType.walk, w1, w2, true, false, 1),
+          WaitForBusEdge(EdgeType.waitForBus, w2, wb1, true, false, 1, [
+            "D1",
+            "D2",
+            "D3",
+          ]),
+          Edge(EdgeType.bus, wb1, b1, true, false, 1),
+          Edge(EdgeType.bus, b1, b2, true, false, 1),
+          Edge(EdgeType.walk, b2, w3, true, false, 1),
+        ],
+        start,
+        end,
+        true,
+        true,
+      );
+      List<TimedPosition> tracked = [
+        TimedPosition(
+          Coordinate(-0.01, 0.11, 0),
+          DateTime.fromMillisecondsSinceEpoch(0),
+        ), //hit
+        TimedPosition(
+          Coordinate(-0.02, 0.11, 0),
+          DateTime.fromMillisecondsSinceEpoch(1),
+        ), //miss:far
+        TimedPosition(
+          Coordinate(0.09, 0.11, 0),
+          DateTime.fromMillisecondsSinceEpoch(2),
+        ), //hit
+        TimedPosition(
+          Coordinate(0.2, 0.3, 0),
+          DateTime.fromMillisecondsSinceEpoch(3),
+        ), //miss:order
+        TimedPosition(
+          Coordinate(0.09, 0.12, 0),
+          DateTime.fromMillisecondsSinceEpoch(4),
+        ), //miss:far
+        TimedPosition(
+          Coordinate(0.09, 0.11, 0),
+          DateTime.fromMillisecondsSinceEpoch(5),
+        ), //hit
+        TimedPosition(
+          Coordinate(0.21, 0.11, 0),
+          DateTime.fromMillisecondsSinceEpoch(6),
+        ), //hit
+        TimedPosition(
+          Coordinate(0.21, 0.08, 0),
+          DateTime.fromMillisecondsSinceEpoch(7),
+        ), //miss:far
+        TimedPosition(
+          Coordinate(0.21, 0.19, 0),
+          DateTime.fromMillisecondsSinceEpoch(8),
+        ), //hit
+        TimedPosition(
+          Coordinate(0, 0.1, 0),
+          DateTime.fromMillisecondsSinceEpoch(9),
+        ), //miss:order
+        TimedPosition(
+          Coordinate(0.21, 0.18, 0),
+          DateTime.fromMillisecondsSinceEpoch(10),
+        ), //miss:far
+        TimedPosition(
+          Coordinate(0.21, 0.31, 0),
+          DateTime.fromMillisecondsSinceEpoch(11),
+        ), //hit
+        TimedPosition(
+          Coordinate(0.21, 0.28, 0),
+          DateTime.fromMillisecondsSinceEpoch(12),
+        ), //miss:far
+      ];
+      List<TimedPosition> fitted = model.fitTrackingData(path, tracked);
+      expect(fitted.length, 6);
+      expect(fitted[0], tracked[0]);
+      expect(fitted[1], tracked[2]);
+      expect(fitted[2], tracked[5]);
+      expect(fitted[3], tracked[6]);
+      expect(fitted[4], tracked[8]);
+      expect(fitted[5], tracked[11]);
+    });
+  });
+  group("getVacantVenues", () {
+    TempDestination com4 = TempDestination.plane(
+      LatLng(1.2951646095, 103.7753551262),
+    );
+    TempDestination utown = TempDestination.plane(
+      LatLng(1.3053703381, 103.7734655973),
+    );
+    test("correct number of venues returned", () async {
+      CompassModel model = CompassModel();
+      List<Venue> venues = await model.getVacantVenues(
+        com4,
+        0,
+        Period(TimeOfDay(hour: 10, minute: 5), TimeOfDay(hour: 12, minute: 20)),
+      );
+      expect(venues.length, Defaults.nearbyVenuesCount);
+    });
+    test("valid vacancies", () async {
+      CompassModel model = CompassModel();
+      List<Venue> venues = await model.getVacantVenues(
+        com4,
+        0,
+        Period(TimeOfDay(hour: 10, minute: 5), TimeOfDay(hour: 12, minute: 20)),
+      );
+      List<Venue> venues2 = await model.getVacantVenues(
+        utown,
+        0,
+        Period(TimeOfDay(hour: 15, minute: 5), TimeOfDay(hour: 17, minute: 20)),
+      );
+      for (Venue venue in venues) {
+        expect(venue.isVacantAt(TimeOfDay(hour: 10, minute: 6)), true);
+        expect(venue.isVacantAt(TimeOfDay(hour: 11, minute: 30)), true);
+        expect(venue.isVacantAt(TimeOfDay(hour: 12, minute: 19)), true);
+      }
+      for (Venue venue in venues2) {
+        expect(venue.isVacantAt(TimeOfDay(hour: 15, minute: 6)), true);
+        expect(venue.isVacantAt(TimeOfDay(hour: 16, minute: 30)), true);
+        expect(venue.isVacantAt(TimeOfDay(hour: 17, minute: 19)), true);
+      }
+    });
+    test("returns nearest possible", () async {
+      CompassModel model = CompassModel();
+      List<Venue> venuesc = await model.getVacantVenues(
+        com4,
+        0,
+        Period(TimeOfDay(hour: 10, minute: 5), TimeOfDay(hour: 12, minute: 20)),
+      );
+      List<Venue> venuesu = await model.getVacantVenues(
+        utown,
+        0,
+        Period(TimeOfDay(hour: 10, minute: 5), TimeOfDay(hour: 12, minute: 20)),
+      );
+      Set<Venue> venuesa = Set.from(venuesc);
+      venuesa.addAll(venuesu);
+      print(List.from(venuesa.map((venue)=>venue.name)));
+      double maxDistC = venuesc.fold(
+        0,
+        (accum, nxt) =>
+            max(accum, Haversine().distance(nxt.getLatLng(), com4.getLatLng())),
+      );
+      double maxDistU = venuesu.fold(
+        0,
+        (accum, nxt) => max(
+          accum,
+          Haversine().distance(nxt.getLatLng(), utown.getLatLng()),
+        ),
+      );
+      double minDistLessC = venuesa
+          .difference(Set.from(venuesc))
+          .fold(
+            double.infinity,
+            (accum, nxt) => min(
+              accum,
+              Haversine().distance(nxt.getLatLng(), com4.getLatLng()),
+            ),
+          );
+      double minDistLessU = venuesa
+          .difference(Set.from(venuesu))
+          .fold(
+            double.infinity,
+            (accum, nxt) => min(
+              accum,
+              Haversine().distance(nxt.getLatLng(), utown.getLatLng()),
+            ),
+          );
+      expect(maxDistU <= minDistLessU || minDistLessU == double.infinity, true);
+      expect(maxDistC <= minDistLessC || minDistLessC == double.infinity, true);
     });
   });
 }
