@@ -122,7 +122,10 @@ class CompassModel {
       List<Edge> edges = [];
       for (Map edgeInfo in edgesJson) {
         EdgeType type = EdgeType.get(edgeInfo["type"]);
-        if (type == EdgeType.waitForBus) {
+        if (type == EdgeType.waitForBus 
+        && edgeInfo['bus'] != null /// DEPRECATE
+        // && edgeInfo['services'] != null /// REFACTOR-NEW
+        ) {
           edges.add(
             WaitForBusEdge(
               type,
