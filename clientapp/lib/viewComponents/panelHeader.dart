@@ -45,7 +45,7 @@ class _PanelHeaderState extends State<PanelHeader> {
       children.add(
         Expanded(flex: 5, child: ExpandBar(widget.controller.expanded)),
       );
-      if ((widget.vm as NavigationVM).lastRoute.isValid()) {
+      if ((widget.vm as NavigationVM).lastRoute.isValid()||(widget.vm as NavigationVM).tracking) {
         children.add(
           Expanded(
             flex: 3,
