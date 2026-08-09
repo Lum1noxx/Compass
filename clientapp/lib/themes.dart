@@ -6,7 +6,6 @@ class AppTheme {
 
   static void init(BuildContext context) {
     darkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    // darkMode = true; // REMOVE BEFORE FLIGHT
     if (darkMode) {
       // Dark theme
       colors = AppTheme(

@@ -440,7 +440,6 @@ void main() {
       );
       Set<Venue> venuesa = Set.from(venuesc);
       venuesa.addAll(venuesu);
-      print(List.from(venuesa.map((venue) => venue.name)));
       double maxDistC = venuesc.fold(
         0,
         (accum, nxt) =>
