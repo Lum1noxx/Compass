@@ -45,22 +45,25 @@ class _PanelHeaderState extends State<PanelHeader> {
       children.add(
         Expanded(flex: 5, child: ExpandBar(widget.controller.expanded)),
       );
-      children.add(
-        Expanded(
-          flex: 3,
-          child: ListenableBuilder(
-            listenable: widget.vm,
-            builder: (context, child) {
-              return TrackingControls(
-                (widget.vm as NavigationVM).tracking,
-                widget.onTrackingStart,
-                widget.onTrackingCancel,
-                widget.onTrackingSubmit,
-              );
-            },
+      if ((widget.vm as NavigationVM).lastRoute.isValid()||(widget.vm as NavigationVM).tracking) {
+        children.add(
+          Expanded(
+            flex: 3,
+            child: ListenableBuilder(
+              listenable: widget.vm,
+              builder: (context, child) {
+                return TrackingControls(
+                  (widget.vm as NavigationVM).tracking,
+                  widget.onTrackingStart,
+                  widget.onTrackingCancel,
+                  widget.onTrackingSubmit,
+                );
+              },
+            ),
           ),
-        ),
-      );
+        );
+      }
+
       children.add(Spacer());
     } else {
       children.add(

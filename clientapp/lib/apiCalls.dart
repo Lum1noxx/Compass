@@ -14,7 +14,6 @@ import 'package:http/http.dart';
 class ApiCalls {
   /// heartbeat request to wake up backend server
   static void heartbeat() {
-    print("api call::heartbeat");
     Uri request = Uri.https(Constants.baseUrl, "/heartbeat");
     get(request);
   }
@@ -60,9 +59,6 @@ class ApiCalls {
     FilterLevel filterStairs,
     FilterLevel filterUnsheltered,
   ) async {
-    print(
-      "api call::shortest_path::${start}::${end}::$filterStairs::$filterUnsheltered",
-    );
     Uri request = Uri.https(Constants.baseUrl, "/shortest_path", {
       "start": start.replaceAll(' ', "_"),
       "end": end.replaceAll(' ', "_"),
@@ -70,15 +66,6 @@ class ApiCalls {
       "stairsPref": filterStairs.level.toString(),
     });
 
-    /// REMOVE BEFORE FLIGHT
-    // request = Uri.https(Constants.baseUrl, "/shortest_path", {
-    //   "start": start.replaceAll(' ', "_"),
-    //   "end": end.replaceAll(' ', "_"),
-    //   "sheltered": (filterUnsheltered.level == 2).toString(),
-    //   "stairs": (filterStairs.level < 2).toString(),
-    // });
-
-    /// ADD BEFORE FLIGHT
     final response = await get(request);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -92,44 +79,6 @@ class ApiCalls {
         throw ImpossiblePathException();
       }
     }
-
-    /// REMOVE BEFORE FLIGHT
-    // List<Map> edges = [
-    //   // STUB
-    //   {
-    //     "type": "walk",
-    //     "start": "terrace",
-    //     "end": "com3 bus stop",
-    //     "sheltered": true,
-    //     "stairs": true,
-    //     "duration": 60,
-    //   },
-    //   {
-    //     "type": "waitForBus",
-    //     "start": "com3 bus stop",
-    //     "end": "COM3 bus stop (D1)",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 300,
-    //   },
-    //   {
-    //     "type": "bus",
-    //     "start": "COM3 bus stop (D1)",
-    //     "end": "Utown bus stop",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 180,
-    //   },
-    //   {
-    //     "type": "walk",
-    //     "start": "Utown bus stop",
-    //     "end": "Utown SRC Flavours",
-    //     "sheltered": false,
-    //     "stairs": false,
-    //     "duration": 90,
-    //   },
-    // ];
-    // return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for shortest path between start [Coordinate] and end [Destination], subject to accessibility and shelter constraints
@@ -177,7 +126,6 @@ class ApiCalls {
     FilterLevel filterStairs,
     FilterLevel filterUnsheltered,
   ) async {
-    print("api call::use_location::$lat, $lng, $floor, $end");
     Uri request = Uri.https(Constants.baseUrl, "/use_location", {
       'lat': lat.toString(),
       'lng': lng.toString(),
@@ -187,17 +135,6 @@ class ApiCalls {
       "stairsPref": filterStairs.level.toString(),
     });
 
-    /// REMOVE BEFORE FLIGHT
-    // request = Uri.https(Constants.baseUrl, "/use_location", {
-    //   'lat': lat.toString(),
-    //   'lng': lng.toString(),
-    //   'floor': floor.toString(),
-    //   "end": end.replaceAll(' ', "_"),
-    //   "sheltered": (filterUnsheltered.level == 2).toString(),
-    //   "stairs": (filterStairs.level < 2).toString(),
-    // });
-
-    /// ADD BEFORE FLIGHT
     final response = await get(request);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -211,52 +148,6 @@ class ApiCalls {
         throw ImpossiblePathException();
       }
     }
-
-    /// REMOVE BEFORE FLIGHT
-    // List<Map> edges = [
-    //   // STUB
-    //   {
-    //     "type": "walk",
-    //     "start": "terrace",
-    //     "end": "com3 bus stop",
-    //     "sheltered": true,
-    //     "stairs": true,
-    //     "duration": 60,
-    //   },
-    //   {
-    //     "type": "waitForBus",
-    //     "start": "com3 bus stop",
-    //     "end": "COM3 bus stop (D1)",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 300,
-    //   },
-    //   {
-    //     "type": "bus",
-    //     "start": "COM3 bus stop (D1)",
-    //     "end": "CLB bus stop (D1)",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 180,
-    //   },
-    //   {
-    //     "type": "bus",
-    //     "start": "CLB bus stop (D1)",
-    //     "end": "Utown bus stop",
-    //     "sheltered": true,
-    //     "stairs": false,
-    //     "duration": 180,
-    //   },
-    //   {
-    //     "type": "walk",
-    //     "start": "Utown bus stop",
-    //     "end": "Utown SRC Flavours",
-    //     "sheltered": false,
-    //     "stairs": false,
-    //     "duration": 90,
-    //   },
-    // ];
-    // return {'edges': edges, 'stairsPref': 1, 'shelterPref': 2};
   }
 
   /// request for nodes with the given names
@@ -278,22 +169,11 @@ class ApiCalls {
   ///     }
   ///   ]
   static Future<List<Map>> node_coordinates(List<String> names) async {
-    print("api call::node_coordinates::${names}");
     Uri request = Uri.https(Constants.baseUrl, "/node_coordinates", {
       "names": [for (String name in names) name.replaceAll(' ', "_")],
     });
     final response = await get(request);
     List<dynamic> json = jsonDecode(response.body)['nodes'];
-    // List<Map> json = []; // STUB
-    // json = [
-    //   for (String name in names)
-    //     {
-    //       "name": name,
-    //       "lat": 1.2966 + (Random().nextDouble()-0.5)/50,
-    //       "lng": 103.7764 + (Random().nextDouble()-0.5)/50,
-    //       "floor": 1
-    //     }
-    // ];
     return [
       for (dynamic obj in json)
         {
@@ -324,22 +204,11 @@ class ApiCalls {
   ///     }
   ///   ]
   static Future<List<Map>> dest_coordinates(List<String> names) async {
-    print("api call::dest_coordinates::${names}");
     Uri request = Uri.https(Constants.baseUrl, "/dest_coordinates", {
       "names": [for (String name in names) name.replaceAll(' ', "_")],
     });
     final response = await get(request);
     List<dynamic> json = jsonDecode(response.body)['destinations'];
-    // List<Map> json = []; // STUB
-    // json = [
-    //   for (String name in names)
-    //     {
-    //       "name": name,
-    //       "lat": 1.2966 + (Random().nextDouble()-0.5)/50,
-    //       "lng": 103.7764 + (Random().nextDouble()-0.5)/50,
-    //       "floor": 1
-    //     }
-    // ];
     return [
       for (dynamic obj in json)
         {
@@ -378,7 +247,6 @@ class ApiCalls {
     int floor,
     int count,
   ) async {
-    print("api call::near_destinations::$lat, $lng, $floor, $count");
     Uri request = Uri.https(Constants.baseUrl, "/near_destinations", {
       'lat': lat.toString(),
       'lng': lng.toString(),
@@ -387,40 +255,6 @@ class ApiCalls {
     });
     final response = await get(request);
     List<dynamic> json = jsonDecode(response.body)['destinations'];
-
-    // List<dynamic> json = [
-    //   /// REMOVE BEFORE FLIGHT
-    //   {
-    //     'name': 'COM1',
-    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'floor': 1,
-    //   },
-    //   {
-    //     'name': 'COM2',
-    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'floor': 1,
-    //   },
-    //   {
-    //     'name': 'COM3',
-    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'floor': 1,
-    //   },
-    //   {
-    //     'name': 'COM4',
-    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'floor': 1,
-    //   },
-    //   {
-    //     'name': 'COM5',
-    //     'lat': (lat + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'lng': (lng + (Random().nextDouble() - 0.5) / 500).toString(),
-    //     'floor': 1,
-    //   },
-    // ];
     return [
       for (dynamic obj in json)
         {
@@ -473,9 +307,6 @@ class ApiCalls {
     String startHHMM,
     String endHHMM,
   ) async {
-    print(
-      "api call::near_rooms::$lat, $lng, $count, $dayOfWeek, $startHHMM, $endHHMM",
-    );
     Uri request = Uri.https(Constants.baseUrl, "/near_rooms", {
       'lat': lat.toString(),
       'lng': lng.toString(),
@@ -485,44 +316,7 @@ class ApiCalls {
       'end': endHHMM,
     });
     final response = await get(request);
-
-    /// ADD BEFORE FLIGHT
     List<dynamic> json = jsonDecode(response.body)['rooms'];
-
-    /// REMOVE BEFORE FLIGHT
-    // List<dynamic> json = [
-    //   {
-    //     "name": "room1",
-    //     "lat": "1.2941846706",
-    //     "lng": "103.7716737202",
-    //     "floor": 1,
-    //     "occupied": [
-    //       {"from": '0800', "to": '1200'},
-    //       {"from": '1600', "to": '1800'},
-    //     ],
-    //   },
-    //   {
-    //     "name": "room2",
-    //     "lat": "1.2942846706",
-    //     "lng": "103.7726737202",
-    //     "floor": 2,
-    //     "occupied": [
-    //       {"from": '1030', "to": '1230'},
-    //       {"from": '1400', "to": '1800'},
-    //     ],
-    //   },
-    //   {
-    //     "name": "room3",
-    //     "lat": "1.2943846706",
-    //     "lng": "103.7736737202",
-    //     "floor": -1,
-    //     "occupied": [
-    //       {"from": '0800', "to": '1000'},
-    //       {"from": '1230', "to": '1400'},
-    //     ],
-    //   },
-    // ];
-
     return [
       for (dynamic obj in json)
         {
@@ -539,9 +333,6 @@ class ApiCalls {
     List<String> nodes,
     List<int> timestamps,
   ) async {
-    print(
-      "api call::contribute_route:: ${nodes.length} nodes, ${timestamps.length} positions",
-    );
     Uri request = Uri.https(Constants.baseUrl, "/contribute_route");
     await post(
       request,

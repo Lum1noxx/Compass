@@ -4,6 +4,7 @@ import 'package:clientapp/data.dart';
 import 'package:clientapp/defaults.dart';
 import 'package:clientapp/main.dart';
 import 'package:clientapp/models/compassModel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart' hide Path;
@@ -185,6 +186,59 @@ void main() {
       expect(filter.isValid(), true);
       expect(filter.stairFilterMet, false);
       // expect(filter.shelterFilterMet, true);
+    });
+    test("bus segment assigned correctly", () async {
+      CompassModel model = CompassModel();
+      Destination com3 = await Globals.destinations.get("COM3");
+      Destination utown = await Globals.destinations.get("Utown");
+      Path path = await model.findPath(
+        com3,
+        utown,
+        FilterLevel.none,
+        FilterLevel.none,
+      );
+      List<Segment> segments = path.segments;
+      expect(
+        segments.fold(0, (accum, nxt) => accum + (nxt is BusSegment ? 1 : 0)),
+        1,
+      );
+      for (Segment segment in segments) {
+        if (segment is BusSegment) {
+          expect(segment.services().isNotEmpty, true);
+        }
+      }
+      List<Edge> edges = path.edges;
+    });
+    test("WaitForBusEdge's assigned to BusSegment's correctly", () async {
+      CompassModel model = CompassModel();
+      Destination com3 = await Globals.destinations.get("COM3");
+      Destination utown = await Globals.destinations.get("Utown");
+      Path path = await model.findPath(
+        com3,
+        utown,
+        FilterLevel.none,
+        FilterLevel.none,
+      );
+      List<Segment> segments = path.segments;
+      for (Segment segment in segments) {
+        if (segment is BusSegment) {
+          expect(segment.edges.first is WaitForBusEdge, true);
+          expect(
+            setEquals(
+              Set.from(segment.services()),
+              Set.from((segment.edges.first as WaitForBusEdge).services),
+            ),
+            true,
+          );
+          for (Edge edge in segment.edges.getRange(1, segment.edges.length)) {
+            expect(edge is WaitForBusEdge, false);
+          }
+        } else {
+          for (Edge edge in segment.edges) {
+            expect(edge is WaitForBusEdge, false);
+          }
+        }
+      }
     });
   });
   test("getNearbyDestinations", () async {
@@ -386,7 +440,6 @@ void main() {
       );
       Set<Venue> venuesa = Set.from(venuesc);
       venuesa.addAll(venuesu);
-      print(List.from(venuesa.map((venue)=>venue.name)));
       double maxDistC = venuesc.fold(
         0,
         (accum, nxt) =>

@@ -148,6 +148,20 @@ void main() {
       expect(FilterLevel.get(res['stairsPref']), FilterLevel.prefer);
       // expect(FilterLevel.get(res['shelterPref']), FilterLevel.strict);
     });
+    test('WaitForBus edge contains valid bus service', () async {
+      Map res = await ApiCalls.shortest_path(
+        'COM3',
+        'Utown',
+        FilterLevel.none,
+        FilterLevel.none,
+      );
+      List edges = res['edges'];
+      for (Map edge in edges) {
+        if (edge['type'] == 'waitForBus' && edge['duration'] >0) {
+          expect(edge['bus'] is String, true);
+        } 
+      }
+    });
   });
 
   test("node_coordinates", () async {

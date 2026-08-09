@@ -40,10 +40,7 @@ class TrackingControls extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Expanded(
-            child: Align(
-              alignment: AlignmentGeometry.centerEnd,
-              child: label,
-            ),
+            child: Align(alignment: AlignmentGeometry.centerEnd, child: label),
           ),
           Align(
             child: SizedBox(
@@ -59,7 +56,7 @@ class TrackingControls extends StatelessWidget {
                       return AlertDialog(
                         backgroundColor: AppTheme.colors.background,
                         content: Text(
-                          "Select \"Start\" to record GPS tracking data for your journey.\nYour data helps us fine-tune our models to provide better routes and duration estimates in the future.",
+                          "We request your consent to collect GPS location data while you record a journey.\n\nWhat we collect: approximate route, timestamps, and device-derived speed/altitude.\nWhy: to improve routing accuracy, travel-time predictions, and overall navigation quality.\nHow we use it: aggregated and anonymized data will be analyzed to refine models; raw data may be used transiently for debugging and feature improvements.\nData control: you can stop tracking at any time; recordings are only kept for as long as needed and are protected per our privacy policy.\nBy selecting \"Start\" you consent to this collection for the current journey.",
                           style: TextStyle(color: AppTheme.colors.neutral),
                         ),
                         actions: [
@@ -90,10 +87,60 @@ class TrackingControls extends StatelessWidget {
           LabeledIcon.icon(
             CupertinoIcons.play_fill,
             "Start",
-            onSelect: onStart,
+            onSelect: () => showDialog(
+              context: context,
+              builder: (ctx) => TrackingConsentDialog(onStart),
+            ),
           ),
         ],
       );
     }
+  }
+}
+
+class TrackingConsentDialog extends StatelessWidget {
+  final void Function() onAcceptSelect;
+
+  const TrackingConsentDialog(this.onAcceptSelect, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppTheme.colors.background,
+      content: Text(
+        "We request your consent to collect GPS location data while you record your journey.\n\nWhat we collect: approximate route, timestamps, and device-derived GPS snapshots.\nWhy: fine-tune our models to improve routing accuracy, travel-time predictions, and overall navigation quality.\nHow your data is used: aggregated and anonymized data will be analyzed to refine duration estimates of individual route sections; raw data may be used transiently for debugging and feature improvements.\nData control: you can stop tracking at any time; recordings are only kept for as long as needed and are protected per our privacy policy.\nSelect \"Accept\" to allow collection for this journey.",
+        style: TextStyle(color: AppTheme.colors.neutral),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            onAcceptSelect();
+            Navigator.pop(context);
+          },
+          icon: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: AppTheme.colors.secondary,
+            ),
+            child: Text(
+              "Accept",
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: AppTheme.colors.secondary,
+            ),
+            child: Text(
+              "Reject",
+              style: TextStyle(color: AppTheme.colors.neutral),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

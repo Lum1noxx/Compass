@@ -43,8 +43,6 @@ class CompassModel {
         ).listen((Position? position) {
           if (position != null) {
             callback.call(LatLng(position.latitude, position.longitude));
-            /// ADD BEFORE FLIGHT
-            // callback.call(LatLng(1.29445088, 103.7744729)); /// REMOVE BEFORE FLIGHT
           }
         });
     return stream;
@@ -122,7 +120,9 @@ class CompassModel {
       List<Edge> edges = [];
       for (Map edgeInfo in edgesJson) {
         EdgeType type = EdgeType.get(edgeInfo["type"]);
-        if (type == EdgeType.waitForBus) {
+        if (type == EdgeType.waitForBus 
+        && edgeInfo['bus'] != null /// DEPRECATE
+        ) {
           edges.add(
             WaitForBusEdge(
               type,
@@ -131,8 +131,7 @@ class CompassModel {
               edgeInfo["sheltered"],
               edgeInfo["stairs"],
               edgeInfo["duration"].toDouble(),
-              // edgeInfo["services"], /// REFACTOR-NEW
-              [edgeInfo['bus']] /// DEPRECATE
+              [edgeInfo['bus']]
             ),
           );
         } else {
@@ -249,13 +248,12 @@ class CompassModel {
   }
 
   void submitTracking(Path path) async {
-    print(trackedPositions);
     List<TimedPosition> positions = trackedPositions;
     cancelTracking();
     List<Node> nodes = path.intermediateNodes();
     if (positions.length < nodes.length) {
       return;
-    } // ADD BEFORE FLIGHT
+    }
     await ApiCalls.contribute_route(
       [for (Node node in nodes) node.name],
       [
@@ -271,13 +269,6 @@ class CompassModel {
   /// - positions: sorted by time
   @visibleForTesting
   List<TimedPosition> fitTrackingData(Path path, List<TimedPosition> positions) {
-    // positions = [
-    //   for (int i = 0; i< 100; i++)
-    //   TimedPosition(
-    //     Coordinate(1.403+Random().nextDouble()/100, 103.908+Random().nextDouble()/100, 0),
-    //     DateTime.now().subtract(Duration(seconds: 100-i)),
-    //   ),
-    // ]; // STUB: REMOVE BEFORE FLIGHT
     List<Node> nodes = path.intermediateNodes();
     List<List<double>> dp = [List.filled(positions.length + 1, 0)];
     Haversine haversine = Haversine();
