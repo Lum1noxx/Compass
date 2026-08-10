@@ -45,7 +45,6 @@ abstract class DirectionsBaseVM extends PageVM {
         })
         .then((stream) => gpsStream = stream);
   }
-
   /// ensure that all controllers and streams are cleaned up
   @override
   void dispose() {
